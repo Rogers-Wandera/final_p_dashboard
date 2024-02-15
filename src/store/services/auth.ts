@@ -1,13 +1,15 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   FetchBaseQueryError,
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
+import { RootState } from "../../contexts/authcontext";
 
 export interface AuthUserState {
   isLoggedIn: boolean;
   token: string;
+  user: any;
 }
 
 export interface LoginResponse {
@@ -22,7 +24,17 @@ export interface ErrorResponse {
 
 export const AuthApi = createApi({
   reducerPath: "authapi",
-  baseQuery: fetchBaseQuery({ baseUrl: import.meta.env.VITE_NODE_BASE_URL }),
+  baseQuery: fetchBaseQuery({
+    baseUrl: import.meta.env.VITE_NODE_BASE_URL,
+    prepareHeaders: (headers, { getState }) => {
+      const token = (getState() as RootState).appState.authuser.token;
+
+      if (token !== "") {
+        headers.set("Authorization", `Bearer ${token}`);
+      }
+      return headers;
+    },
+  }),
   endpoints: (builder) => ({
     loginUser: builder.mutation({
       query: (payload) => ({
@@ -44,6 +56,12 @@ export const AuthApi = createApi({
         return error.data;
       },
     }),
+    getUser: builder.query({
+      query: () => ({
+        url: "/user",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -63,11 +81,19 @@ export const ServerCheckApi = createApi({
 const initialState: AuthUserState = {
   isLoggedIn: false,
   token: "",
+  user: {},
 };
 const AuthSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    loguserout: (state, action: PayloadAction<AuthUserState>) => {
+      const { payload } = action;
+      state.isLoggedIn = payload.isLoggedIn;
+      state.token = payload.token;
+      state.user = payload.user;
+    },
+  },
   extraReducers: (builder) => {
     try {
       builder.addMatcher(
@@ -77,11 +103,18 @@ const AuthSlice = createSlice({
           state.isLoggedIn = true;
         }
       );
+      builder.addMatcher(
+        AuthApi.endpoints.getUser.matchFulfilled,
+        (state, action) => {
+          state.user = action.payload;
+        }
+      );
     } catch (error) {
       throw error;
     }
   },
 });
 export const authReducer = AuthSlice.reducer;
-export const { useLoginUserMutation } = AuthApi;
+export const { loguserout } = AuthSlice.actions;
+export const { useLoginUserMutation, useGetUserQuery } = AuthApi;
 export const { useCheckServerStatusQuery } = ServerCheckApi;

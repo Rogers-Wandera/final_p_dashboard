@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Row, Col, Image, Form, Button, ListGroup } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import Card from "../../components/Card";
 
 // img
@@ -13,14 +13,21 @@ import { useLoginUserMutation } from "../../store/services/auth";
 import { useAppState } from "../../contexts/sharedcontexts";
 import { useSnackbar } from "notistack";
 import { handleError } from "../../helpers/utils";
+import { useAuthUser } from "../../contexts/authcontext";
 
 const Login = () => {
   let history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const { isLoggedIn, token } = useAuthUser();
+  console.log(isLoggedIn);
   const appstate = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginUser] = useLoginUserMutation();
+
+  if (isLoggedIn && token !== "") {
+    <Navigate to="/dashboard" />;
+  }
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {

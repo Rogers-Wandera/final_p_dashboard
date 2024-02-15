@@ -37,6 +37,7 @@ import { useSelector } from "react-redux";
 
 // Import selectors & action from setting store
 import * as SettingSelector from "../../store/setting/selectors";
+import withAuthentication from "../../hoc/withUserAuth";
 
 // install Swiper modules
 SwiperCore.use([Navigation]);
@@ -1213,4 +1214,4 @@ const Index = memo((props) => {
   );
 });
 
-export default Index;
+export default withAuthentication(Index);

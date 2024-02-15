@@ -20,11 +20,7 @@ import { DefaultRouter } from "./router/default-router";
 import { PersistGate } from "redux-persist/integration/react";
 import AppStateProvider from "./contexts/sharedcontexts";
 import { SnackbarProvider } from "notistack";
-
-const isAuthenticated = () => {
-  const token = localStorage.getItem("token");
-  return token != null;
-};
+import AuthUserProvider from "./contexts/authcontext";
 
 const router = createBrowserRouter(
   [
@@ -35,18 +31,9 @@ const router = createBrowserRouter(
           path: "/",
           element: <Login />,
         },
-        ...DefaultRouter.map((route) => ({
-          ...route,
-          element: isAuthenticated() ? route.element : <Navigate to="/" />,
-        })),
-        ...IndexRouters.map((route) => ({
-          ...route,
-          element: isAuthenticated() ? route.element : <Navigate to="/" />,
-        })),
-        ...SimpleRouter.map((route) => ({
-          ...route,
-          element: isAuthenticated() ? route.element : <Navigate to="/" />,
-        })),
+        ...DefaultRouter,
+        ...IndexRouters,
+        ...SimpleRouter,
       ],
     },
   ],
@@ -60,7 +47,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         {/* <App> */}
         <SnackbarProvider>
           <AppStateProvider>
-            <RouterProvider router={router}></RouterProvider>
+            <AuthUserProvider>
+              <RouterProvider router={router}></RouterProvider>
+            </AuthUserProvider>
           </AppStateProvider>
         </SnackbarProvider>
         {/* </App> */}
