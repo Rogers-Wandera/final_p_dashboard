@@ -14,19 +14,21 @@ import { useAppState } from "../../contexts/sharedcontexts";
 import { useSnackbar } from "notistack";
 import { handleError } from "../../helpers/utils";
 import { useAuthUser } from "../../contexts/authcontext";
+import { fetchUserData } from "../../store/services/thunks";
+import { useAppDispatch } from "../../hooks/hook";
 
 const Login = () => {
   let history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { isLoggedIn, token } = useAuthUser();
-  console.log(isLoggedIn);
   const appstate = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginUser] = useLoginUserMutation();
+  const dispatch = useAppDispatch();
 
   if (isLoggedIn && token !== "") {
-    <Navigate to="/dashboard" />;
+    return <Navigate to="/dashboard" />;
   }
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -35,12 +37,14 @@ const Login = () => {
       if ("error" in data) {
         throw data.error;
       }
+      // dispatch(useGetUserQuery({}));
       appstate?.setSnackBarOpen({
         open: true,
         message: data.data.msg,
         severity: "success",
         position: "top-right",
       });
+      await dispatch(fetchUserData());
       history("/dashboard");
     } catch (error) {
       handleError(error, appstate, enqueueSnackbar);

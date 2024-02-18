@@ -19,7 +19,7 @@ import { setSetting } from "./store/setting/actions";
 import { loguserout, useCheckServerStatusQuery } from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
 import SnackBar from "./components/snackbar";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
 
 // decoder
@@ -32,6 +32,7 @@ function App() {
   const navigate = useNavigate();
   const [isTokenExpired, setIsTokenExpired] = React.useState(false);
   const token = useSelector((state) => state.appState.authuser.token);
+  const loading = useSelector((state) => state.appState.authuser.loading);
 
   React.useEffect(() => {
     dispatch(setSetting());
@@ -68,6 +69,12 @@ function App() {
   }, [isTokenExpired]);
 
   if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  console.log(loading);
+  if (loading) {
+    console.log(loading);
     return <p>Loading...</p>;
   }
 

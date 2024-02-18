@@ -44,114 +44,112 @@ import RtlSupport from "../views/dashboard/special-pages/RtlSupport";
 import Admin from "../views/dashboard/admin/admin";
 import Default from "../layouts/dashboard/default";
 
-const ChildrenRoutes = [
-  {
-    path: "dashboard",
-    element: <Index />,
-  },
-  {
-    path: "dashboard/special-pages/billing",
-    element: <Billing />,
-  },
-  {
-    path: "dashboard/special-pages/calender",
-    element: <Calender />,
-  },
-  {
-    path: "dashboard/special-pages/kanban",
-    element: <Kanban />,
-  },
-  {
-    path: "dashboard/special-pages/pricing",
-    element: <Pricing />,
-  },
-  {
-    path: "dashboard/special-pages/timeline",
-    element: <Timeline />,
-  },
-  {
-    path: "dashboard/special-pages/rtl-support",
-    element: <RtlSupport />,
-  },
-  {
-    path: "dashboard/app/user-profile",
-    element: <UserProfile />,
-  },
-  {
-    path: "dashboard/app/user-add",
-    element: <UserAdd />,
-  },
-  {
-    path: "dashboard/app/user-list",
-    element: <UserList />,
-  },
-  {
-    path: "dashboard/admin/admin",
-    element: <Admin />,
-  },
-  // Widget
-  {
-    path: "dashboard/widget/widgetbasic",
-    element: <Widgetbasic />,
-  },
-  {
-    path: "dashboard/widget/widgetchart",
-    element: <Widgetchart />,
-  },
-  {
-    path: "dashboard/widget/widgetcard",
-    element: <Widgetcard />,
-  },
-  // Map
-  {
-    path: "dashboard/map/google",
-    element: <Google />,
-  },
-  {
-    path: "dashboard/map/vector",
-    element: <Vector />,
-  },
-  // Form
-  {
-    path: "dashboard/form/form-element",
-    element: <FormElement />,
-  },
-  {
-    path: "dashboard/form/form-wizard",
-    element: <FormWizard />,
-  },
-  {
-    path: "dashboard/form/form-validation",
-    element: <FormValidation />,
-  },
-  // Table
-  {
-    path: "dashboard/table/bootstrap-table",
-    element: <BootstrapTable />,
-  },
-  {
-    path: "dashboard/table/table-data",
-    element: <TableData />,
-  },
-  // Icon
-  {
-    path: "dashboard/icon/solid",
-    element: <Solid />,
-  },
-  {
-    path: "dashboard/icon/outline",
-    element: <Outline />,
-  },
-  {
-    path: "dashboard/icon/dual-tone",
-    element: <DualTone />,
-  },
-];
-
 export const DefaultRouter = [
   {
     path: "/",
     element: <Default />,
-    children: [...ChildrenRoutes],
+    children: [
+      {
+        path: "dashboard",
+        element: <Index />,
+      },
+      {
+        path: "dashboard/special-pages/billing",
+        element: <Billing />,
+      },
+      {
+        path: "dashboard/special-pages/calender",
+        element: <Calender />,
+      },
+      {
+        path: "dashboard/special-pages/kanban",
+        element: <Kanban />,
+      },
+      {
+        path: "dashboard/special-pages/pricing",
+        element: <Pricing />,
+      },
+      {
+        path: "dashboard/special-pages/timeline",
+        element: <Timeline />,
+      },
+      {
+        path: "dashboard/special-pages/rtl-support",
+        element: <RtlSupport />,
+      },
+      {
+        path: "dashboard/app/user-profile",
+        element: <UserProfile />,
+      },
+      {
+        path: "dashboard/app/user-add",
+        element: <UserAdd />,
+      },
+      {
+        path: "dashboard/app/user-list",
+        element: <UserList />,
+      },
+      {
+        path: "dashboard/admin/admin",
+        element: <Admin />,
+      },
+      // Widget
+      {
+        path: "dashboard/widget/widgetbasic",
+        element: <Widgetbasic />,
+      },
+      {
+        path: "dashboard/widget/widgetchart",
+        element: <Widgetchart />,
+      },
+      {
+        path: "dashboard/widget/widgetcard",
+        element: <Widgetcard />,
+      },
+      // Map
+      {
+        path: "dashboard/map/google",
+        element: <Google />,
+      },
+      {
+        path: "dashboard/map/vector",
+        element: <Vector />,
+      },
+      // Form
+      {
+        path: "dashboard/form/form-element",
+        element: <FormElement />,
+      },
+      {
+        path: "dashboard/form/form-wizard",
+        element: <FormWizard />,
+      },
+      {
+        path: "dashboard/form/form-validation",
+        element: <FormValidation />,
+      },
+      // Table
+      {
+        path: "dashboard/table/bootstrap-table",
+        element: <BootstrapTable />,
+      },
+      {
+        path: "dashboard/table/table-data",
+        element: <TableData />,
+      },
+      // Icon
+      {
+        path: "dashboard/icon/solid",
+        element: <Solid />,
+      },
+      {
+        path: "dashboard/icon/outline",
+        element: <Outline />,
+      },
+      {
+        path: "dashboard/icon/dual-tone",
+        element: <DualTone />,
+      },
+    ],
   },
 ];

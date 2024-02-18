@@ -13,6 +13,7 @@ import {
   REGISTER,
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
+import { thunk } from "redux-thunk";
 
 const persistConfig = {
   key: "root",
@@ -37,11 +38,13 @@ export const store = configureStore({
       serializableCheck: false,
       ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
     })
+      .concat(thunk)
       .concat(AuthApi.middleware)
       .concat(ServerCheckApi.middleware);
   },
 });
 
 export const persistor = persistStore(store);
+export type AppDispatch = typeof store.dispatch;
 
 setupListeners(store.dispatch);

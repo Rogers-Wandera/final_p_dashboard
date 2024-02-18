@@ -7,7 +7,6 @@ const withAuthentication = <P extends object>(
 ): React.ComponentType<P> => {
   const WrapperComponent: React.FC<P> = (props) => {
     const { isLoggedIn, token } = useAuthUser();
-    console.log(isLoggedIn);
     if (isLoggedIn === false && token === "") {
       return <Navigate to="/" />;
     }

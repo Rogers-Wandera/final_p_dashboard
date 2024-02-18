@@ -4,12 +4,13 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
-import { RootState } from "../../contexts/authcontext";
+import { RootState, UserState } from "../../contexts/authcontext";
 
 export interface AuthUserState {
   isLoggedIn: boolean;
   token: string;
-  user: any;
+  user: UserState;
+  loading: boolean;
 }
 
 export interface LoginResponse {
@@ -82,6 +83,7 @@ const initialState: AuthUserState = {
   isLoggedIn: false,
   token: "",
   user: {},
+  loading: false,
 };
 const AuthSlice = createSlice({
   name: "auth",
@@ -93,6 +95,13 @@ const AuthSlice = createSlice({
       state.token = payload.token;
       state.user = payload.user;
     },
+    setUser: (state, action: PayloadAction<UserState>) => {
+      const { payload } = action;
+      state.user = payload;
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
   },
   extraReducers: (builder) => {
     try {
@@ -103,18 +112,12 @@ const AuthSlice = createSlice({
           state.isLoggedIn = true;
         }
       );
-      builder.addMatcher(
-        AuthApi.endpoints.getUser.matchFulfilled,
-        (state, action) => {
-          state.user = action.payload;
-        }
-      );
     } catch (error) {
       throw error;
     }
   },
 });
 export const authReducer = AuthSlice.reducer;
-export const { loguserout } = AuthSlice.actions;
+export const { loguserout, setUser, setLoading } = AuthSlice.actions;
 export const { useLoginUserMutation, useGetUserQuery } = AuthApi;
 export const { useCheckServerStatusQuery } = ServerCheckApi;
