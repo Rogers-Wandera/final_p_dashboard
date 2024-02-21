@@ -17,7 +17,7 @@ interface State {
       sidebar_color: { value: string };
       sidebar_type: { value: string[] };
       sidebar_show: { value: string };
-      navbar_show: { value: string };
+      navbar_show: { value: string[] };
       sidebar_menu_style: { value: string };
       footer: { value: string };
       body_font_family: { value: string };
@@ -54,7 +54,7 @@ export const sidebar_type = (state: State): String[] =>
   state.setting.setting.sidebar_type.value;
 export const sidebar_show = (state: State): String =>
   state.setting.setting.sidebar_show.value;
-export const navbar_show = (state: State): String =>
+export const navbar_show = (state: State): String[] =>
   state.setting.setting.navbar_show.value;
 export const sidebar_menu_style = (state: State): String =>
   state.setting.setting.sidebar_menu_style.value;

@@ -32,6 +32,7 @@ import * as SettingSelector from "../../store/setting/selectors";
 
 // Redux Selector / Action
 import { useSelector } from "react-redux";
+import withAuthentication from "../../hoc/withUserAuth";
 
 const Tour = () => {
   const tour = useContext(ShepherdTourContext);
@@ -206,4 +207,4 @@ const Default = memo((props) => {
 });
 
 Default.displayName = "Default";
-export default Default;
+export default withAuthentication(Default);

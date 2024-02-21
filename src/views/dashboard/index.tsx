@@ -1,4 +1,4 @@
-import React, { useEffect, memo, Fragment } from "react";
+import { useEffect, memo, Fragment } from "react";
 import { Row, Col, Dropdown, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
@@ -14,10 +14,11 @@ import Chart from "react-apexcharts";
 
 //swiper
 import { Swiper, SwiperSlide } from "swiper/react";
-import SwiperCore, { Navigation } from "swiper";
+// import SwiperCore, { Navigation } from "swiper";
 
 // Import Swiper styles
-import "swiper/swiper-bundle.min.css";
+// import "swiper/swiper-bundle.min.css";
+import "swiper/css";
 // import 'swiper/components/navigation/navigation.scss';
 
 //progressbar
@@ -28,21 +29,26 @@ import shapes2 from "../../assets/images/shapes/02.png";
 import shapes3 from "../../assets/images/shapes/03.png";
 import shapes4 from "../../assets/images/shapes/04.png";
 import shapes5 from "../../assets/images/shapes/05.png";
+import { useSelector } from "react-redux";
 
 //Count-up
 import CountUp from "react-countup";
 
 // Redux Selector / Action
-import { useSelector } from "react-redux";
 
 // Import selectors & action from setting store
-import * as SettingSelector from "../../store/setting/selectors";
+import * as SettingSelector from "../../store/setting/selectors.js";
+import withAuthentication from "../../hoc/withUserAuth.js";
+import { RootState, UserState } from "../../contexts/authcontext.js";
 
 // install Swiper modules
-SwiperCore.use([Navigation]);
+// SwiperCore.use([Navigation]);
 
-const Index = memo((props) => {
+const Index = memo((_) => {
   useSelector(SettingSelector.theme_color);
+  const user: UserState = useSelector(
+    (state: RootState) => state.appState.authuser.user
+  );
 
   const getVariableColor = () => {
     let prefix =
@@ -72,9 +78,9 @@ const Index = memo((props) => {
   const variableColors = getVariableColor();
 
   const colors = [variableColors.primary, variableColors.info];
-  useEffect(() => {
-    return () => colors;
-  });
+  // useEffect(() => {
+  //   return () => colors;
+  // }, []);
 
   useEffect(() => {
     AOS.init({
@@ -106,7 +112,7 @@ const Index = memo((props) => {
         enabled: false,
       },
       stroke: {
-        curve: "smooth",
+        curve: "smooth" as "smooth" | "straight" | "stepline" | "monotoneCubic",
         width: 3,
       },
       yaxis: {
@@ -249,7 +255,7 @@ const Index = memo((props) => {
       },
       tooltip: {
         y: {
-          formatter: function (val) {
+          formatter: function (val: any) {
             return "$ " + val + " thousands";
           },
         },
@@ -1213,4 +1219,4 @@ const Index = memo((props) => {
   );
 });
 
-export default Index;
+export default withAuthentication(Index);

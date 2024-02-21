@@ -3,7 +3,7 @@ import { Row, Col, Dropdown, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
 
 //circular
-import Circularprogressbar from "../../../components/circularprogressbar.jsx";
+import Circularprogressbar from "../../../components/circularprogressbar";
 // AOS
 import AOS from "aos";
 import "aos/dist/aos.js";
@@ -13,14 +13,15 @@ import Chart from "react-apexcharts";
 
 //swiper
 import { Swiper, SwiperSlide } from "swiper/react";
-import SwiperCore, { Navigation } from "swiper";
+// import SwiperCore, { Navigation } from "swiper";
 
 // Import Swiper styles
-import "swiper/swiper-bundle.min.css";
+// import "swiper/swiper-bundle.min.css";
+import "swiper/css";
 // import 'swiper/components/navigation/navigation.scss';
 
 //progressbar
-import Progress from "../../../components/progress.jsx";
+import Progress from "../../../components/progress";
 //img
 import shapes1 from "../../../assets/images/shapes/01.png";
 import shapes2 from "../../../assets/images/shapes/02.png";
@@ -38,7 +39,7 @@ import { useSelector } from "react-redux";
 import * as SettingSelector from "../../../store/setting/selectors";
 
 // install Swiper modules
-SwiperCore.use([Navigation]);
+// SwiperCore.use([Navigation]);
 
 const RtlSupport = () => {
   useSelector(SettingSelector.theme_color);

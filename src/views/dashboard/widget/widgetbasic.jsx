@@ -3,7 +3,7 @@ import { Row, Col, Image } from "react-bootstrap";
 import Card from "../../../components/Card";
 
 //progressbar
-import Progress from "../../../components/progress.jsx";
+import Progress from "../../../components/progress";
 
 import { Link } from "react-router-dom";
 // img
