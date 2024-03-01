@@ -4,16 +4,13 @@ import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
 //router
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 //store
 import { Provider } from "react-redux";
 //reducer
 import { persistor, store } from "./store";
 import Login from "./views/auth/login";
+import RecoverPassword from "./views/auth/recoverpw";
 import { IndexRouters } from "./router/index";
 import { SimpleRouter } from "./router/simple-router";
 import { DefaultRouter } from "./router/default-router";
@@ -21,6 +18,7 @@ import { PersistGate } from "redux-persist/integration/react";
 import AppStateProvider from "./contexts/sharedcontexts";
 import { SnackbarProvider } from "notistack";
 import AuthUserProvider from "./contexts/authcontext";
+import { LoadingScreen } from "./components/Loading";
 
 const router = createBrowserRouter(
   [
@@ -30,6 +28,10 @@ const router = createBrowserRouter(
         {
           path: "/",
           element: <Login />,
+        },
+        {
+          path: "/pwreset",
+          element: <RecoverPassword />,
         },
         ...DefaultRouter,
         ...IndexRouters,
@@ -43,7 +45,7 @@ const router = createBrowserRouter(
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
-      <PersistGate persistor={persistor} loading={<p>Loading...</p>}>
+      <PersistGate persistor={persistor} loading={<LoadingScreen />}>
         {/* <App> */}
         <SnackbarProvider>
           <AppStateProvider>

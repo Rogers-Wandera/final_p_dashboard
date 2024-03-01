@@ -1,6 +1,7 @@
 import React, { createContext, useContext } from "react";
 import { useSelector } from "react-redux";
 import { store } from "../store";
+import { ModulesType } from "../store/services/auth";
 
 export interface UserState {
   firstname?: string;
@@ -13,6 +14,8 @@ interface AuthContextState {
   isLoggedIn: boolean;
   token: string;
   user: UserState;
+  modules: ModulesType;
+  loading: boolean;
 }
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -21,6 +24,8 @@ const AuthUserContext = createContext<AuthContextState>({
   isLoggedIn: false,
   token: "",
   user: {} as UserState,
+  modules: {} as ModulesType,
+  loading: false,
 });
 
 const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -34,8 +39,18 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const user = useSelector((state: RootState) => state.appState.authuser.user);
 
+  const modules = useSelector(
+    (state: RootState) => state.appState.authuser.modules
+  );
+
+  const loading = useSelector(
+    (state: RootState) => state.appState.authuser.loading
+  );
+
   return (
-    <AuthUserContext.Provider value={{ isLoggedIn, token, user }}>
+    <AuthUserContext.Provider
+      value={{ isLoggedIn, token, user, modules, loading }}
+    >
       {children}
     </AuthUserContext.Provider>
   );

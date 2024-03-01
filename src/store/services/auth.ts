@@ -6,11 +6,26 @@ import {
 } from "@reduxjs/toolkit/query/react";
 import { RootState, UserState } from "../../contexts/authcontext";
 
+export interface ModulesTypeLinks {
+  name: string;
+  days_left: number;
+  expired: number;
+  id: number;
+  linkId: 1;
+  linkname: string;
+  route: string;
+}
+
+export interface ModulesType {
+  [modulename: string]: ModulesTypeLinks[];
+}
+
 export interface AuthUserState {
   isLoggedIn: boolean;
   token: string;
   user: UserState;
   loading: boolean;
+  modules: ModulesType;
 }
 
 export interface LoginResponse {
@@ -63,6 +78,28 @@ export const AuthApi = createApi({
         method: "GET",
       }),
     }),
+    getModules: builder.query({
+      query: () => ({
+        url: "/modules/linkroles/user/view",
+        method: "GET",
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (payload) => ({
+        url: "/resetpassword",
+        method: "POST",
+        body: payload,
+        headers: {
+          "Content-type": "application/json",
+        },
+      }),
+      transformErrorResponse: (error: FetchBaseQueryError) => {
+        if ("data" in error && Array.isArray(error.data)) {
+          return error.data as ErrorResponse[];
+        }
+        return error.data;
+      },
+    }),
   }),
 });
 
@@ -84,6 +121,7 @@ const initialState: AuthUserState = {
   token: "",
   user: {},
   loading: false,
+  modules: {},
 };
 const AuthSlice = createSlice({
   name: "auth",
@@ -94,13 +132,24 @@ const AuthSlice = createSlice({
       state.isLoggedIn = payload.isLoggedIn;
       state.token = payload.token;
       state.user = payload.user;
+      state.modules = {};
     },
     setUser: (state, action: PayloadAction<UserState>) => {
       const { payload } = action;
       state.user = payload;
     },
+    setModules: (state, action: PayloadAction<ModulesType>) => {
+      const { payload } = action;
+      state.modules = payload;
+    },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
+    },
+    setToken: (state, action: PayloadAction<string>) => {
+      state.token = action.payload;
+    },
+    setLoggedIn: (state, action: PayloadAction<boolean>) => {
+      state.isLoggedIn = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -118,6 +167,18 @@ const AuthSlice = createSlice({
   },
 });
 export const authReducer = AuthSlice.reducer;
-export const { loguserout, setUser, setLoading } = AuthSlice.actions;
-export const { useLoginUserMutation, useGetUserQuery } = AuthApi;
+export const {
+  loguserout,
+  setUser,
+  setLoading,
+  setModules,
+  setLoggedIn,
+  setToken,
+} = AuthSlice.actions;
+export const {
+  useLoginUserMutation,
+  useGetUserQuery,
+  useGetModulesQuery,
+  useResetPasswordMutation,
+} = AuthApi;
 export const { useCheckServerStatusQuery } = ServerCheckApi;

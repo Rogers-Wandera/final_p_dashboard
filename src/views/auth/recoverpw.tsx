@@ -1,11 +1,51 @@
 import { Row, Col, Image, Form, Button } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import Card from "../../components/Card";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 // img
 import auth2 from "../../assets/images/auth/02.png";
-const Recoverpw = () => {
+import { useSnackbar } from "notistack";
+import { useAuthUser } from "../../contexts/authcontext";
+import { useAppState } from "../../contexts/sharedcontexts";
+import { useState } from "react";
+import { useAppDispatch } from "../../hooks/hook";
+import {
+  setLoading,
+  useResetPasswordMutation,
+} from "../../store/services/auth";
+import { handleError } from "../../helpers/utils";
+const RecoverPassword = () => {
   let history = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  const { isLoggedIn, token } = useAuthUser();
+  const appstate = useAppState();
+  const [email, setEmail] = useState("");
+  const dispatch = useAppDispatch();
+  const [resetPassword] = useResetPasswordMutation();
+  if (isLoggedIn && token !== "") {
+    return <Navigate to="/dashboard" />;
+  }
+  const handleResetPassword = async () => {
+    try {
+      dispatch(setLoading(true));
+      const data = await resetPassword({ email });
+      if ("error" in data) {
+        throw data.error;
+      }
+      dispatch(setLoading(false));
+      appstate?.setSnackBarOpen({
+        open: true,
+        message: data.data.msg,
+        severity: "success",
+        position: "top-right",
+      });
+      history("/");
+    } catch (error) {
+      dispatch(setLoading(false));
+      handleError(error, appstate, enqueueSnackbar);
+    }
+  };
   return (
     <>
       <section className="login-content">
@@ -21,6 +61,13 @@ const Recoverpw = () => {
             />
           </Col>
           <Col md="6" className="p-0">
+            <button
+              className="btn btn-primary mx-4"
+              onClick={() => history(-1)}
+            >
+              {/* go back arror */}
+              <ArrowBackIcon />
+            </button>
             <Card className="card-transparent auth-card shadow-none d-flex justify-content-center mb-0">
               <Card.Body>
                 <Link
@@ -71,7 +118,7 @@ const Recoverpw = () => {
                       fill="currentColor"
                     />
                   </svg>
-                  <h4 className="logo-title ms-3">Hope UI</h4>
+                  <h4 className="logo-title ms-3">MBRS</h4>
                 </Link>
                 <h2 className="mb-2">Reset Password</h2>
                 <p>
@@ -88,6 +135,8 @@ const Recoverpw = () => {
                         <Form.Control
                           type="email"
                           className="form-control"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
                           id="email"
                           aria-describedby="email"
                           placeholder=" "
@@ -96,7 +145,7 @@ const Recoverpw = () => {
                     </Col>
                   </Row>
                   <Button
-                    onClick={() => history("/auth/sign-in")}
+                    onClick={handleResetPassword}
                     className="mt-3"
                     type="button"
                     variant="primary"
@@ -161,4 +210,4 @@ const Recoverpw = () => {
   );
 };
 
-export default Recoverpw;
+export default RecoverPassword;

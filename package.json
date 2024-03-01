@@ -25,6 +25,7 @@
     "@types/lodash": "^4.14.202",
     "aos": "^2.3.4",
     "apexcharts": "^3.33.0",
+    "axios": "^1.6.7",
     "bootstrap": "^5.2.3",
     "choices.js": "^10.1.0",
     "fslightbox-react": "^1.6.2-2",
