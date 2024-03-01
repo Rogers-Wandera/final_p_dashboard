@@ -11,6 +11,7 @@ import * as SettingSelector from "../../../../store/setting/selectors";
 // Redux Selector / Action
 import { useSelector } from "react-redux";
 import Logo from "../../components/logo";
+import withAuthentication from "../../../../hoc/withUserAuth";
 
 // import SidebarDark from '../../components/settingoffcanvas'
 
@@ -134,4 +135,4 @@ const Sidebar = memo((props) => {
   );
 });
 
-export default Sidebar;
+export default withAuthentication(Sidebar);

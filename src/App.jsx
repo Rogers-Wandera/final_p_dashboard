@@ -21,9 +21,12 @@ import Error500 from "./views/dashboard/errors/error500";
 import SnackBar from "./components/snackbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
+import { LoadingScreen } from "./components/Loading";
 
 // decoder
 import { jwtDecode } from "jwt-decode";
+import { useAuthUser } from "./contexts/authcontext";
+import VerifyEmail from "./views/auth/verifyemail";
 
 function App() {
   const { isError, isLoading } = useCheckServerStatusQuery();
@@ -31,8 +34,9 @@ function App() {
   const appState = useAppState();
   const navigate = useNavigate();
   const [isTokenExpired, setIsTokenExpired] = React.useState(false);
-  const token = useSelector((state) => state.appState.authuser.token);
-  const loading = useSelector((state) => state.appState.authuser.loading);
+  // const token = useSelector((state) => state.appState.authuser.token);
+  // const loading = useSelector((state) => state.appState.authuser.loading);
+  const { token, user, loading } = useAuthUser();
 
   React.useEffect(() => {
     dispatch(setSetting());
@@ -66,18 +70,18 @@ function App() {
       dispatch(loguserout({ token: "", isLoggedIn: false, user: {} }));
       navigate("/");
     }
-  }, [isTokenExpired]);
+  }, [isTokenExpired, loading]);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <LoadingScreen />;
   }
-
-  console.log(loading);
   if (loading) {
-    console.log(loading);
-    return <p>Loading...</p>;
+    return <LoadingScreen />;
   }
 
+  if (user.verified === 0) {
+    return <VerifyEmail />;
+  }
   if (isError) {
     return (
       <Error500

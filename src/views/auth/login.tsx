@@ -1,26 +1,26 @@
 import React, { useState } from "react";
-import { Row, Col, Image, Form, Button, ListGroup } from "react-bootstrap";
+import { Row, Col, Image, Form, Button } from "react-bootstrap"; //ListGroup
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import Card from "../../components/Card";
 
 // img
-import facebook from "../../assets/images/brands/fb.svg";
-import google from "../../assets/images/brands/gm.svg";
-import instagram from "../../assets/images/brands/im.svg";
-import linkedin from "../../assets/images/brands/li.svg";
+// import facebook from "../../assets/images/brands/fb.svg";
+// import google from "../../assets/images/brands/gm.svg";
+// import instagram from "../../assets/images/brands/im.svg";
+// import linkedin from "../../assets/images/brands/li.svg";
 import auth1 from "../../assets/images/auth/01.png";
-import { useLoginUserMutation } from "../../store/services/auth";
+import { setLoading, useLoginUserMutation } from "../../store/services/auth";
 import { useAppState } from "../../contexts/sharedcontexts";
 import { useSnackbar } from "notistack";
 import { handleError } from "../../helpers/utils";
 import { useAuthUser } from "../../contexts/authcontext";
-import { fetchUserData } from "../../store/services/thunks";
+import { fetchUserData, fetchUserLinks } from "../../store/services/thunks";
 import { useAppDispatch } from "../../hooks/hook";
 
 const Login = () => {
   let history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { isLoggedIn, token } = useAuthUser();
+  const { isLoggedIn, token, user } = useAuthUser();
   const appstate = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -45,6 +45,10 @@ const Login = () => {
         position: "top-right",
       });
       await dispatch(fetchUserData());
+      // if (user.verified === 1) {
+      await dispatch(fetchUserLinks());
+      // }
+      dispatch(setLoading(false));
       history("/dashboard");
     } catch (error) {
       handleError(error, appstate, enqueueSnackbar);
@@ -155,7 +159,7 @@ const Login = () => {
                               Remember Me
                             </Form.Check.Label>
                           </Form.Check>
-                          <Link to="/auth/recoverpw">Forgot Password?</Link>
+                          <Link to="/pwreset">Forgot Password?</Link>
                         </Col>
                       </Row>
                       <div className="d-flex justify-content-center">
@@ -168,7 +172,7 @@ const Login = () => {
                           Sign In
                         </Button>
                       </div>
-                      <p className="text-center my-3">
+                      {/* <p className="text-center my-3">
                         or sign in with other accounts?
                       </p>
                       <div className="d-flex justify-content-center">
@@ -197,13 +201,13 @@ const Login = () => {
                             </Link>
                           </ListGroup.Item>
                         </ListGroup>
-                      </div>
-                      <p className="mt-3 text-center">
+                      </div> */}
+                      {/* <p className="mt-3 text-center">
                         Don’t have an account?{" "}
                         <Link to="/auth/sign-up" className="text-underline">
                           Click here to sign up.
                         </Link>
-                      </p>
+                      </p> */}
                     </Form>
                   </Card.Body>
                 </Card>
