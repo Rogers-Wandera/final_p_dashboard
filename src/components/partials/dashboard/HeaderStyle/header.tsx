@@ -439,13 +439,7 @@ const Header = memo((_) => {
                   <Dropdown.Divider />
                   <Dropdown.Item
                     onClick={() => {
-                      dispatch(
-                        loguserout({
-                          token: "",
-                          isLoggedIn: false,
-                          user: {},
-                        })
-                      );
+                      dispatch(loguserout({}));
                       enqueueSnackbar("Logged out successfully", {
                         variant: "success",
                         anchorOrigin: {

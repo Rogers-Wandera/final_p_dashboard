@@ -16,6 +16,8 @@ interface AuthContextState {
   user: UserState;
   modules: ModulesType;
   loading: boolean;
+  roles: number[];
+  id: string;
 }
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -26,6 +28,8 @@ const AuthUserContext = createContext<AuthContextState>({
   user: {} as UserState,
   modules: {} as ModulesType,
   loading: false,
+  roles: [],
+  id: "",
 });
 
 const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -47,9 +51,15 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
     (state: RootState) => state.appState.authuser.loading
   );
 
+  const roles = useSelector(
+    (state: RootState) => state.appState.authuser.roles
+  );
+
+  const id = useSelector((state: RootState) => state.appState.authuser.id);
+
   return (
     <AuthUserContext.Provider
-      value={{ isLoggedIn, token, user, modules, loading }}
+      value={{ isLoggedIn, token, user, modules, loading, roles, id }}
     >
       {children}
     </AuthUserContext.Provider>

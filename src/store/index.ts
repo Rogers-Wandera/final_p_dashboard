@@ -37,6 +37,7 @@ export const store = configureStore({
     return getDefaultMiddleware({
       serializableCheck: false,
       ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      immutableCheck: false,
     })
       .concat(thunk)
       .concat(AuthApi.middleware)

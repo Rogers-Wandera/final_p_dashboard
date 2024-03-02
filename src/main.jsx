@@ -19,6 +19,8 @@ import AppStateProvider from "./contexts/sharedcontexts";
 import { SnackbarProvider } from "notistack";
 import AuthUserProvider from "./contexts/authcontext";
 import { LoadingScreen } from "./components/Loading";
+import Error404 from "./views/dashboard/errors/error404";
+import ConnectionProvider from "./contexts/connectioncontext";
 
 const router = createBrowserRouter(
   [
@@ -36,6 +38,10 @@ const router = createBrowserRouter(
         ...DefaultRouter,
         ...IndexRouters,
         ...SimpleRouter,
+        {
+          path: "*",
+          element: <Error404 />,
+        },
       ],
     },
   ],
@@ -44,19 +50,21 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Provider store={store}>
-      <PersistGate persistor={persistor} loading={<LoadingScreen />}>
-        {/* <App> */}
-        <SnackbarProvider>
-          <AppStateProvider>
-            <AuthUserProvider>
-              <RouterProvider router={router}></RouterProvider>
-            </AuthUserProvider>
-          </AppStateProvider>
-        </SnackbarProvider>
-        {/* </App> */}
-      </PersistGate>
-    </Provider>
+    <ConnectionProvider>
+      <Provider store={store}>
+        <PersistGate persistor={persistor} loading={<LoadingScreen />}>
+          {/* <App> */}
+          <SnackbarProvider>
+            <AppStateProvider>
+              <AuthUserProvider>
+                <RouterProvider router={router}></RouterProvider>
+              </AuthUserProvider>
+            </AppStateProvider>
+          </SnackbarProvider>
+          {/* </App> */}
+        </PersistGate>
+      </Provider>
+    </ConnectionProvider>
   </React.StrictMode>
 );
 

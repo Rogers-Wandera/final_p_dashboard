@@ -5,7 +5,6 @@ export const fetchUserData = createAsyncThunk(
   "authapi/getuser",
   async (_, { dispatch }) => {
     try {
-      dispatch(setLoading(true));
       const userResponse = await dispatch(
         AuthApi.endpoints.getUser.initiate({})
       );
@@ -22,7 +21,6 @@ export const fetchUserLinks = createAsyncThunk(
   "authapi/getmodules",
   async (_, { dispatch }) => {
     try {
-      dispatch(setLoading(true));
       const response = await dispatch(
         AuthApi.endpoints.getModules.initiate({})
       );

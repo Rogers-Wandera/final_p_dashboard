@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 //router
 // import IndexRouters from "./router/index"
 
@@ -16,61 +16,33 @@ import { useDispatch, useSelector } from "react-redux";
 import { setSetting } from "./store/setting/actions";
 
 // imports
-import { loguserout, useCheckServerStatusQuery } from "./store/services/auth";
+import { useCheckServerStatusQuery } from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
 import SnackBar from "./components/snackbar";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
 import { LoadingScreen } from "./components/Loading";
 
-// decoder
-import { jwtDecode } from "jwt-decode";
 import { useAuthUser } from "./contexts/authcontext";
 import VerifyEmail from "./views/auth/verifyemail";
+import { useAppDispatch } from "./hooks/hook";
+import { fetchUserLinks } from "./store/services/thunks";
 
+// const socket = SocketIo.connect("http://localhost:3500");
 function App() {
   const { isError, isLoading } = useCheckServerStatusQuery();
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const appState = useAppState();
-  const navigate = useNavigate();
-  const [isTokenExpired, setIsTokenExpired] = React.useState(false);
-  // const token = useSelector((state) => state.appState.authuser.token);
-  // const loading = useSelector((state) => state.appState.authuser.loading);
-  const { token, user, loading } = useAuthUser();
+  const { user, loading } = useAuthUser();
+  const location = useLocation();
 
-  React.useEffect(() => {
+  useEffect(() => {
     dispatch(setSetting());
   }, [dispatch]);
 
-  React.useEffect(() => {
-    const checkTokenExpiration = () => {
-      if (token) {
-        const decoded = jwtDecode(token);
-        const currentTime = Math.floor(Date.now() / 1000); // Convert to seconds
-        setIsTokenExpired(decoded.exp < currentTime);
-      }
-    };
-
-    checkTokenExpiration(); // Initial check
-
-    const interval = setInterval(checkTokenExpiration, 60000); // Check every minute
-
-    return () => clearInterval(interval); // Cleanup
-  }, [token]);
-
-  React.useEffect(() => {
-    if (isTokenExpired) {
-      appState?.setSnackBarOpen({
-        message: "Your session has expired. Please login again",
-        open: true,
-        severity: "error",
-        timer: 6000,
-        position: "top-right",
-      });
-      dispatch(loguserout({ token: "", isLoggedIn: false, user: {} }));
-      navigate("/");
-    }
-  }, [isTokenExpired, loading]);
+  useEffect(() => {
+    dispatch(fetchUserLinks());
+  }, [location.pathname]);
 
   if (isLoading) {
     return <LoadingScreen />;

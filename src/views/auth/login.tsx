@@ -20,7 +20,7 @@ import { useAppDispatch } from "../../hooks/hook";
 const Login = () => {
   let history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
-  const { isLoggedIn, token, user } = useAuthUser();
+  const { isLoggedIn, token } = useAuthUser();
   const appstate = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,6 +33,7 @@ const Login = () => {
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      dispatch(setLoading(true));
       const data = await loginUser({ email, password });
       if ("error" in data) {
         throw data.error;
@@ -51,6 +52,7 @@ const Login = () => {
       dispatch(setLoading(false));
       history("/dashboard");
     } catch (error) {
+      dispatch(setLoading(false));
       handleError(error, appstate, enqueueSnackbar);
     }
   };

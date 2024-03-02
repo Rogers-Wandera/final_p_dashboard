@@ -43,6 +43,7 @@ import RtlSupport from "../views/dashboard/special-pages/RtlSupport";
 //admin
 import Admin from "../views/dashboard/admin/admin";
 import Default from "../layouts/dashboard/default";
+import Modules from "../views/dashboard/admin/modules";
 
 export const DefaultRouter = [
   {
@@ -52,6 +53,10 @@ export const DefaultRouter = [
       {
         path: "dashboard",
         element: <Index />,
+      },
+      {
+        path: "dashboard/modules",
+        element: <Modules />,
       },
       {
         path: "dashboard/special-pages/billing",

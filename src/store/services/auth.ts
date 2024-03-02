@@ -5,6 +5,7 @@ import {
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
 import { RootState, UserState } from "../../contexts/authcontext";
+import { jwtDecode } from "jwt-decode";
 
 export interface ModulesTypeLinks {
   name: string;
@@ -14,6 +15,19 @@ export interface ModulesTypeLinks {
   linkId: 1;
   linkname: string;
   route: string;
+}
+
+export interface UserTokenObject {
+  displayName: string;
+  id: string;
+  roles: number[];
+}
+
+export interface TypeToken {
+  exp: number;
+  iat: number;
+  sub: string;
+  user: UserTokenObject;
 }
 
 export interface ModulesType {
@@ -26,6 +40,8 @@ export interface AuthUserState {
   user: UserState;
   loading: boolean;
   modules: ModulesType;
+  roles: number[];
+  id: string;
 }
 
 export interface LoginResponse {
@@ -122,21 +138,26 @@ const initialState: AuthUserState = {
   user: {},
   loading: false,
   modules: {},
+  roles: [],
+  id: "",
 };
 const AuthSlice = createSlice({
   name: "auth",
   initialState,
   reducers: {
-    loguserout: (state, action: PayloadAction<AuthUserState>) => {
-      const { payload } = action;
-      state.isLoggedIn = payload.isLoggedIn;
-      state.token = payload.token;
-      state.user = payload.user;
+    loguserout: (state, _) => {
+      state.isLoggedIn = false;
+      state.token = "";
+      state.user = {};
       state.modules = {};
+      state.roles = [];
     },
     setUser: (state, action: PayloadAction<UserState>) => {
       const { payload } = action;
       state.user = payload;
+      const decoded: TypeToken = jwtDecode(state.token);
+      state.roles = decoded.user.roles;
+      state.id = decoded.user.id;
     },
     setModules: (state, action: PayloadAction<ModulesType>) => {
       const { payload } = action;
