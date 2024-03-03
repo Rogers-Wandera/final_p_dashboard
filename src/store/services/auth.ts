@@ -4,15 +4,11 @@ import {
   createApi,
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
-import { RootState, UserState } from "../../contexts/authcontext";
-import { jwtDecode } from "jwt-decode";
+import { RootState } from "../../contexts/authcontext";
 
 export interface ModulesTypeLinks {
   name: string;
-  days_left: number;
   expired: number;
-  id: number;
-  linkId: 1;
   linkname: string;
   route: string;
 }
@@ -21,6 +17,8 @@ export interface UserTokenObject {
   displayName: string;
   id: string;
   roles: number[];
+  isLocked: number;
+  verified: number;
 }
 
 export interface TypeToken {
@@ -37,11 +35,8 @@ export interface ModulesType {
 export interface AuthUserState {
   isLoggedIn: boolean;
   token: string;
-  user: UserState;
   loading: boolean;
   modules: ModulesType;
-  roles: number[];
-  id: string;
 }
 
 export interface LoginResponse {
@@ -135,11 +130,8 @@ export const ServerCheckApi = createApi({
 const initialState: AuthUserState = {
   isLoggedIn: false,
   token: "",
-  user: {},
   loading: false,
   modules: {},
-  roles: [],
-  id: "",
 };
 const AuthSlice = createSlice({
   name: "auth",
@@ -148,16 +140,7 @@ const AuthSlice = createSlice({
     loguserout: (state, _) => {
       state.isLoggedIn = false;
       state.token = "";
-      state.user = {};
       state.modules = {};
-      state.roles = [];
-    },
-    setUser: (state, action: PayloadAction<UserState>) => {
-      const { payload } = action;
-      state.user = payload;
-      const decoded: TypeToken = jwtDecode(state.token);
-      state.roles = decoded.user.roles;
-      state.id = decoded.user.id;
     },
     setModules: (state, action: PayloadAction<ModulesType>) => {
       const { payload } = action;
@@ -188,14 +171,8 @@ const AuthSlice = createSlice({
   },
 });
 export const authReducer = AuthSlice.reducer;
-export const {
-  loguserout,
-  setUser,
-  setLoading,
-  setModules,
-  setLoggedIn,
-  setToken,
-} = AuthSlice.actions;
+export const { loguserout, setLoading, setModules, setLoggedIn, setToken } =
+  AuthSlice.actions;
 export const {
   useLoginUserMutation,
   useGetUserQuery,

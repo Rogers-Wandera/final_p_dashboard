@@ -13,7 +13,7 @@ const SidebarSmall = () => {
                             <rect x="10.5366" y="16.3945" width="16" height="4" rx="2" transform="rotate(45 10.5366 16.3945)" fill="currentColor"/>
                             <rect x="10.5562" y="-0.556152" width="28" height="4" rx="2" transform="rotate(45 10.5562 -0.556152)" fill="currentColor"/>
                         </svg>
-                        <h4 className="logo-title">Hope UI</h4>
+                        <h4 className="logo-title">MBRS</h4>
                     </Link>
                 </div>
                 <div className="sidebar-body pt-0">

@@ -8,7 +8,6 @@ import {
 import { useAuthUser } from "../../../../contexts/authcontext";
 import { useConnection } from "../../../../contexts/connectioncontext";
 import { useAppDispatch } from "../../../../hooks/hook";
-import { fetchUserLinks } from "../../../../store/services/thunks";
 import { setModules } from "../../../../store/services/auth";
 
 function CustomToggle({ children, eventKey, onClick }) {
@@ -38,12 +37,14 @@ function CustomToggle({ children, eventKey, onClick }) {
 const VerticalNav = memo((props) => {
   const [activeMenu, setActiveMenu] = useState(false);
   const [active, setActive] = useState("");
-  const [roleAdded, setRoleAdded] = useState(false);
   const { modules, id } = useAuthUser();
   const dispatch = useAppDispatch();
   //location
   let location = useLocation();
-  const modulesmain = Object.keys(modules);
+  let modulesmain = [];
+  if (modules) {
+    modulesmain = Object.keys(modules).length > 0 ? Object.keys(modules) : [];
+  }
   const socket = useConnection();
 
   useEffect(() => {
@@ -402,9 +403,12 @@ const VerticalNav = memo((props) => {
                   </CustomToggle>
                   <Accordion.Collapse eventKey={module}>
                     <ul className="sub-nav">
-                      {modulelinks.map((link) => {
+                      {modulelinks.map((link, index) => {
                         return (
-                          <li className="nav-item" key={link.id}>
+                          <li
+                            className="nav-item"
+                            key={`${link.linkname}+index`}
+                          >
                             <Link
                               className={`${
                                 location.pathname === `/dashboard${link.route}`

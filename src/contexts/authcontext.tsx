@@ -1,11 +1,11 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { store } from "../store";
-import { ModulesType } from "../store/services/auth";
+import { ModulesType, TypeToken } from "../store/services/auth";
+import { jwtDecode } from "jwt-decode";
 
 export interface UserState {
-  firstname?: string;
-  lastname?: string;
+  displayName?: string;
   isLocked?: number;
   verified?: number;
 }
@@ -18,6 +18,12 @@ interface AuthContextState {
   loading: boolean;
   roles: number[];
   id: string;
+  setRoles: React.Dispatch<React.SetStateAction<number[]>>;
+  setId: React.Dispatch<React.SetStateAction<string>>;
+  setUser: React.Dispatch<React.SetStateAction<UserState>>;
+}
+export interface UserRouteRoles {
+  roles: string[];
 }
 
 export type RootState = ReturnType<typeof store.getState>;
@@ -30,18 +36,23 @@ const AuthUserContext = createContext<AuthContextState>({
   loading: false,
   roles: [],
   id: "",
+  setId: () => {},
+  setRoles: () => {},
+  setUser: () => {},
 });
 
 const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const [roles, setRoles] = useState<number[]>([]);
+  const [id, setId] = useState<string>("");
+  const [user, setUser] = useState<UserState>({} as UserState);
   const isLoggedIn = useSelector(
     (state: RootState) => state.appState.authuser.isLoggedIn
   );
   const token = useSelector(
     (state: RootState) => state.appState.authuser.token
   );
-  const user = useSelector((state: RootState) => state.appState.authuser.user);
 
   const modules = useSelector(
     (state: RootState) => state.appState.authuser.modules
@@ -51,15 +62,37 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
     (state: RootState) => state.appState.authuser.loading
   );
 
-  const roles = useSelector(
-    (state: RootState) => state.appState.authuser.roles
-  );
-
-  const id = useSelector((state: RootState) => state.appState.authuser.id);
+  useEffect(() => {
+    if (token !== "") {
+      const decoded: TypeToken = jwtDecode(token);
+      const { user } = decoded;
+      setRoles(decoded.user.roles);
+      setId(decoded.user.id);
+      setUser({
+        displayName: user.displayName,
+        verified: user.verified,
+        isLocked: user.isLocked,
+      });
+    } else {
+      setRoles([]);
+      setId("");
+    }
+  }, [token]);
 
   return (
     <AuthUserContext.Provider
-      value={{ isLoggedIn, token, user, modules, loading, roles, id }}
+      value={{
+        isLoggedIn,
+        token,
+        user,
+        modules,
+        loading,
+        roles,
+        id,
+        setRoles,
+        setId,
+        setUser,
+      }}
     >
       {children}
     </AuthUserContext.Provider>

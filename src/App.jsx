@@ -9,40 +9,40 @@ import "./assets/scss/dark.scss";
 import "./assets/scss/rtl.scss";
 import "./assets/scss/customizer.scss";
 
-// Redux Selector / Action
-import { useDispatch, useSelector } from "react-redux";
-
 // import state selectors
 import { setSetting } from "./store/setting/actions";
 
 // imports
-import { useCheckServerStatusQuery } from "./store/services/auth";
+import { setLoading, useCheckServerStatusQuery } from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
 import SnackBar from "./components/snackbar";
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
 import { LoadingScreen } from "./components/Loading";
 
 import { useAuthUser } from "./contexts/authcontext";
 import VerifyEmail from "./views/auth/verifyemail";
 import { useAppDispatch } from "./hooks/hook";
+import AuthVerify from "./components/authverify";
+import ModulesAuth from "./components/modulesfetch";
 import { fetchUserLinks } from "./store/services/thunks";
 
-// const socket = SocketIo.connect("http://localhost:3500");
 function App() {
   const { isError, isLoading } = useCheckServerStatusQuery();
+
   const dispatch = useAppDispatch();
   const appState = useAppState();
   const { user, loading } = useAuthUser();
-  const location = useLocation();
 
   useEffect(() => {
     dispatch(setSetting());
   }, [dispatch]);
 
   useEffect(() => {
+    dispatch(setLoading(true));
     dispatch(fetchUserLinks());
-  }, [location.pathname]);
+    dispatch(setLoading(false));
+  }, []);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -69,6 +69,8 @@ function App() {
         open={appState.snackBarOpen}
         setOpen={appState.setSnackBarOpen}
       />
+      <AuthVerify />
+      <ModulesAuth />
       <Outlet />
     </div>
   );

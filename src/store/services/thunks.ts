@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { AuthApi, setLoading, setModules, setUser } from "./auth";
+import { AuthApi, setLoading, setModules } from "./auth";
 
 export const fetchUserData = createAsyncThunk(
   "authapi/getuser",
@@ -8,7 +8,6 @@ export const fetchUserData = createAsyncThunk(
       const userResponse = await dispatch(
         AuthApi.endpoints.getUser.initiate({})
       );
-      dispatch(setUser(userResponse.data));
       return userResponse.data;
     } catch (error) {
       dispatch(setLoading(false));

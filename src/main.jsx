@@ -20,8 +20,11 @@ import { SnackbarProvider } from "notistack";
 import AuthUserProvider from "./contexts/authcontext";
 import { LoadingScreen } from "./components/Loading";
 import Error404 from "./views/dashboard/errors/error404";
+import Error401 from "./views/dashboard/errors/error401";
 import ConnectionProvider from "./contexts/connectioncontext";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
+const queryClient = new QueryClient();
 const router = createBrowserRouter(
   [
     {
@@ -39,6 +42,10 @@ const router = createBrowserRouter(
         ...IndexRouters,
         ...SimpleRouter,
         {
+          path: "/unauthorized",
+          element: <Error401 />,
+        },
+        {
           path: "*",
           element: <Error404 />,
         },
@@ -54,13 +61,15 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <Provider store={store}>
         <PersistGate persistor={persistor} loading={<LoadingScreen />}>
           {/* <App> */}
-          <SnackbarProvider>
-            <AppStateProvider>
-              <AuthUserProvider>
-                <RouterProvider router={router}></RouterProvider>
-              </AuthUserProvider>
-            </AppStateProvider>
-          </SnackbarProvider>
+          <QueryClientProvider client={queryClient}>
+            <SnackbarProvider>
+              <AppStateProvider>
+                <AuthUserProvider>
+                  <RouterProvider router={router}></RouterProvider>
+                </AuthUserProvider>
+              </AppStateProvider>
+            </SnackbarProvider>
+          </QueryClientProvider>
           {/* </App> */}
         </PersistGate>
       </Provider>

@@ -14,7 +14,7 @@ import { useAppState } from "../../contexts/sharedcontexts";
 import { useSnackbar } from "notistack";
 import { handleError } from "../../helpers/utils";
 import { useAuthUser } from "../../contexts/authcontext";
-import { fetchUserData, fetchUserLinks } from "../../store/services/thunks";
+import { fetchUserLinks } from "../../store/services/thunks";
 import { useAppDispatch } from "../../hooks/hook";
 
 const Login = () => {
@@ -45,7 +45,7 @@ const Login = () => {
         severity: "success",
         position: "top-right",
       });
-      await dispatch(fetchUserData());
+      // await dispatch(fetchUserData());
       // if (user.verified === 1) {
       await dispatch(fetchUserLinks());
       // }
