@@ -43,7 +43,7 @@ import RtlSupport from "../views/dashboard/special-pages/RtlSupport";
 //admin
 import Admin from "../views/dashboard/admin/admin";
 import Default from "../layouts/dashboard/default";
-import Modules from "../views/dashboard/admin/modules";
+import Modules from "../views/dashboard/admin/modules/modules";
 
 export const DefaultRouter = [
   {

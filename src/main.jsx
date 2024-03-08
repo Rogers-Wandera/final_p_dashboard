@@ -23,6 +23,9 @@ import Error404 from "./views/dashboard/errors/error404";
 import Error401 from "./views/dashboard/errors/error401";
 import ConnectionProvider from "./contexts/connectioncontext";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 
 const queryClient = new QueryClient();
 const router = createBrowserRouter(
@@ -65,7 +68,11 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             <SnackbarProvider>
               <AppStateProvider>
                 <AuthUserProvider>
-                  <RouterProvider router={router}></RouterProvider>
+                  <ThemeProvider theme={createTheme({})}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <RouterProvider router={router}></RouterProvider>
+                    </LocalizationProvider>
+                  </ThemeProvider>
                 </AuthUserProvider>
               </AppStateProvider>
             </SnackbarProvider>

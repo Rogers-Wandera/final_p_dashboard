@@ -30,6 +30,7 @@
     "axios": "^1.6.7",
     "bootstrap": "^5.2.3",
     "choices.js": "^10.1.0",
+    "date-fns": "^3.3.1",
     "fslightbox-react": "^1.6.2-2",
     "fullcalendar-interaction": "^5.3.3",
     "immutability-helper": "^3.1.1",
