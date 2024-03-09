@@ -5,6 +5,7 @@ import {
   keepPreviousData,
 } from "@tanstack/react-query";
 import axios, { AxiosRequestConfig } from "axios";
+import { useTableContext } from "../contexts/tablecontext";
 // import { MRT_ColumnFiltersState } from "material-react-table";
 
 export type ApiResponse<T> = {
@@ -26,7 +27,7 @@ export type payLoadData = {
 };
 
 export interface typeurlparams {
-  filters?: Array<any>;
+  columnFilters?: Array<any>;
   globalFilter?: string | null;
   sorting?: Array<{ id: string; desc: boolean }>;
   start: number;
@@ -55,7 +56,7 @@ async function fetchApi<T>(
       serverurl.searchParams.set("size", JSON.stringify(urlparams.size));
       serverurl.searchParams.set(
         "filters",
-        JSON.stringify(urlparams.filters ?? [])
+        JSON.stringify(urlparams.columnFilters ?? [])
       );
       serverurl.searchParams.set("globalFilter", urlparams.globalFilter ?? "");
       serverurl.searchParams.set(
@@ -92,33 +93,34 @@ export function useApiQuery<T, E = unknown>({
   method = "GET",
   headers = {},
   data = {},
-  urlparams = {
-    filters: [],
-    globalFilter: null,
-    sorting: [],
-    start: 1,
-    size: 10,
-  } as typeurlparams,
   manual = false,
   base_url = baseqry,
 }: payLoadData) {
+  const { pagination, columnFilters, globalFilter, sorting } =
+    useTableContext();
+  const urlparams = {
+    columnFilters,
+    globalFilter,
+    sorting,
+    start: pagination.pageIndex + 1,
+    size: pagination.pageSize,
+  } as typeurlparams;
   const queryFn: QueryFunction<ApiResponse<T>, QueryKey> = async ({
     queryKey,
   }) => {
-    const [_key, _url, _method, _headers, _data, _urlparams] = queryKey as [
+    const [_key, _url, _method, _headers, _data] = queryKey as [
       string,
       string,
       AxiosRequestConfig["method"],
       Record<string, string>,
-      FormData | Record<string, any> | undefined,
-      typeurlparams
+      FormData | Record<string, any> | undefined
     ];
     const response = await fetchApi<T>(
       `${base_url}${_url}`,
       _method,
       _headers,
       _data,
-      _urlparams
+      urlparams
     );
     return response;
   };

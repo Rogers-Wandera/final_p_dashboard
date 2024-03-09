@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 //MRT Imports
 import {
@@ -28,9 +28,17 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 // import { ModulesType } from "../../../../store/services/auth";
 import { useAuthUser } from "../../../../contexts/authcontext";
 import RefreshIcon from "@mui/icons-material/Refresh";
-// import EditIcon from "@mui/icons-material/Edit";
+import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { ServerSideTable } from "../../../../components/tables/serverside";
+import {
+  axiosClient,
+  useApiQuery,
+  useApiQuery2,
+  useApiQueryVersion,
+} from "../../../../helpers/apiquery";
+import axios from "axios";
+import { useTableContext } from "../../../../contexts/tablecontext";
 
 export interface modulesType {
   id: number;
@@ -175,37 +183,37 @@ const url = import.meta.env.VITE_NODE_BASE_URL;
 //     manualFiltering: true,
 //     manualPagination: true,
 //     manualSorting: true,
-// createDisplayMode: "modal",
-// editDisplayMode: "modal",
+//     createDisplayMode: "modal",
+//     editDisplayMode: "modal",
 //     enableEditing: true,
-// // getRowId: (row) => row.id.toString(),
-// muiToolbarAlertBannerProps: isError
-//   ? {
-//       color: "error",
-//       children: "Error loading data",
-//     }
-//   : undefined,
-// onColumnFiltersChange: setColumnFilters,
-// onGlobalFilterChange: setGlobalFilter,
-// onPaginationChange: setPagination,
-// onSortingChange: setSorting,
-// renderTopToolbarCustomActions: () => (
-//   <>
-//     <Tooltip arrow title="Refresh Data">
-//       <IconButton onClick={() => refetch()}>
-//         <RefreshIcon />
-//       </IconButton>
-//     </Tooltip>
-//     <Button
-//       variant="contained"
-//       onClick={() => {
-//         table.setCreatingRow(true);
-//       }}
-//     >
-//       Create New User
-//     </Button>
-//   </>
-// ),
+//     // getRowId: (row) => row.id.toString(),
+//     muiToolbarAlertBannerProps: isError
+//       ? {
+//           color: "error",
+//           children: "Error loading data",
+//         }
+//       : undefined,
+//     onColumnFiltersChange: setColumnFilters,
+//     onGlobalFilterChange: setGlobalFilter,
+//     onPaginationChange: setPagination,
+//     onSortingChange: setSorting,
+//     renderTopToolbarCustomActions: () => (
+//       <>
+//         <Tooltip arrow title="Refresh Data">
+//           <IconButton onClick={() => refetch()}>
+//             <RefreshIcon />
+//           </IconButton>
+//         </Tooltip>
+//         <Button
+//           variant="contained"
+//           onClick={() => {
+//             table.setCreatingRow(true);
+//           }}
+//         >
+//           Create New User
+//         </Button>
+//       </>
+//     ),
 //     renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
 //       <>
 //         <DialogTitle variant="h3">Create Module</DialogTitle>
@@ -226,27 +234,56 @@ const url = import.meta.env.VITE_NODE_BASE_URL;
 //       </Box>
 //     ),
 //     rowCount: data?.totalDocs ?? 0,
-// state: {
-//   columnFilters,
-//   globalFilter,
-//   isLoading,
-//   pagination,
-//   showAlertBanner: isError,
-//   showProgressBars: isRefetching,
-//   sorting,
-// },
+//     state: {
+//       columnFilters,
+//       globalFilter,
+//       isLoading,
+//       pagination,
+//       showAlertBanner: isError,
+//       showProgressBars: isRefetching,
+//       sorting,
+//     },
 //   });
 
 //   return <MaterialReactTable table={table} />;
 // };
 
 const Modules = () => {
+  const { manual, setManual } = useTableContext();
   const { token } = useAuthUser();
-  const table = ServerSideTable<modulesType, modulesApiResponse>({
-    url: "/modules",
-    token: token,
+  const { data, refetch, isLoading, isError, isFetching, error } =
+    useApiQuery<modulesApiResponse>({
+      url: "/modules",
+      // headers: {
+      //   Authorization: "Bearer " + token,
+      // },
+      manual: manual,
+    });
+
+  useEffect(() => {
+    if (data?.data?.docs) {
+      setManual(false);
+    }
+  }, [data, manual]);
+
+  if (isError) {
+    console.log(error);
+  }
+  const response = data?.data?.docs;
+  const table = ServerSideTable<modulesType>({
+    refetch,
+    data: response ?? [],
+    isError,
+    isLoading,
+    totalDocs: data?.data?.totalDocs ?? 0,
     tablecolumns: ["id", "name", "position", "creationDate"],
+    isFetching,
+    error,
   });
-  return <MaterialReactTable table={table} />;
+  return (
+    <div>
+      <MaterialReactTable table={table} />
+    </div>
+  );
 };
-export default withAuthentication(withRouteRole(Modules));
+export default Modules;

@@ -22,12 +22,23 @@ import { LoadingScreen } from "./components/Loading";
 import Error404 from "./views/dashboard/errors/error404";
 import Error401 from "./views/dashboard/errors/error401";
 import ConnectionProvider from "./contexts/connectioncontext";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import {
+  QueryClientProvider,
+  QueryClient,
+  QueryCache,
+} from "@tanstack/react-query";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import TableContextProvider from "./contexts/tablecontext";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  // queryCache: new QueryCache({
+  //   onError: (error, query) => {
+  //     console.log(error["response"]);
+  //   },
+  // }),
+});
 const router = createBrowserRouter(
   [
     {
@@ -70,7 +81,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
                 <AuthUserProvider>
                   <ThemeProvider theme={createTheme({})}>
                     <LocalizationProvider dateAdapter={AdapterDateFns}>
-                      <RouterProvider router={router}></RouterProvider>
+                      <TableContextProvider>
+                        <RouterProvider router={router}></RouterProvider>
+                      </TableContextProvider>
                     </LocalizationProvider>
                   </ThemeProvider>
                 </AuthUserProvider>

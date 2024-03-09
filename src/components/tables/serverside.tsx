@@ -1,14 +1,7 @@
-import {
-  MRT_ColumnDef,
-  MRT_ColumnFiltersState,
-  MRT_PaginationState,
-  MRT_SortingState,
-  useMaterialReactTable,
-} from "material-react-table";
-import { useEffect, useMemo, useState } from "react";
-import { useApiQuery } from "../../helpers/apiquery";
-import { useAppDispatch } from "../../hooks/hook";
+import { MRT_ColumnDef, useMaterialReactTable } from "material-react-table";
+import { useMemo } from "react";
 import RefreshIcon from "@mui/icons-material/Refresh";
+import { useTableContext } from "../../contexts/tablecontext";
 import { IconButton, Tooltip } from "@mui/material";
 
 export interface ServerSideResponse<T> {
@@ -25,58 +18,50 @@ export interface CustomColumnConfigs {
 
 export type TableColumns = string[];
 
-export interface ServerSideProps {
-  url: string;
-  token?: null | string;
+export interface ServerSideProps<T extends {}> {
   enableEditing?: boolean;
   tablecolumns?: TableColumns;
   columnConfigs?: CustomColumnConfigs[];
+  data: Array<T>;
+  isError?: boolean;
+  isLoading?: boolean;
+  totalDocs: number;
+  refetch: any;
+  isFetching?: boolean;
+  error: any;
 }
 
-export const ServerSideTable = <T extends {}, R extends ServerSideResponse<T>>({
-  url,
-  token,
+export const ServerSideTable = <T extends {}>({
+  data,
+  refetch,
+  totalDocs = 0,
+  isLoading = false,
   enableEditing = false,
   columnConfigs = [],
   tablecolumns = [],
-}: ServerSideProps) => {
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-    []
-  );
-  const [globalFilter, setGlobalFilter] = useState<string>("");
-  const [sorting, setSorting] = useState<MRT_SortingState>([]);
-  const [pagination, setPagination] = useState<MRT_PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
-  });
-  const tokenheader = token ? { Authorization: `Bearer ${token}` } : {};
-  const { data, refetch, isLoading, isError } = useApiQuery<R>({
-    url: url,
-    urlparams: {
-      globalFilter: globalFilter,
-      sorting: sorting,
-      start: pagination.pageIndex + 1,
-      size: pagination.pageSize,
-      filters: columnFilters,
-    },
-    headers: {
-      ...tokenheader,
-    },
-    manual: true,
-  });
-  useEffect(() => {
-    // refetch();
-    console.log(pagination.pageIndex);
-  }, [pagination.pageIndex]);
-  const { docs = [] } = data?.data ?? {};
+  isError = false,
+  isFetching = false,
+}: // error = "Failded to fetch data",
+ServerSideProps<T>) => {
+  // const { docs = [] } = data ?? {};
+  const {
+    setColumnFilters,
+    setGlobalFilter,
+    setSorting,
+    setPagination,
+    columnFilters,
+    globalFilter,
+    pagination,
+    sorting,
+  } = useTableContext();
   const generateColumns = (): MRT_ColumnDef<T>[] => {
     let tablecols: string[] = [];
     if (tablecolumns.length > 0) {
-      if (docs.length > 0) {
+      if (data.length > 0) {
         tablecols = tablecolumns;
       } else {
-        if (docs.length > 0) {
-          tablecols = Object.keys(docs[0]);
+        if (data.length > 0) {
+          tablecols = Object.keys(data[0]);
         }
       }
       const columns: MRT_ColumnDef<T>[] = tablecols.map((key) => {
@@ -95,12 +80,9 @@ export const ServerSideTable = <T extends {}, R extends ServerSideResponse<T>>({
     }
     return [];
   };
-  const columns = useMemo<MRT_ColumnDef<T>[]>(
-    () => generateColumns(),
-    [data, isLoading, tablecolumns, columnConfigs]
-  );
+  const columns = useMemo<MRT_ColumnDef<T>[]>(() => generateColumns(), [data]);
   const table = useMaterialReactTable({
-    data: docs,
+    data: data,
     columns: columns,
     initialState: { showColumnFilters: true },
     onColumnFiltersChange: setColumnFilters,
@@ -110,6 +92,9 @@ export const ServerSideTable = <T extends {}, R extends ServerSideResponse<T>>({
     createDisplayMode: "modal",
     editDisplayMode: "modal",
     enableEditing: enableEditing,
+    manualFiltering: true,
+    manualPagination: true,
+    manualSorting: true,
     renderTopToolbarCustomActions: () => (
       <>
         <Tooltip arrow title="Refresh Data">
@@ -130,17 +115,17 @@ export const ServerSideTable = <T extends {}, R extends ServerSideResponse<T>>({
     muiToolbarAlertBannerProps: isError
       ? {
           color: "error",
-          children: "Error loading data",
+          children: "Error! Failed to fetch data",
         }
       : undefined,
-    rowCount: data?.data.totalDocs ?? 0,
+    rowCount: totalDocs,
     state: {
       columnFilters,
       globalFilter,
       isLoading,
       pagination,
       showAlertBanner: isError,
-      showProgressBars: isLoading,
+      showProgressBars: isFetching,
       sorting,
     },
   });

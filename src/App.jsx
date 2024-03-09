@@ -24,15 +24,25 @@ import { useAuthUser } from "./contexts/authcontext";
 import VerifyEmail from "./views/auth/verifyemail";
 import { useAppDispatch } from "./hooks/hook";
 import AuthVerify from "./components/authverify";
-import ModulesAuth from "./components/modulesfetch";
+// import ModulesAuth from "./components/modulesfetch";
 import { fetchUserLinks } from "./store/services/thunks";
+import { useTableContext } from "./contexts/tablecontext";
+import { useLocation } from "react-router-dom";
 
 function App() {
   const { isError, isLoading } = useCheckServerStatusQuery();
 
   const dispatch = useAppDispatch();
   const appState = useAppState();
-  const { user, loading } = useAuthUser();
+  const { user, loading, token } = useAuthUser();
+  const location = useLocation();
+  const {
+    setColumnFilters,
+    setGlobalFilter,
+    setManual,
+    setPagination,
+    setSorting,
+  } = useTableContext();
 
   useEffect(() => {
     dispatch(setSetting());
@@ -40,9 +50,18 @@ function App() {
 
   useEffect(() => {
     dispatch(setLoading(true));
-    dispatch(fetchUserLinks());
+    if (token !== "") {
+      dispatch(fetchUserLinks());
+    }
     dispatch(setLoading(false));
   }, []);
+  useEffect(() => {
+    setGlobalFilter("");
+    setPagination({ pageIndex: 0, pageSize: 5 });
+    setSorting([]);
+    setColumnFilters([]);
+    setManual(true);
+  }, [location.pathname]);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -54,6 +73,8 @@ function App() {
   if (user.verified === 0) {
     return <VerifyEmail />;
   }
+
+  // console.log(import.meta.env.VITE_PUBLIC_URL);
   if (isError) {
     return (
       <Error500
@@ -70,7 +91,7 @@ function App() {
         setOpen={appState.setSnackBarOpen}
       />
       <AuthVerify />
-      <ModulesAuth />
+      {/* <ModulesAuth /> */}
       <Outlet />
     </div>
   );
