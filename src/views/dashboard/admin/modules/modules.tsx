@@ -1,44 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-
-//MRT Imports
-import {
-  MaterialReactTable,
-  useMaterialReactTable,
-  type MRT_ColumnDef,
-  MRT_ColumnFiltersState,
-  MRT_SortingState,
-  MRT_PaginationState,
-  MRT_Row,
-} from "material-react-table";
-
-//Material UI Imports
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogTitle,
-  IconButton,
-  Tooltip,
-} from "@mui/material";
-
-//Icons Imports
-import withAuthentication from "../../../../hoc/withUserAuth";
-import withRouteRole from "../../../../hoc/withRouteRole";
-import { keepPreviousData, useQuery } from "@tanstack/react-query";
-// import { ModulesType } from "../../../../store/services/auth";
+import { useEffect } from "react";
 import { useAuthUser } from "../../../../contexts/authcontext";
-import RefreshIcon from "@mui/icons-material/Refresh";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
-import { ServerSideTable } from "../../../../components/tables/serverside";
 import {
-  axiosClient,
-  useApiQuery,
-  useApiQuery2,
-  useApiQueryVersion,
-} from "../../../../helpers/apiquery";
-import axios from "axios";
+  ServerSideTable,
+  tableCols,
+} from "../../../../components/tables/serverside";
 import { useTableContext } from "../../../../contexts/tablecontext";
+import { MaterialReactTable } from "material-react-table";
+import { useApiQuery } from "../../../../helpers/apiquery";
 
 export interface modulesType {
   id: number;
@@ -55,7 +23,7 @@ export interface modulesApiResponse {
   page: number;
 }
 
-const url = import.meta.env.VITE_NODE_BASE_URL;
+// const url = import.meta.env.VITE_NODE_BASE_URL;
 
 // const Modules = () => {
 //   const [validationErrors, setValidationErrors] = useState<
@@ -185,7 +153,7 @@ const url = import.meta.env.VITE_NODE_BASE_URL;
 //     manualSorting: true,
 //     createDisplayMode: "modal",
 //     editDisplayMode: "modal",
-//     enableEditing: true,
+// enableEditing: true,
 //     // getRowId: (row) => row.id.toString(),
 //     muiToolbarAlertBannerProps: isError
 //       ? {
@@ -219,20 +187,20 @@ const url = import.meta.env.VITE_NODE_BASE_URL;
 //         <DialogTitle variant="h3">Create Module</DialogTitle>
 //       </>
 //     ),
-//     renderRowActions: ({ row, table }) => (
-//       <Box sx={{ display: "flex", gap: "1rem" }}>
-//         <Tooltip title="Edit">
-//           <IconButton onClick={() => table.setEditingRow(row)}>
-//             <EditIcon />
-//           </IconButton>
-//         </Tooltip>
-//         <Tooltip title="Delete">
-//           <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
-//             <DeleteIcon />
-//           </IconButton>
-//         </Tooltip>
-//       </Box>
-//     ),
+// renderRowActions: ({ row, table }) => (
+//   <Box sx={{ display: "flex", gap: "1rem" }}>
+//     <Tooltip title="Edit">
+//       <IconButton onClick={() => table.setEditingRow(row)}>
+//         <EditIcon />
+//       </IconButton>
+//     </Tooltip>
+//     <Tooltip title="Delete">
+//       <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
+//         <DeleteIcon />
+//       </IconButton>
+//     </Tooltip>
+//   </Box>
+// ),
 //     rowCount: data?.totalDocs ?? 0,
 //     state: {
 //       columnFilters,
@@ -247,16 +215,30 @@ const url = import.meta.env.VITE_NODE_BASE_URL;
 
 //   return <MaterialReactTable table={table} />;
 // };
-
+const otherconfigs: tableCols[] = [
+  {
+    accessorKey: "id",
+    header: "Id",
+    enableEditing: false,
+  },
+  {
+    accessorKey: "creationDate",
+    enableEditing: false,
+  },
+  {
+    accessorKey: "position",
+    header: "Position",
+  },
+];
 const Modules = () => {
   const { manual, setManual } = useTableContext();
   const { token } = useAuthUser();
   const { data, refetch, isLoading, isError, isFetching, error } =
     useApiQuery<modulesApiResponse>({
       url: "/modules",
-      // headers: {
-      //   Authorization: "Bearer " + token,
-      // },
+      headers: {
+        Authorization: "Bearer " + token,
+      },
       manual: manual,
     });
 
@@ -265,20 +247,21 @@ const Modules = () => {
       setManual(false);
     }
   }, [data, manual]);
-
-  if (isError) {
-    console.log(error);
-  }
   const response = data?.data?.docs;
   const table = ServerSideTable<modulesType>({
     refetch,
+    title: "Modules",
     data: response ?? [],
     isError,
     isLoading,
     totalDocs: data?.data?.totalDocs ?? 0,
     tablecolumns: ["id", "name", "position", "creationDate"],
+    columnConfigs: otherconfigs,
     isFetching,
     error,
+    enableEditing: true,
+    deleteUrl: "modules",
+    setManual,
   });
   return (
     <div>

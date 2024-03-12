@@ -77,7 +77,7 @@
     "socket.io-client": "^4.7.4",
     "sortablejs": "^1.14.0",
     "styled-components": "^5.3.5",
-    "sweetalert2": "^11.7.1",
+    "sweetalert2": "^11.10.6",
     "swiper": "^11.0.6",
     "three": "^0.139.2",
     "waypoints": "^4.0.1",

@@ -2,7 +2,14 @@ import { MRT_ColumnDef, useMaterialReactTable } from "material-react-table";
 import { useMemo } from "react";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useTableContext } from "../../contexts/tablecontext";
-import { IconButton, Tooltip } from "@mui/material";
+import { Box, IconButton, Tooltip } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import { handleDelete } from "../../store/services/apislice";
+import { useAppDispatch } from "../../hooks/hook";
+import { useSnackbar } from "notistack";
+import { useAppState } from "../../contexts/sharedcontexts";
+import AddBoxIcon from "@mui/icons-material/AddBox";
 
 export interface ServerSideResponse<T> {
   docs: Array<T>;
@@ -11,17 +18,15 @@ export interface ServerSideResponse<T> {
   page: number;
 }
 
-export interface CustomColumnConfigs {
-  accessorKey: string;
-  [key: string]: any;
-}
-
-export type TableColumns = string[];
+// export interface CustomColumnConfigs {
+//   accessorKey: string;
+//   [key: string]: any;
+// }
 
 export interface ServerSideProps<T extends {}> {
   enableEditing?: boolean;
   tablecolumns?: TableColumns;
-  columnConfigs?: CustomColumnConfigs[];
+  columnConfigs?: tableCols[];
   data: Array<T>;
   isError?: boolean;
   isLoading?: boolean;
@@ -29,11 +34,26 @@ export interface ServerSideProps<T extends {}> {
   refetch: any;
   isFetching?: boolean;
   error: any;
+  deleteUrl?: string;
+  idField?: string | number;
+  setManual?: React.Dispatch<React.SetStateAction<boolean>>;
+  title: string;
 }
+
+export interface tableCols {
+  accessorKey: string;
+  header?: string;
+  enableEditing?: boolean;
+  size?: number;
+  [key: string]: any;
+}
+
+export type TableColumns = string[];
 
 export const ServerSideTable = <T extends {}>({
   data,
   refetch,
+  title,
   totalDocs = 0,
   isLoading = false,
   enableEditing = false,
@@ -41,9 +61,23 @@ export const ServerSideTable = <T extends {}>({
   tablecolumns = [],
   isError = false,
   isFetching = false,
-}: // error = "Failded to fetch data",
-ServerSideProps<T>) => {
-  // const { docs = [] } = data ?? {};
+  idField = "id",
+  deleteUrl = "",
+  setManual = () => {},
+}: ServerSideProps<T>) => {
+  const dispatch = useAppDispatch();
+  const { enqueueSnackbar } = useSnackbar();
+  const appstate = useAppState();
+
+  const HandleDeleteData = async (row: any) => {
+    handleDelete({
+      dispatch,
+      enqueueSnackbar,
+      appstate,
+      url: `/${deleteUrl}/${row.original[idField]}`,
+      setManual,
+    });
+  };
   const {
     setColumnFilters,
     setGlobalFilter,
@@ -68,12 +102,15 @@ ServerSideProps<T>) => {
         let accessorKey = key;
         let header = FieldConfigs(key);
         const otherconfigs = columnConfigs.find(
-          (item) => (item.accessorKey = key)
+          (item) => item.accessorKey === key
         );
+        if (otherconfigs?.header) {
+          header = otherconfigs.header;
+        }
         return {
+          ...(otherconfigs ?? {}),
           header: header,
           accessorKey: accessorKey,
-          ...(otherconfigs?.configs ?? {}),
         };
       });
       return columns;
@@ -97,19 +134,18 @@ ServerSideProps<T>) => {
     manualSorting: true,
     renderTopToolbarCustomActions: () => (
       <>
-        <Tooltip arrow title="Refresh Data">
-          <IconButton onClick={() => refetch()}>
-            <RefreshIcon />
-          </IconButton>
-        </Tooltip>
-        {/* <Button
-          variant="contained"
-          onClick={() => {
-            table.setCreatingRow(true);
-          }}
-        >
-          Create New User
-        </Button> */}
+        <div>
+          <Tooltip arrow title="Refresh Data">
+            <IconButton onClick={() => refetch()}>
+              <RefreshIcon />
+            </IconButton>
+          </Tooltip>
+          <Tooltip arrow title={"Add New " + title}>
+            <IconButton>
+              <AddBoxIcon />
+            </IconButton>
+          </Tooltip>
+        </div>
       </>
     ),
     muiToolbarAlertBannerProps: isError
@@ -119,6 +155,20 @@ ServerSideProps<T>) => {
         }
       : undefined,
     rowCount: totalDocs,
+    renderRowActions: ({ row, table }) => (
+      <Box sx={{ display: "flex", gap: "1rem" }}>
+        <Tooltip title={"Edit " + title}>
+          <IconButton onClick={() => table.setEditingRow(row)}>
+            <EditIcon />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={"Delete " + title}>
+          <IconButton color="error" onClick={() => HandleDeleteData(row)}>
+            <DeleteIcon />
+          </IconButton>
+        </Tooltip>
+      </Box>
+    ),
     state: {
       columnFilters,
       globalFilter,

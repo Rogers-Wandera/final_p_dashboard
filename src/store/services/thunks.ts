@@ -1,5 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { AuthApi, setLoading, setModules } from "./auth";
+import { DeletePayLoad, apiSlice } from "./apislice";
 
 export const fetchUserData = createAsyncThunk(
   "authapi/getuser",
@@ -25,6 +26,21 @@ export const fetchUserLinks = createAsyncThunk(
       );
       dispatch(setModules(response.data));
       return response.data;
+    } catch (error) {
+      dispatch(setLoading(false));
+      throw error;
+    }
+  }
+);
+
+export const deleteDataApi = createAsyncThunk(
+  "apislice/deletedata",
+  async ({ url, data }: DeletePayLoad, { dispatch }) => {
+    try {
+      const userResponse = await dispatch(
+        apiSlice.endpoints.deleteData.initiate({ url, data })
+      );
+      return userResponse;
     } catch (error) {
       dispatch(setLoading(false));
       throw error;
