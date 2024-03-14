@@ -1,12 +1,17 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAuthUser } from "../../../../contexts/authcontext";
 import {
   ServerSideTable,
+  addeditprops,
+  menuitemsProps,
+  moreConfigsTypes,
   tableCols,
 } from "../../../../components/tables/serverside";
 import { useTableContext } from "../../../../contexts/tablecontext";
 import { MaterialReactTable } from "material-react-table";
 import { useApiQuery } from "../../../../helpers/apiquery";
+import { format } from "date-fns";
+import { Visibility } from "@mui/icons-material";
 
 export interface modulesType {
   id: number;
@@ -215,23 +220,88 @@ export interface modulesApiResponse {
 
 //   return <MaterialReactTable table={table} />;
 // };
-const otherconfigs: tableCols[] = [
+
+const otherConfigs: moreConfigsTypes = {
+  createDisplayMode: "modal",
+  editDisplayMode: "modal",
+};
+
+const addeditconfig: addeditprops = {
+  addtitle: "Add Module",
+  edittitle: "Edit Module",
+  variant: "h5",
+};
+
+const moreMenuItems: menuitemsProps<modulesType>[] = [
   {
-    accessorKey: "id",
-    header: "Id",
-    enableEditing: false,
-  },
-  {
-    accessorKey: "creationDate",
-    enableEditing: false,
-  },
-  {
-    accessorKey: "position",
-    header: "Position",
+    label: "View",
+    icon: <Visibility sx={{ color: "#1976d2" }} />,
+    onClick(row, _, closeMenu) {
+      closeMenu && closeMenu();
+      console.log(row.original.creationDate);
+    },
+    render: true,
   },
 ];
+export const validateRequired = (value: string) => !!value.length;
+export function validateData(data: modulesType) {
+  return {
+    name: !validateRequired(data.name) ? "Module name is required" : "",
+    position: !validateRequired(data.position.toString())
+      ? "Position is required"
+      : "",
+  };
+}
+
 const Modules = () => {
   const { manual, setManual } = useTableContext();
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string | undefined>
+  >({});
+  const otherconfigs: tableCols<modulesType>[] = [
+    {
+      accessorKey: "id",
+      header: "Id",
+      enableEditing: false,
+      enableSorting: false,
+      Edit: () => null,
+    },
+    {
+      accessorKey: "creationDate",
+      enableEditing: false,
+      Edit: () => null,
+      Cell: ({ cell }) => {
+        return <>{format(cell.getValue<Date>(), "yyyy-MM-dd hh:mm a")}</>;
+      },
+    },
+    {
+      accessorKey: "position",
+      header: "Position",
+      muiEditTextFieldProps: {
+        required: true,
+        error: !!validationErrors?.position,
+        helperText: validationErrors?.position,
+        onFocus: () =>
+          setValidationErrors({
+            ...validationErrors,
+            position: undefined,
+          }),
+      },
+    },
+    {
+      accessorKey: "name",
+      muiEditTextFieldProps: {
+        required: true,
+        error: !!validationErrors?.name,
+        helperText: validationErrors?.name,
+        onFocus: () =>
+          setValidationErrors({
+            ...validationErrors,
+            name: undefined,
+          }),
+      },
+    },
+  ];
   const { token } = useAuthUser();
   const { data, refetch, isLoading, isError, isFetching, error } =
     useApiQuery<modulesApiResponse>({
@@ -247,10 +317,11 @@ const Modules = () => {
       setManual(false);
     }
   }, [data, manual]);
+
   const response = data?.data?.docs;
   const table = ServerSideTable<modulesType>({
     refetch,
-    title: "Modules",
+    title: "Module",
     data: response ?? [],
     isError,
     isLoading,
@@ -262,6 +333,13 @@ const Modules = () => {
     enableEditing: true,
     deleteUrl: "modules",
     setManual,
+    moreConfigs: otherConfigs,
+    addeditprops: addeditconfig,
+    moreMenuItems: moreMenuItems,
+    validateData,
+    setValidationErrors,
+    validationErrors,
+    postDataProps: { url: "/modules", dataFields: ["name", "position"] },
   });
   return (
     <div>
