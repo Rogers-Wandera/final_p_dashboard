@@ -4,6 +4,7 @@ import {
   MRT_EditActionButtons,
   MRT_Row,
   MRT_TableInstance,
+  MRT_VisibilityState,
   useMaterialReactTable,
 } from "material-react-table";
 import React, { useMemo } from "react";
@@ -71,7 +72,7 @@ export interface actionconfigs {
 
 export interface ServerSideProps<T extends {}> {
   enableEditing?: boolean;
-  tablecolumns?: TableColumns;
+  tablecolumns?: TableColumns[];
   columnConfigs?: tableCols<T>[];
   data: Array<T>;
   isError?: boolean;
@@ -95,10 +96,15 @@ export interface ServerSideProps<T extends {}> {
   >;
   validateData?: (data: any) => any;
   postDataProps?: {
-    url: string;
+    addurl: string;
     dataFields: string[];
     postType?: "Array" | "Object";
+    editurl?: (row: any) => string;
   };
+  columnVisibility?: MRT_VisibilityState;
+  setColumnVisibility?: React.Dispatch<
+    React.SetStateAction<MRT_VisibilityState>
+  >;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -106,9 +112,27 @@ export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
   header?: string;
 };
 
-export type TableColumns = string[];
+export type TableColumns = {
+  name: string;
+  type:
+    | "autocomplete"
+    | "checkbox"
+    | "date"
+    | "date-range"
+    | "datetime"
+    | "datetime-range"
+    | "multi-select"
+    | "range"
+    | "range-slider"
+    | "select"
+    | "text"
+    | "time"
+    | "time-range"
+    | undefined;
+};
+export type ColumnVisibility<T = any> = { [key: string]: T };
 
-export const ServerSideTable = <T extends {}>({
+export const ServerSideTable = <T extends { [key: string]: any }>({
   data,
   refetch,
   title,
@@ -120,7 +144,7 @@ export const ServerSideTable = <T extends {}>({
   tablecolumns = [],
   isError = false,
   isFetching = false,
-  idField = "id",
+  idField = "id" as string,
   deleteUrl = "",
   setManual = () => {},
   editcomponents = null,
@@ -130,12 +154,15 @@ export const ServerSideTable = <T extends {}>({
   setValidationErrors = () => {},
   validationErrors = {},
   validateData = () => {},
-  postDataProps = { url: "", dataFields: [] },
+  postDataProps = { addurl: "", dataFields: [] },
+  setColumnVisibility = () => {},
+  columnVisibility = {},
 }: ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
   const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const appstate = useAppState();
+
   const HandleDeleteData = async (row: any) => {
     handleDelete({
       dispatch,
@@ -166,7 +193,7 @@ export const ServerSideTable = <T extends {}>({
     let tablecols: string[] = [];
     if (tablecolumns.length > 0) {
       if (data.length > 0) {
-        tablecols = tablecolumns;
+        tablecols = tablecolumns.map((dt) => dt.name);
       } else {
         if (data.length > 0) {
           tablecols = Object.keys(data[0]);
@@ -175,6 +202,11 @@ export const ServerSideTable = <T extends {}>({
       const columns: MRT_ColumnDef<T>[] = tablecols.map((key) => {
         let accessorKey = key;
         let header = FieldConfigs(key);
+        let filterVariant;
+        const filvariant = tablecolumns.find((item) => item.name === key);
+        if (filvariant) {
+          filterVariant = filvariant.type;
+        }
         const otherconfigs = columnConfigs.find(
           (item) => item.accessorKey === key
         );
@@ -185,6 +217,7 @@ export const ServerSideTable = <T extends {}>({
           ...(otherconfigs ?? {}),
           header: header,
           accessorKey: accessorKey,
+          filterVariant,
         };
       });
       return columns;
@@ -192,7 +225,7 @@ export const ServerSideTable = <T extends {}>({
     return [];
   };
 
-  const handleCreateUser = async ({ values, table }: any) => {
+  const handleCreate = async ({ values, table }: any) => {
     try {
       const newValidationErrors = validateData(values);
       if (Object.values(newValidationErrors).some((error) => error)) {
@@ -216,11 +249,54 @@ export const ServerSideTable = <T extends {}>({
         }
         values = dataToPost;
       }
-      const data = await postData({ url: postDataProps.url, data: values });
+      const data = await postData({ url: postDataProps.addurl, data: values });
       if ("error" in data) {
         throw data.error;
       }
       table.setCreatingRow(null);
+      refetch();
+      enqueueSnackbar(data.data.msg, {
+        variant: "success",
+        anchorOrigin: { horizontal: "right", vertical: "top" },
+      });
+    } catch (error) {
+      handleError(error, appstate, enqueueSnackbar);
+    }
+  };
+
+  const handleUpdate = async ({ values, table, row }: any) => {
+    try {
+      const newValidationErrors = validateData(values);
+      if (Object.values(newValidationErrors).some((error) => error)) {
+        setValidationErrors(newValidationErrors);
+        return;
+      }
+      let dataToPost: any = {};
+      const url = postDataProps.editurl ? postDataProps.editurl(row) : "";
+      if (Object.keys(values).length > 0) {
+        dataToPost = postDataProps.dataFields.map((field: string) => {
+          return {
+            [field]: values[field],
+          };
+        });
+        if (postDataProps.postType === "Object" || !postDataProps.postType) {
+          const postdata = {};
+          dataToPost.forEach((item: any) => {
+            Object.assign(postdata, item);
+          });
+          dataToPost = postdata;
+        }
+        values = dataToPost;
+      }
+      const data = await postData({
+        url: url,
+        data: values,
+        method: "PATCH",
+      });
+      if ("error" in data) {
+        throw data.error;
+      }
+      table.setEditingRow(null);
       refetch();
       enqueueSnackbar(data.data.msg, {
         variant: "success",
@@ -248,13 +324,21 @@ export const ServerSideTable = <T extends {}>({
     manualFiltering: true,
     manualPagination: true,
     manualSorting: true,
+    getRowId: (row) => row[idField],
     onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateUser,
+    onCreatingRowSave: handleCreate,
+    onEditingRowCancel: () => setValidationErrors({}),
+    onEditingRowSave: handleUpdate,
     renderTopToolbarCustomActions: ({ table }) => (
       <>
         <div>
           <Tooltip arrow title="Refresh Data">
-            <IconButton onClick={() => refetch()}>
+            <IconButton
+              onClick={() => {
+                refetch();
+                setColumnFilters([]);
+              }}
+            >
               <RefreshIcon />
             </IconButton>
           </Tooltip>
@@ -279,6 +363,7 @@ export const ServerSideTable = <T extends {}>({
     rowCount: totalDocs,
     enableRowActions: enableEditing,
     ...actionrendertypes,
+    onColumnVisibilityChange: setColumnVisibility,
     renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
       <>
         <DialogTitle
@@ -323,6 +408,7 @@ export const ServerSideTable = <T extends {}>({
       showAlertBanner: isError,
       showProgressBars: isFetching,
       sorting,
+      columnVisibility,
     },
   });
   return table;

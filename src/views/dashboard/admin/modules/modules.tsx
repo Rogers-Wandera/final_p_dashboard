@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuthUser } from "../../../../contexts/authcontext";
 import {
+  ColumnVisibility,
   ServerSideTable,
   addeditprops,
   menuitemsProps,
@@ -8,7 +9,7 @@ import {
   tableCols,
 } from "../../../../components/tables/serverside";
 import { useTableContext } from "../../../../contexts/tablecontext";
-import { MaterialReactTable } from "material-react-table";
+import { MRT_VisibilityState, MaterialReactTable } from "material-react-table";
 import { useApiQuery } from "../../../../helpers/apiquery";
 import { format } from "date-fns";
 import { Visibility } from "@mui/icons-material";
@@ -27,199 +28,6 @@ export interface modulesApiResponse {
   totalPages: number;
   page: number;
 }
-
-// const url = import.meta.env.VITE_NODE_BASE_URL;
-
-// const Modules = () => {
-//   const [validationErrors, setValidationErrors] = useState<
-//     Record<string, string | undefined>
-//   >({});
-//   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-//     []
-//   );
-//   const [globalFilter, setGlobalFilter] = useState<string>("");
-//   const [sorting, setSorting] = useState<MRT_SortingState>([]);
-//   const [pagination, setPagination] = useState<MRT_PaginationState>({
-//     pageIndex: 0,
-//     pageSize: 5,
-//   });
-//   const { token } = useAuthUser();
-
-//   const { data, isError, isRefetching, isLoading, refetch } =
-//     useQuery<modulesApiResponse>({
-//       queryKey: [
-//         "modules",
-//         columnFilters,
-//         globalFilter,
-//         sorting,
-//         pagination.pageIndex,
-//         pagination.pageSize,
-//       ],
-//       queryFn: async () => {
-//         const fetchURL = new URL(
-//           `${url}/modules`
-//           //   process.env.NODE_ENV === "production"
-//           //     ? "https://www.material-react-table.com"
-//           //     : "http://localhost:3000"
-//         );
-
-//         //read our state and pass it to the API as query params
-//         fetchURL.searchParams.set("start", `${pagination.pageIndex + 1}`);
-//         fetchURL.searchParams.set("size", `${pagination.pageSize}`);
-//         fetchURL.searchParams.set(
-//           "filters",
-//           JSON.stringify(columnFilters ?? [])
-//         );
-//         fetchURL.searchParams.set("globalFilter", globalFilter ?? "");
-//         fetchURL.searchParams.set("sorting", JSON.stringify(sorting ?? []));
-
-//         //use whatever fetch library you want, fetch, axios, etc
-//         const response = await fetch(fetchURL.href, {
-//           headers: {
-//             Authorization: "Bearer " + token,
-//           },
-//         });
-//         const json = (await response.json()) as modulesApiResponse;
-//         return json;
-//       },
-//       placeholderData: keepPreviousData,
-//     });
-//   const { docs = [] } = data ?? {};
-
-//   const columns = useMemo<MRT_ColumnDef<modulesType>[]>(
-//     () => [
-//       {
-//         accessorKey: "id",
-//         header: "Id",
-//         enableEditing: false,
-//         Edit: () => null,
-//       },
-//       {
-//         accessorKey: "name",
-//         header: "Name",
-//         muiEditTextFieldProps: {
-//           required: true,
-//           error: !!validationErrors?.name,
-//           helperText: validationErrors?.name,
-//           onFocus: () => {
-//             setValidationErrors({
-//               ...validationErrors,
-//               name: undefined,
-//             });
-//           },
-//         },
-//       },
-//       {
-//         accessorKey: "position",
-//         header: "Position",
-//         muiEditTextFieldProps: {
-//           required: true,
-//           error: !!validationErrors?.position,
-//           helperText: validationErrors?.position,
-//           onFocus: () => {
-//             setValidationErrors({
-//               ...validationErrors,
-//               position: undefined,
-//             });
-//           },
-//         },
-//       },
-//       {
-//         accessorFn: (row) => new Date(row.creationDate),
-//         id: "creationDate",
-//         header: "Creation Date",
-//         Cell: ({ cell }) => new Date(cell.getValue<Date>()).toLocaleString(),
-//         filterFn: "notEquals",
-//         filterVariant: "date",
-//         enableGlobalFilter: false,
-//         enableEditing: false,
-//         Edit: () => null,
-//       },
-//       {
-//         accessorKey: "isActive",
-//         header: "Active",
-//         enableEditing: false,
-//         Edit: () => null,
-//       },
-//     ],
-//     [validationErrors]
-//   );
-//   const openDeleteConfirmModal = (row: MRT_Row<modulesType>) => {
-//     if (window.confirm("Are you sure you want to delete this user?")) {
-//       // deleteUser(row.original.id);
-//     }
-//   };
-//   const table = useMaterialReactTable({
-//     columns,
-//     data: docs,
-//     initialState: { showColumnFilters: true },
-//     manualFiltering: true,
-//     manualPagination: true,
-//     manualSorting: true,
-//     createDisplayMode: "modal",
-//     editDisplayMode: "modal",
-// enableEditing: true,
-//     // getRowId: (row) => row.id.toString(),
-//     muiToolbarAlertBannerProps: isError
-//       ? {
-//           color: "error",
-//           children: "Error loading data",
-//         }
-//       : undefined,
-//     onColumnFiltersChange: setColumnFilters,
-//     onGlobalFilterChange: setGlobalFilter,
-//     onPaginationChange: setPagination,
-//     onSortingChange: setSorting,
-//     renderTopToolbarCustomActions: () => (
-//       <>
-//         <Tooltip arrow title="Refresh Data">
-//           <IconButton onClick={() => refetch()}>
-//             <RefreshIcon />
-//           </IconButton>
-//         </Tooltip>
-//         <Button
-//           variant="contained"
-//           onClick={() => {
-//             table.setCreatingRow(true);
-//           }}
-//         >
-//           Create New User
-//         </Button>
-//       </>
-//     ),
-//     renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
-//       <>
-//         <DialogTitle variant="h3">Create Module</DialogTitle>
-//       </>
-//     ),
-// renderRowActions: ({ row, table }) => (
-//   <Box sx={{ display: "flex", gap: "1rem" }}>
-//     <Tooltip title="Edit">
-//       <IconButton onClick={() => table.setEditingRow(row)}>
-//         <EditIcon />
-//       </IconButton>
-//     </Tooltip>
-//     <Tooltip title="Delete">
-//       <IconButton color="error" onClick={() => openDeleteConfirmModal(row)}>
-//         <DeleteIcon />
-//       </IconButton>
-//     </Tooltip>
-//   </Box>
-// ),
-//     rowCount: data?.totalDocs ?? 0,
-//     state: {
-//       columnFilters,
-//       globalFilter,
-//       isLoading,
-//       pagination,
-//       showAlertBanner: isError,
-//       showProgressBars: isRefetching,
-//       sorting,
-//     },
-//   });
-
-//   return <MaterialReactTable table={table} />;
-// };
 
 const otherConfigs: moreConfigsTypes = {
   createDisplayMode: "modal",
@@ -255,9 +63,14 @@ export function validateData(data: modulesType) {
 
 const Modules = () => {
   const { manual, setManual } = useTableContext();
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string | undefined>
-  >({});
+  const [validationErrors, setValidationErrors] = useState<ColumnVisibility>(
+    {}
+  );
+  const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
+    {
+      id: false,
+    }
+  );
   const otherconfigs: tableCols<modulesType>[] = [
     {
       accessorKey: "id",
@@ -268,6 +81,7 @@ const Modules = () => {
     },
     {
       accessorKey: "creationDate",
+      header: "Date",
       enableEditing: false,
       Edit: () => null,
       Cell: ({ cell }) => {
@@ -326,7 +140,12 @@ const Modules = () => {
     isError,
     isLoading,
     totalDocs: data?.data?.totalDocs ?? 0,
-    tablecolumns: ["id", "name", "position", "creationDate"],
+    tablecolumns: [
+      { name: "id", type: "text" },
+      { name: "name", type: "text" },
+      { name: "position", type: "text" },
+      { name: "creationDate", type: "date" },
+    ],
     columnConfigs: otherconfigs,
     isFetching,
     error,
@@ -339,7 +158,13 @@ const Modules = () => {
     validateData,
     setValidationErrors,
     validationErrors,
-    postDataProps: { url: "/modules", dataFields: ["name", "position"] },
+    postDataProps: {
+      addurl: "/modules",
+      dataFields: ["name", "position"],
+      editurl: (row) => `modules/${row.id}`,
+    },
+    columnVisibility,
+    setColumnVisibility,
   });
   return (
     <div>
