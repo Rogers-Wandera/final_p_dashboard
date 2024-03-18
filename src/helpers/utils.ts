@@ -1,6 +1,7 @@
 import { EnqueueSnackbar } from "notistack";
 import { SharedStateContextType } from "../contexts/sharedcontexts";
 import { ErrorResponse } from "../store/services/auth";
+import Crypto from "crypto-js";
 
 export const handleError = (
   error: any,
@@ -85,4 +86,29 @@ export const handleError = (
       }
     }
   }
+};
+
+export const encrypt = (input: string) => {
+  const secretKey = import.meta.env.VITE_EN_SECRET_KEY;
+  const cipherInput = Crypto.AES.encrypt(input, secretKey).toString();
+  return cipherInput;
+};
+
+export const decrypt = (encrypted: string) => {
+  const secretKey = import.meta.env.VITE_EN_SECRET_KEY;
+  const bytes = Crypto.AES.decrypt(encrypted, secretKey);
+  const ciphedInput = bytes.toString(Crypto.enc.Utf8);
+  return ciphedInput;
+};
+
+export const encryptUrl = (input: string) => {
+  const encrypted = encrypt(input);
+  return encodeURIComponent(encrypted);
+};
+
+export const decryptUrl = (input: string) => {
+  const secretKey = import.meta.env.VITE_EN_SECRET_KEY;
+  const bytes = Crypto.AES.decrypt(decodeURIComponent(input), secretKey);
+  const ciphedInput = bytes.toString(Crypto.enc.Utf8);
+  return ciphedInput;
 };

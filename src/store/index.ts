@@ -15,6 +15,7 @@ import {
 } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import { thunk } from "redux-thunk";
+import { defaultReducer } from "./services/defaults";
 
 const persistConfig = {
   key: "root",
@@ -23,6 +24,7 @@ const persistConfig = {
 
 const rootReducers = combineReducers({
   authuser: authReducer,
+  defaultstate: defaultReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducers);

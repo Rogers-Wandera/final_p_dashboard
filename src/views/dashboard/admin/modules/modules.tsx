@@ -13,6 +13,11 @@ import { MRT_VisibilityState, MaterialReactTable } from "material-react-table";
 import { useApiQuery } from "../../../../helpers/apiquery";
 import { format } from "date-fns";
 import { Visibility } from "@mui/icons-material";
+import { encryptUrl } from "../../../../helpers/utils";
+import withAuthentication from "../../../../hoc/withUserAuth";
+import withRouter, { RouterContextType } from "../../../../hoc/withRouter";
+import { useAppDispatch } from "../../../../hooks/hook";
+import { setHeaderText } from "../../../../store/services/defaults";
 
 export interface modulesType {
   id: number;
@@ -39,18 +44,6 @@ const addeditconfig: addeditprops = {
   edittitle: "Edit Module",
   variant: "h5",
 };
-
-const moreMenuItems: menuitemsProps<modulesType>[] = [
-  {
-    label: "View",
-    icon: <Visibility sx={{ color: "#1976d2" }} />,
-    onClick(row, _, closeMenu) {
-      closeMenu && closeMenu();
-      console.log(row.original.creationDate);
-    },
-    render: true,
-  },
-];
 export const validateRequired = (value: string) => !!value.length;
 export function validateData(data: modulesType) {
   return {
@@ -61,16 +54,33 @@ export function validateData(data: modulesType) {
   };
 }
 
-const Modules = () => {
+const Modules = (props: any) => {
   const { manual, setManual } = useTableContext();
   const [validationErrors, setValidationErrors] = useState<ColumnVisibility>(
     {}
   );
+  const { navigate } = props.router as RouterContextType;
+  const dispatch = useAppDispatch();
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {
       id: false,
     }
   );
+  useEffect(() => {
+    dispatch(setHeaderText("Manage Modules"));
+  }, []);
+  const moreMenuItems: menuitemsProps<modulesType>[] = [
+    {
+      label: "View",
+      icon: <Visibility sx={{ color: "#1976d2" }} />,
+      onClick(row, _, closeMenu) {
+        closeMenu && closeMenu();
+        const id = encryptUrl(row.original.id.toString());
+        navigate(`/dashboard/modules/${id}`);
+      },
+      render: true,
+    },
+  ];
   const otherconfigs: tableCols<modulesType>[] = [
     {
       accessorKey: "id",
@@ -172,4 +182,4 @@ const Modules = () => {
     </div>
   );
 };
-export default Modules;
+export default withAuthentication(withRouter(Modules));

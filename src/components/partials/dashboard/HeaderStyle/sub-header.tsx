@@ -1,4 +1,4 @@
-import { memo, Fragment, useEffect, useState } from "react";
+import { memo, Fragment } from "react";
 import { Row, Col, Container } from "react-bootstrap";
 // import { Link } from "react-router-dom";
 //img
@@ -8,17 +8,23 @@ import topHeader2 from "../../../../assets/images/dashboard/top-header2.png";
 import topHeader3 from "../../../../assets/images/dashboard/top-header3.png";
 import topHeader4 from "../../../../assets/images/dashboard/top-header4.png";
 import topHeader5 from "../../../../assets/images/dashboard/top-header5.png";
-import { UserState, useAuthUser } from "../../../../contexts/authcontext";
+import {
+  RootState,
+  UserState,
+  useAuthUser,
+} from "../../../../contexts/authcontext";
 import { useAppState } from "../../../../contexts/sharedcontexts";
 import withAuthentication from "../../../../hoc/withUserAuth";
 import withRouter from "../../../../hoc/withRouter";
+import { useSelector } from "react-redux";
 
-const SubHeader = memo((props: any) => {
+const SubHeader = memo(() => {
   const authuser = useAuthUser();
+  const headerText = useSelector(
+    (state: RootState) => state.appState.defaultstate.headerText
+  );
   const user: UserState = authuser.user;
   const appState = useAppState();
-  const location = props.router.location;
-  const [message, setMessage] = useState("");
   const displayAnnouncements = () => {
     appState?.setSnackBarOpen({
       message: "No announcements at the moment",
@@ -28,19 +34,6 @@ const SubHeader = memo((props: any) => {
       position: "top-right",
     });
   };
-  useEffect(() => {
-    const data = location.pathname.split("/");
-    if (data.length == 2 && data[1] == "dashboard") {
-      setMessage(`Welecome to your dashboard`);
-    } else {
-      const lastindex = data.length - 1;
-      setMessage(
-        "Manage " +
-          data[lastindex].charAt(0).toUpperCase() +
-          data[lastindex].slice(1)
-      );
-    }
-  }, [location]);
   return (
     <Fragment>
       <div className="iq-navbar-header" style={{ height: "215px" }}>
@@ -50,7 +43,7 @@ const SubHeader = memo((props: any) => {
               <div className="d-flex justify-content-between flex-wrap">
                 <div>
                   <h2>Hello {user.displayName} !</h2>
-                  <p className="mt-4 text-center">{message}</p>
+                  <p className="mt-4 text-center">{headerText}</p>
                 </div>
                 <div
                   className="d-flex align-items-center"

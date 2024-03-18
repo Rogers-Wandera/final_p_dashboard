@@ -30,6 +30,8 @@ import { useSnackbar } from "notistack";
 import { useAppState } from "../../contexts/sharedcontexts";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import { handleError } from "../../helpers/utils";
+import ArrowBack from "@mui/icons-material/ArrowBack";
+import { useNavigate } from "react-router-dom";
 
 export interface ServerSideResponse<T> {
   docs: Array<T>;
@@ -105,6 +107,7 @@ export interface ServerSideProps<T extends {}> {
   setColumnVisibility?: React.Dispatch<
     React.SetStateAction<MRT_VisibilityState>
   >;
+  showback?: boolean;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -157,11 +160,13 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   postDataProps = { addurl: "", dataFields: [] },
   setColumnVisibility = () => {},
   columnVisibility = {},
+  showback = false,
 }: ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
   const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
   const appstate = useAppState();
+  const navigate = useNavigate();
 
   const HandleDeleteData = async (row: any) => {
     handleDelete({
@@ -197,6 +202,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
       } else {
         if (data.length > 0) {
           tablecols = Object.keys(data[0]);
+          console.log(tablecols);
         }
       }
       const columns: MRT_ColumnDef<T>[] = tablecols.map((key) => {
@@ -332,6 +338,18 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
     renderTopToolbarCustomActions: ({ table }) => (
       <>
         <div>
+          {showback && (
+            <Tooltip arrow title="Go back">
+              <IconButton
+                onClick={() => {
+                  navigate(-1);
+                }}
+                color="secondary"
+              >
+                <ArrowBack />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip arrow title="Refresh Data">
             <IconButton
               onClick={() => {
