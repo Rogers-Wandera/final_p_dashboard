@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 //router
 // import IndexRouters from "./router/index"
 
@@ -9,68 +9,59 @@ import "./assets/scss/dark.scss";
 import "./assets/scss/rtl.scss";
 import "./assets/scss/customizer.scss";
 
-// Redux Selector / Action
-import { useDispatch, useSelector } from "react-redux";
-
 // import state selectors
 import { setSetting } from "./store/setting/actions";
 
 // imports
-import { loguserout, useCheckServerStatusQuery } from "./store/services/auth";
+import { setLoading, useCheckServerStatusQuery } from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
 import SnackBar from "./components/snackbar";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
 import { LoadingScreen } from "./components/Loading";
 
-// decoder
-import { jwtDecode } from "jwt-decode";
 import { useAuthUser } from "./contexts/authcontext";
 import VerifyEmail from "./views/auth/verifyemail";
+import { useAppDispatch } from "./hooks/hook";
+import AuthVerify from "./components/authverify";
+// import ModulesAuth from "./components/modulesfetch";
+import { fetchUserLinks } from "./store/services/thunks";
+import { useTableContext } from "./contexts/tablecontext";
+import { useLocation } from "react-router-dom";
 
 function App() {
   const { isError, isLoading } = useCheckServerStatusQuery();
-  const dispatch = useDispatch();
-  const appState = useAppState();
-  const navigate = useNavigate();
-  const [isTokenExpired, setIsTokenExpired] = React.useState(false);
-  // const token = useSelector((state) => state.appState.authuser.token);
-  // const loading = useSelector((state) => state.appState.authuser.loading);
-  const { token, user, loading } = useAuthUser();
 
-  React.useEffect(() => {
+  const dispatch = useAppDispatch();
+  const appState = useAppState();
+  const { user, loading, token } = useAuthUser();
+  const location = useLocation();
+  const {
+    setColumnFilters,
+    setGlobalFilter,
+    setManual,
+    setPagination,
+    setSorting,
+  } = useTableContext();
+
+  useEffect(() => {
     dispatch(setSetting());
   }, [dispatch]);
 
-  React.useEffect(() => {
-    const checkTokenExpiration = () => {
-      if (token) {
-        const decoded = jwtDecode(token);
-        const currentTime = Math.floor(Date.now() / 1000); // Convert to seconds
-        setIsTokenExpired(decoded.exp < currentTime);
-      }
-    };
-
-    checkTokenExpiration(); // Initial check
-
-    const interval = setInterval(checkTokenExpiration, 60000); // Check every minute
-
-    return () => clearInterval(interval); // Cleanup
-  }, [token]);
-
-  React.useEffect(() => {
-    if (isTokenExpired) {
-      appState?.setSnackBarOpen({
-        message: "Your session has expired. Please login again",
-        open: true,
-        severity: "error",
-        timer: 6000,
-        position: "top-right",
-      });
-      dispatch(loguserout({ token: "", isLoggedIn: false, user: {} }));
-      navigate("/");
+  useEffect(() => {
+    dispatch(setLoading(true));
+    if (token !== "") {
+      dispatch(fetchUserLinks());
     }
-  }, [isTokenExpired, loading]);
+    dispatch(setLoading(false));
+  }, []);
+  useEffect(() => {
+    setGlobalFilter("");
+    setPagination({ pageIndex: 0, pageSize: 5 });
+    setSorting([]);
+    setColumnFilters([]);
+    setManual(true);
+  }, [location.pathname]);
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -82,6 +73,8 @@ function App() {
   if (user.verified === 0) {
     return <VerifyEmail />;
   }
+
+  // console.log(import.meta.env.VITE_PUBLIC_URL);
   if (isError) {
     return (
       <Error500
@@ -97,6 +90,8 @@ function App() {
         open={appState.snackBarOpen}
         setOpen={appState.setSnackBarOpen}
       />
+      <AuthVerify />
+      {/* <ModulesAuth /> */}
       <Outlet />
     </div>
   );

@@ -8,15 +8,22 @@ import topHeader2 from "../../../../assets/images/dashboard/top-header2.png";
 import topHeader3 from "../../../../assets/images/dashboard/top-header3.png";
 import topHeader4 from "../../../../assets/images/dashboard/top-header4.png";
 import topHeader5 from "../../../../assets/images/dashboard/top-header5.png";
-import { useSelector } from "react-redux";
-import { RootState, UserState } from "../../../../contexts/authcontext";
+import {
+  RootState,
+  UserState,
+  useAuthUser,
+} from "../../../../contexts/authcontext";
 import { useAppState } from "../../../../contexts/sharedcontexts";
 import withAuthentication from "../../../../hoc/withUserAuth";
+import withRouter from "../../../../hoc/withRouter";
+import { useSelector } from "react-redux";
 
-const SubHeader = memo((_) => {
-  const user: UserState = useSelector(
-    (state: RootState) => state.appState.authuser.user
+const SubHeader = memo(() => {
+  const authuser = useAuthUser();
+  const headerText = useSelector(
+    (state: RootState) => state.appState.defaultstate.headerText
   );
+  const user: UserState = authuser.user;
   const appState = useAppState();
   const displayAnnouncements = () => {
     appState?.setSnackBarOpen({
@@ -35,10 +42,8 @@ const SubHeader = memo((_) => {
             <Col md="12">
               <div className="d-flex justify-content-between flex-wrap">
                 <div>
-                  <h1>
-                    Hello {user?.firstname} {user?.lastname}!
-                  </h1>
-                  <p>Welecome to MBRS dashboard</p>
+                  <h2>Hello {user.displayName} !</h2>
+                  <p className="mt-4 text-center">{headerText}</p>
                 </div>
                 <div
                   className="d-flex align-items-center"
@@ -106,4 +111,4 @@ const SubHeader = memo((_) => {
   );
 });
 
-export default withAuthentication(SubHeader);
+export default withAuthentication(withRouter(SubHeader));

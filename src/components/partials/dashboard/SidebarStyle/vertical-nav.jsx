@@ -1,4 +1,4 @@
-import React, { useState, useContext, memo, Fragment } from "react";
+import React, { useState, useContext, memo, Fragment, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Accordion,
@@ -6,6 +6,9 @@ import {
   AccordionContext,
 } from "react-bootstrap";
 import { useAuthUser } from "../../../../contexts/authcontext";
+import { useConnection } from "../../../../contexts/connectioncontext";
+import { useAppDispatch } from "../../../../hooks/hook";
+import { setModules } from "../../../../store/services/auth";
 
 function CustomToggle({ children, eventKey, onClick }) {
   const { activeEventKey } = useContext(AccordionContext);
@@ -34,10 +37,32 @@ function CustomToggle({ children, eventKey, onClick }) {
 const VerticalNav = memo((props) => {
   const [activeMenu, setActiveMenu] = useState(false);
   const [active, setActive] = useState("");
-  const { modules } = useAuthUser();
+  const { modules, id } = useAuthUser();
+  const dispatch = useAppDispatch();
   //location
   let location = useLocation();
-  const modulesmain = Object.keys(modules);
+  let modulesmain = [];
+  if (modules) {
+    modulesmain = Object.keys(modules).length > 0 ? Object.keys(modules) : [];
+  }
+  const socket = useConnection();
+
+  useEffect(() => {
+    if (socket == null) return;
+
+    const handleRoleAdded = async (data) => {
+      if (data.userId == id) {
+        // setResponse(data);
+        dispatch(setModules(data.data));
+      }
+    };
+    socket.on("roleemitter", handleRoleAdded);
+
+    return () => {
+      socket.off("roleemitter", handleRoleAdded);
+    };
+  }, [socket, id, dispatch]);
+
   return (
     <Fragment>
       <Accordion as="ul" className="navbar-nav iq-main-menu">
@@ -378,9 +403,12 @@ const VerticalNav = memo((props) => {
                   </CustomToggle>
                   <Accordion.Collapse eventKey={module}>
                     <ul className="sub-nav">
-                      {modulelinks.map((link) => {
+                      {modulelinks.map((link, index) => {
                         return (
-                          <li className="nav-item" key={link.id}>
+                          <li
+                            className="nav-item"
+                            key={`${link.linkname}+index`}
+                          >
                             <Link
                               className={`${
                                 location.pathname === `/dashboard${link.route}`

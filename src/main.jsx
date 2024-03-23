@@ -19,7 +19,26 @@ import AppStateProvider from "./contexts/sharedcontexts";
 import { SnackbarProvider } from "notistack";
 import AuthUserProvider from "./contexts/authcontext";
 import { LoadingScreen } from "./components/Loading";
+import Error404 from "./views/dashboard/errors/error404";
+import Error401 from "./views/dashboard/errors/error401";
+import ConnectionProvider from "./contexts/connectioncontext";
+import {
+  QueryClientProvider,
+  QueryClient,
+  QueryCache,
+} from "@tanstack/react-query";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
+import TableContextProvider from "./contexts/tablecontext";
 
+const queryClient = new QueryClient({
+  // queryCache: new QueryCache({
+  //   onError: (error, query) => {
+  //     console.log(error["response"]);
+  //   },
+  // }),
+});
 const router = createBrowserRouter(
   [
     {
@@ -36,6 +55,18 @@ const router = createBrowserRouter(
         ...DefaultRouter,
         ...IndexRouters,
         ...SimpleRouter,
+        {
+          path: "/unauthorized",
+          element: <Error401 />,
+        },
+        {
+          path: "*",
+          element: <Error404 />,
+        },
+        {
+          path: "/notfound",
+          element: <Error404 />,
+        },
       ],
     },
   ],
@@ -44,19 +75,29 @@ const router = createBrowserRouter(
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <Provider store={store}>
-      <PersistGate persistor={persistor} loading={<LoadingScreen />}>
-        {/* <App> */}
-        <SnackbarProvider>
-          <AppStateProvider>
-            <AuthUserProvider>
-              <RouterProvider router={router}></RouterProvider>
-            </AuthUserProvider>
-          </AppStateProvider>
-        </SnackbarProvider>
-        {/* </App> */}
-      </PersistGate>
-    </Provider>
+    <ConnectionProvider>
+      <Provider store={store}>
+        <PersistGate persistor={persistor} loading={<LoadingScreen />}>
+          {/* <App> */}
+          <QueryClientProvider client={queryClient}>
+            <SnackbarProvider>
+              <AppStateProvider>
+                <AuthUserProvider>
+                  <ThemeProvider theme={createTheme({})}>
+                    <LocalizationProvider dateAdapter={AdapterDateFns}>
+                      <TableContextProvider>
+                        <RouterProvider router={router}></RouterProvider>
+                      </TableContextProvider>
+                    </LocalizationProvider>
+                  </ThemeProvider>
+                </AuthUserProvider>
+              </AppStateProvider>
+            </SnackbarProvider>
+          </QueryClientProvider>
+          {/* </App> */}
+        </PersistGate>
+      </Provider>
+    </ConnectionProvider>
   </React.StrictMode>
 );
 

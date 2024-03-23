@@ -8,12 +8,7 @@ import { enqueueSnackbar } from "notistack";
 import axios from "axios";
 import { useAuthUser } from "../../contexts/authcontext";
 import { useAppDispatch } from "../../hooks/hook";
-import {
-  setLoading,
-  setLoggedIn,
-  setToken,
-  setUser,
-} from "../../store/services/auth";
+import { setLoading, setLoggedIn, setToken } from "../../store/services/auth";
 
 const VerifyEmail = () => {
   const appstate = useAppState();
@@ -36,12 +31,16 @@ const VerifyEmail = () => {
         anchorOrigin: { horizontal: "right", vertical: "top" },
         hideIconVariant: true,
       });
-      dispatch(setUser({}));
+      authuser.setUser({});
+      authuser.setId("");
+      authuser.setRoles([]);
       dispatch(setLoggedIn(false));
       dispatch(setToken(""));
     } catch (error) {
       dispatch(setLoading(false));
-      dispatch(setUser({}));
+      authuser.setUser({});
+      authuser.setId("");
+      authuser.setRoles([]);
       dispatch(setLoggedIn(false));
       dispatch(setToken(""));
       handleError(error, appstate, enqueueSnackbar);

@@ -39,17 +39,21 @@ import CountUp from "react-countup";
 // Import selectors & action from setting store
 import * as SettingSelector from "../../store/setting/selectors.js";
 import withAuthentication from "../../hoc/withUserAuth.js";
-import { RootState, UserState } from "../../contexts/authcontext.js";
+import { UserState, useAuthUser } from "../../contexts/authcontext.js";
+import { useAppDispatch } from "../../hooks/hook.js";
+import { setHeaderText } from "../../store/services/defaults.js";
 
 // install Swiper modules
 // SwiperCore.use([Navigation]);
 
 const Index = memo((_) => {
   useSelector(SettingSelector.theme_color);
-  const user: UserState = useSelector(
-    (state: RootState) => state.appState.authuser.user
-  );
-
+  const authUser = useAuthUser();
+  const user: UserState = authUser.user;
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    dispatch(setHeaderText("Welecome to MBRS Dashboard"));
+  }, []);
   const getVariableColor = () => {
     let prefix =
       getComputedStyle(document.body).getPropertyValue("--prefix") || "bs-";
