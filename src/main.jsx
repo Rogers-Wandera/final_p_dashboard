@@ -3,6 +3,10 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 
+// css
+import "@mantine/core/styles.css";
+import "@mantine/dates/styles.css";
+
 //router
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 //store
@@ -31,6 +35,7 @@ import { createTheme, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import TableContextProvider from "./contexts/tablecontext";
+import { MantineProvider } from "@mantine/core";
 
 const queryClient = new QueryClient({
   // queryCache: new QueryCache({
@@ -84,11 +89,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
               <AppStateProvider>
                 <AuthUserProvider>
                   <ThemeProvider theme={createTheme({})}>
-                    <LocalizationProvider dateAdapter={AdapterDateFns}>
-                      <TableContextProvider>
-                        <RouterProvider router={router}></RouterProvider>
-                      </TableContextProvider>
-                    </LocalizationProvider>
+                    <MantineProvider>
+                      <LocalizationProvider dateAdapter={AdapterDateFns}>
+                        <TableContextProvider>
+                          <RouterProvider router={router}></RouterProvider>
+                        </TableContextProvider>
+                      </LocalizationProvider>
+                    </MantineProvider>
                   </ThemeProvider>
                 </AuthUserProvider>
               </AppStateProvider>

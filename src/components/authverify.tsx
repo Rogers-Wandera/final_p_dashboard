@@ -1,9 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TypeToken, loguserout } from "../store/services/auth";
 import withRouter from "../hoc/withRouter";
 import { useAuthUser } from "../contexts/authcontext";
 import { useAppDispatch } from "../hooks/hook";
 import { enqueueSnackbar } from "notistack";
+import { useInterval } from "@mantine/hooks";
 
 const parseJwt = (token: string): TypeToken => {
   try {
@@ -13,17 +14,20 @@ const parseJwt = (token: string): TypeToken => {
   }
 };
 
-const AuthVerify = (props: any) => {
-  const authUser = useAuthUser();
+const AuthVerify = () => {
   const dispatch = useAppDispatch();
-  const location = props.router.location;
-  useEffect(() => {
+  const [isLoggedOut, setIsLoggedOut] = useState(false);
+  const authUser = useAuthUser();
+
+  const OnLogOutUser = () => {
     if (authUser.token !== "") {
       const jwt = parseJwt(authUser.token);
       if (jwt?.exp * 1000 < Date.now()) {
         dispatch(loguserout({}));
         authUser.setId("");
         authUser.setRoles([]);
+        authUser.token = "";
+        setIsLoggedOut(true);
         enqueueSnackbar("Your session has expired please login", {
           variant: "success",
           anchorOrigin: { horizontal: "right", vertical: "top" },
@@ -31,7 +35,16 @@ const AuthVerify = (props: any) => {
         });
       }
     }
-  }, [location]);
+  };
+
+  const interval = useInterval(OnLogOutUser, 600000);
+  useEffect(() => {
+    interval.start();
+    if (isLoggedOut) {
+      interval.toggle;
+    }
+    return interval.stop();
+  }, [isLoggedOut]);
   return <div></div>;
 };
 
