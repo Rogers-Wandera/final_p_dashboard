@@ -2,6 +2,7 @@ import { EnqueueSnackbar } from "notistack";
 import { SharedStateContextType } from "../contexts/sharedcontexts";
 import { ErrorResponse } from "../store/services/auth";
 import Crypto from "crypto-js";
+import axios, { AxiosRequestConfig } from "axios";
 
 export const handleError = (
   error: any,
@@ -111,4 +112,46 @@ export const decryptUrl = (input: string) => {
   const bytes = Crypto.AES.decrypt(decodeURIComponent(input), secretKey);
   const ciphedInput = bytes.toString(Crypto.enc.Utf8);
   return ciphedInput;
+};
+
+export const checkItemExists = (array1: any[], array2: any[]) => {
+  return array1.some((item) => array2.includes(item));
+};
+
+// this returns the response with a generic T
+export const FetchData = async <T>(
+  url: string,
+  headers?: AxiosRequestConfig["headers"]
+): Promise<T> => {
+  try {
+    const response = await axios.get<T>(url, {
+      headers: headers,
+    });
+    const data = response.data;
+    return data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const handleAxiosError = (
+  error: any,
+  enqueueSnackbar: EnqueueSnackbar
+) => {
+  let msg = "";
+  let status = 500;
+  if (error?.response?.data?.msg) {
+    msg = error?.response?.data?.msg;
+  } else if (error?.response?.data?.error) {
+    msg = error.response?.data?.error;
+  } else {
+    msg = error?.response?.data?.message;
+  }
+  if (error?.response?.status) {
+    status = error?.response?.status;
+  }
+  enqueueSnackbar(`${status} ${msg}`, {
+    variant: "error",
+    anchorOrigin: { horizontal: "right", vertical: "top" },
+  });
 };

@@ -9,7 +9,7 @@ import {
   tableCols,
 } from "../../../../components/tables/serverside";
 import { useTableContext } from "../../../../contexts/tablecontext";
-import { MRT_VisibilityState, MaterialReactTable } from "material-react-table";
+import { MRT_TableInstance, MRT_VisibilityState } from "material-react-table";
 import { useApiQuery } from "../../../../helpers/apiquery";
 import { format } from "date-fns";
 import { Visibility } from "@mui/icons-material";
@@ -45,12 +45,19 @@ const addeditconfig: addeditprops = {
   variant: "h5",
 };
 export const validateRequired = (value: string) => !!value.length;
-export function validateData(data: modulesType) {
+export function validateData(
+  data: modulesType,
+  table: MRT_TableInstance<modulesType>
+) {
+  let position = !validateRequired(data.position.toString())
+    ? "Position is required"
+    : "";
+  if (table.getState().creatingRow) {
+    position = "";
+  }
   return {
     name: !validateRequired(data.name) ? "Module name is required" : "",
-    position: !validateRequired(data.position.toString())
-      ? "Position is required"
-      : "",
+    position,
   };
 }
 
@@ -101,16 +108,20 @@ const Modules = (props: any) => {
     {
       accessorKey: "position",
       header: "Position",
-      muiEditTextFieldProps: {
-        required: true,
-        error: !!validationErrors?.position,
-        helperText: validationErrors?.position,
+      muiEditTextFieldProps: ({ table }) => ({
+        required: table.getState().creatingRow ? true : false,
+        hidden: table.getState().creatingRow ? true : false,
+        disabled: table.getState().creatingRow != undefined ? true : false,
+        error:
+          (table.getState().creatingRow && !!validationErrors?.position) ||
+          undefined,
+        helperText: table.getState().creatingRow && validationErrors?.position,
         onFocus: () =>
           setValidationErrors({
             ...validationErrors,
             position: undefined,
           }),
-      },
+      }),
     },
     {
       accessorKey: "name",
@@ -142,43 +153,47 @@ const Modules = (props: any) => {
     }
   }, [data, manual]);
 
-  const response = data?.data?.docs;
-  const table = ServerSideTable<modulesType>({
-    refetch,
-    title: "Module",
-    data: response ?? [],
-    isError,
-    isLoading,
-    totalDocs: data?.data?.totalDocs ?? 0,
-    tablecolumns: [
-      { name: "id", type: "text" },
-      { name: "name", type: "text" },
-      { name: "position", type: "text" },
-      { name: "creationDate", type: "date" },
-    ],
-    columnConfigs: otherconfigs,
-    isFetching,
-    error,
-    enableEditing: true,
-    deleteUrl: "modules",
-    setManual,
-    moreConfigs: otherConfigs,
-    addeditprops: addeditconfig,
-    moreMenuItems: moreMenuItems,
-    validateData,
-    setValidationErrors,
-    validationErrors,
-    postDataProps: {
-      addurl: "/modules",
-      dataFields: ["name", "position"],
-      editurl: (row) => `modules/${row.id}`,
-    },
-    columnVisibility,
-    setColumnVisibility,
-  });
+  const response = data?.data?.docs || [];
   return (
     <div>
-      <MaterialReactTable table={table} />
+      <ServerSideTable<modulesType>
+        data={response}
+        refetch={refetch}
+        title="Module"
+        isError={isError}
+        isLoading={isLoading}
+        isFetching={isFetching}
+        totalDocs={data?.data?.totalDocs ?? 0}
+        tablecolumns={[
+          { name: "id", type: "text" },
+          { name: "name", type: "text" },
+          { name: "position", type: "text" },
+          { name: "creationDate", type: "date" },
+        ]}
+        columnConfigs={otherconfigs}
+        error={error}
+        enableEditing={true}
+        deleteUrl="modules"
+        setManual={setManual}
+        moreConfigs={otherConfigs}
+        addeditprops={addeditconfig}
+        moreMenuItems={moreMenuItems}
+        validateData={validateData}
+        setValidationErrors={setValidationErrors}
+        validationErrors={validationErrors}
+        postDataProps={{
+          addurl: "/modules",
+          dataFields: ["name", "position"],
+          editurl: (row) => `modules/${row.id}`,
+        }}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        createCallback={(values) => {
+          let newvalues = values;
+          newvalues["position"] = 0;
+          return newvalues;
+        }}
+      />
     </div>
   );
 };

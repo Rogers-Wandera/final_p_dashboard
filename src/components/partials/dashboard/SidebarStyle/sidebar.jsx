@@ -84,7 +84,7 @@ const Sidebar = memo((props) => {
         <div className="sidebar-header d-flex align-items-center justify-content-start">
           <Link to="/dashboard" className="navbar-brand">
             <Logo />
-            <h4 className="logo-title">MBRS</h4>
+            <h4 className="logo-title">{props.app_name}</h4>
           </Link>
           <div
             className="sidebar-toggle"

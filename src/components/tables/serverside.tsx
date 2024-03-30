@@ -5,6 +5,7 @@ import {
   MRT_Row,
   MRT_TableInstance,
   MRT_VisibilityState,
+  MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
 import React, { useMemo } from "react";
@@ -96,7 +97,7 @@ export interface ServerSideProps<T extends {}> {
   setValidationErrors?: React.Dispatch<
     React.SetStateAction<Record<string, string | undefined>>
   >;
-  validateData?: (data: any) => any;
+  validateData?: (data: any, table: any) => any;
   postDataProps?: {
     addurl: string;
     dataFields: string[];
@@ -108,6 +109,7 @@ export interface ServerSideProps<T extends {}> {
     React.SetStateAction<MRT_VisibilityState>
   >;
   showback?: boolean;
+  createCallback?: (values: any, table: any) => typeof values;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -161,6 +163,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   setColumnVisibility = () => {},
   columnVisibility = {},
   showback = false,
+  createCallback = undefined,
 }: ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
   const dispatch = useAppDispatch();
@@ -197,14 +200,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   const generateColumns = (): MRT_ColumnDef<T>[] => {
     let tablecols: string[] = [];
     if (tablecolumns.length > 0) {
-      if (data.length > 0) {
-        tablecols = tablecolumns.map((dt) => dt.name);
-      } else {
-        if (data.length > 0) {
-          tablecols = Object.keys(data[0]);
-          console.log(tablecols);
-        }
-      }
+      tablecols = tablecolumns.map((dt) => dt.name);
       const columns: MRT_ColumnDef<T>[] = tablecols.map((key) => {
         let accessorKey = key;
         let header = FieldConfigs(key);
@@ -233,7 +229,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
 
   const handleCreate = async ({ values, table }: any) => {
     try {
-      const newValidationErrors = validateData(values);
+      const newValidationErrors = validateData(values, table);
       if (Object.values(newValidationErrors).some((error) => error)) {
         setValidationErrors(newValidationErrors);
         return;
@@ -254,6 +250,9 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
           dataToPost = postdata;
         }
         values = dataToPost;
+        if (createCallback) {
+          values = createCallback(dataToPost, table);
+        }
       }
       const data = await postData({ url: postDataProps.addurl, data: values });
       if ("error" in data) {
@@ -272,7 +271,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
 
   const handleUpdate = async ({ values, table, row }: any) => {
     try {
-      const newValidationErrors = validateData(values);
+      const newValidationErrors = validateData(values, table);
       if (Object.values(newValidationErrors).some((error) => error)) {
         setValidationErrors(newValidationErrors);
         return;
@@ -429,7 +428,11 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
       columnVisibility,
     },
   });
-  return table;
+  return (
+    <div>
+      <MaterialReactTable table={table} />
+    </div>
+  );
 };
 
 const FieldConfigs = (key: string) => {
