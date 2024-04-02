@@ -15,6 +15,8 @@ import { useApiQuery } from "../../../../helpers/apiquery";
 import { useAuthUser } from "../../../../contexts/authcontext";
 import { useTableContext } from "../../../../contexts/tablecontext";
 import { format } from "date-fns";
+import withRouteRole from "../../../../hoc/withRouteRole";
+import withRolesVerify from "../../../../hoc/withRolesVerify";
 
 export interface ModuleLinksProps {
   id: number;
@@ -233,4 +235,8 @@ const ModulesLinks = (props: any) => {
     </div>
   );
 };
-export default withAuthentication(withRouter(ModulesLinks));
+const LinkWithVerified = withAuthentication(
+  withRouter(withRouteRole(ModulesLinks))
+);
+const LinkWithAcceptedRoles = withRolesVerify(LinkWithVerified);
+export default LinkWithAcceptedRoles;

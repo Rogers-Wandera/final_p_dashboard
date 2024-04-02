@@ -8,7 +8,7 @@ import {
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import React, { useMemo } from "react";
+import React, { ReactNode, useMemo } from "react";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useTableContext } from "../../contexts/tablecontext";
 import {
@@ -89,7 +89,7 @@ export interface ServerSideProps<T extends {}> {
   setManual?: React.Dispatch<React.SetStateAction<boolean>>;
   title: string;
   moreConfigs?: moreConfigsTypes;
-  editcomponents?: any;
+  editcomponents?: ReactNode | null;
   addeditprops?: addeditprops;
   actionprop?: actionconfigs;
   moreMenuItems?: menuitemsProps<T>[];
@@ -110,6 +110,7 @@ export interface ServerSideProps<T extends {}> {
   >;
   showback?: boolean;
   createCallback?: (values: any, table: any) => typeof values;
+  customCallback?: (table: MRT_TableInstance<T>) => void;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -164,6 +165,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   columnVisibility = {},
   showback = false,
   createCallback = undefined,
+  customCallback = () => {},
 }: ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
   const dispatch = useAppDispatch();
@@ -363,6 +365,11 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
             <IconButton
               onClick={() => {
                 table.setCreatingRow(true);
+                if (moreConfigs?.createDisplayMode === "custom") {
+                  if (customCallback) {
+                    customCallback(table);
+                  }
+                }
               }}
             >
               <AddBoxIcon />
@@ -387,7 +394,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
           variant={addeditprops.variant || "h5"}
           sx={{ textAlign: "center" }}
         >
-          {addeditprops.addtitle || "Add New" + { title }}
+          {addeditprops.addtitle || "Add New " + title}
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -405,7 +412,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
           variant={addeditprops.variant || "h5"}
           sx={{ textAlign: "center" }}
         >
-          {addeditprops.edittitle || "Edit" + { title }}
+          {addeditprops.edittitle || "Edit " + title}
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}

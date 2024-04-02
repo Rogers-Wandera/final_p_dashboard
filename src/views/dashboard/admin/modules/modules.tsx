@@ -18,6 +18,8 @@ import withAuthentication from "../../../../hoc/withUserAuth";
 import withRouter, { RouterContextType } from "../../../../hoc/withRouter";
 import { useAppDispatch } from "../../../../hooks/hook";
 import { setHeaderText } from "../../../../store/services/defaults";
+import withRouteRole from "../../../../hoc/withRouteRole";
+import withRolesVerify from "../../../../hoc/withRolesVerify";
 
 export interface modulesType {
   id: number;
@@ -197,4 +199,6 @@ const Modules = (props: any) => {
     </div>
   );
 };
-export default withAuthentication(withRouter(Modules));
+const ModuleVerified = withAuthentication(withRouter(withRouteRole(Modules)));
+const ModuleWithRoles = withRolesVerify(ModuleVerified);
+export default ModuleWithRoles;

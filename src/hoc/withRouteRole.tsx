@@ -1,15 +1,19 @@
 import React from "react";
 import { useAuthUser } from "../contexts/authcontext";
-import { Navigate, useLocation } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { hasRouteRole } from "../helpers/routesroles";
+import { useBasePath } from "../helpers/utils";
 
 const withRouteRole = <P extends object>(
   Component: React.ComponentType<P>
 ): React.ComponentType<P> => {
   const WrapperComponent: React.FC<P> = (props) => {
-    const location = useLocation();
+    const actualpath = useBasePath();
     const { modules } = useAuthUser();
-    if (!hasRouteRole(modules, location.pathname)) {
+    if (!modules) {
+      return <Navigate to="/unauthorized" />;
+    }
+    if (!hasRouteRole(modules, actualpath)) {
       return <Navigate to="/unauthorized" />;
     }
     return <Component {...props} />;

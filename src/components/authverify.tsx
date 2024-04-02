@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { TypeToken, loguserout } from "../store/services/auth";
-import withRouter from "../hoc/withRouter";
+import withRouter, { RouterContextType } from "../hoc/withRouter";
 import { useAuthUser } from "../contexts/authcontext";
 import { useAppDispatch } from "../hooks/hook";
 import { enqueueSnackbar } from "notistack";
@@ -14,10 +14,11 @@ const parseJwt = (token: string): TypeToken => {
   }
 };
 
-const AuthVerify = () => {
+const AuthVerify = (props: any) => {
   const dispatch = useAppDispatch();
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const authUser = useAuthUser();
+  const { location } = props.router as RouterContextType;
 
   const OnLogOutUser = () => {
     if (authUser.token !== "") {
@@ -39,12 +40,20 @@ const AuthVerify = () => {
 
   const interval = useInterval(OnLogOutUser, 600000);
   useEffect(() => {
-    interval.start();
-    if (isLoggedOut) {
-      interval.toggle;
+    const jwt = parseJwt(authUser.token);
+    if (authUser.token.length > 0) {
+      interval.start();
+      if (isLoggedOut) {
+        interval.toggle;
+      }
+      if (jwt?.exp * 1000 < Date.now()) {
+        OnLogOutUser();
+        interval.stop();
+        setIsLoggedOut(false);
+      }
+      return interval.stop();
     }
-    return interval.stop();
-  }, [isLoggedOut]);
+  }, [isLoggedOut, location.pathname, authUser.token, interval]);
   return <div></div>;
 };
 

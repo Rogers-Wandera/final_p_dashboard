@@ -16,12 +16,13 @@ import { setSetting } from "./store/setting/actions";
 import { setLoading, useCheckServerStatusQuery } from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
 import SnackBar from "./components/snackbar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
 import { LoadingScreen } from "./components/Loading";
 
 import { useAuthUser } from "./contexts/authcontext";
 import VerifyEmail from "./views/auth/verifyemail";
+import ChangePassword from "./views/auth/changepassword";
 import { useAppDispatch } from "./hooks/hook";
 import AuthVerify from "./components/authverify";
 // import ModulesAuth from "./components/modulesfetch";
@@ -31,7 +32,7 @@ import { useLocation } from "react-router-dom";
 
 function App() {
   const { isError, isLoading } = useCheckServerStatusQuery();
-
+  const history = useNavigate();
   const dispatch = useAppDispatch();
   const appState = useAppState();
   const { user, loading, token } = useAuthUser();
@@ -54,6 +55,11 @@ function App() {
       dispatch(fetchUserLinks());
     }
     dispatch(setLoading(false));
+  }, []);
+  useEffect(() => {
+    if (user.adminCreated === 1) {
+      history("/changepword");
+    }
   }, []);
   useEffect(() => {
     setGlobalFilter("");

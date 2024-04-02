@@ -32,13 +32,13 @@ import * as SettingSelector from "../../../../store/setting/selectors";
 
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import { RootState } from "../../../../contexts/authcontext";
+import { RootState, useAuthUser } from "../../../../contexts/authcontext";
 import withAuthentication from "../../../../hoc/withUserAuth";
 import { loguserout } from "../../../../store/services/auth";
 import { useSnackbar } from "notistack";
 
 const Header = memo((_) => {
-  const user = useSelector((state: RootState) => state.appState.authuser.user);
+  const { user } = useAuthUser();
   const navbarHide = useSelector(SettingSelector.navbar_show); // array
   const headerNavbar = useSelector(SettingSelector.header_navbar);
   const { enqueueSnackbar } = useSnackbar();
@@ -424,10 +424,8 @@ const Header = memo((_) => {
                     className="theme-color-pink-img img-fluid avatar avatar-50 avatar-rounded"
                   />
                   <div className="caption ms-3 d-none d-md-block ">
-                    <h6 className="mb-0 caption-title">{user?.lastname}</h6>
-                    <p className="mb-0 caption-sub-title">
-                      Marketing Administrator
-                    </p>
+                    <h6 className="mb-0 caption-title">{user.displayName}</h6>
+                    <p className="mb-0 caption-sub-title">{user.position}</p>
                   </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu
