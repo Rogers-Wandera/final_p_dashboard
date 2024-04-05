@@ -3,6 +3,7 @@ import { SharedStateContextType } from "../contexts/sharedcontexts";
 import { ErrorResponse } from "../store/services/auth";
 import Crypto from "crypto-js";
 import axios, { AxiosRequestConfig } from "axios";
+import { useLocation, useParams } from "react-router-dom";
 
 export const handleError = (
   error: any,
@@ -154,4 +155,14 @@ export const handleAxiosError = (
     variant: "error",
     anchorOrigin: { horizontal: "right", vertical: "top" },
   });
+};
+
+export const useBasePath = () => {
+  const location = useLocation();
+  const params = useParams<Record<string, string>>();
+  return Object.keys(params).reduce((path, param) => {
+    const decodedpath = decodeURIComponent(path);
+    const replaced = decodedpath.replace("/" + params[param], "");
+    return replaced;
+  }, location.pathname);
 };

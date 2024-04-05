@@ -12,7 +12,7 @@ import { EnqueueSnackbar } from "notistack";
 
 export interface PostPatchPayLoad<T extends {}> {
   url: string;
-  data: Array<T>;
+  data: Array<T> | T;
   method?: "POST" | "PATCH";
   type?: "application/json" | "multipart/form-data";
 }
@@ -20,6 +20,13 @@ export interface PostPatchPayLoad<T extends {}> {
 export interface DeletePayLoad {
   url: string;
   data?: any;
+}
+
+export interface GenericApiResponse<T> {
+  docs: Array<T>;
+  totalDocs: number;
+  totalPages: number;
+  page: number;
 }
 
 export type deleteProps = {
@@ -124,7 +131,6 @@ export const handleDelete = async ({
       });
       setManual(true);
     } catch (error) {
-      console.log(error);
       handleError(error, appstate, enqueueSnackbar);
       //   Swal.fire("Error!", error.);
     }

@@ -19,6 +19,8 @@ export interface UserTokenObject {
   roles: number[];
   isLocked: number;
   verified: number;
+  adminCreated: number;
+  position: string;
 }
 
 export interface TypeToken {

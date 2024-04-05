@@ -52,7 +52,6 @@ const Default = memo((props) => {
   // let location = useLocation();
   // const pageLayout = useSelector(SettingSelector.page_layout);
   const appName = useSelector(SettingSelector.app_name);
-  useEffect(() => {});
 
   // const closeTour = () => {
   //   sessionStorage.setItem("tour", "true");

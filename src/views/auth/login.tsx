@@ -16,20 +16,43 @@ import { handleError } from "../../helpers/utils";
 import { useAuthUser } from "../../contexts/authcontext";
 import { fetchUserLinks } from "../../store/services/thunks";
 import { useAppDispatch } from "../../hooks/hook";
+import { PasswordInput, Popover, Progress, TextInput } from "@mantine/core";
+import {
+  PasswordRequirement,
+  getStrength,
+} from "../../components/modals/formmodal/formconfigs";
+import { withoutuppercase } from "../../assets/defaults/passwordrequirements";
 
 const Login = () => {
   let history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { isLoggedIn, token } = useAuthUser();
+  if (isLoggedIn && token !== "") {
+    return <Navigate to="/dashboard" />;
+  }
   const appstate = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loginUser] = useLoginUserMutation();
   const dispatch = useAppDispatch();
 
-  if (isLoggedIn && token !== "") {
-    return <Navigate to="/dashboard" />;
-  }
+  const [popoverOpened, setPopoverOpened] = useState(false);
+  const checks = withoutuppercase.map((requirement, index) => (
+    <PasswordRequirement
+      key={index}
+      label={requirement.label}
+      meets={requirement.re.test(password)}
+    />
+  ));
+
+  // useEffect(() => {
+  //   if (isLoggedIn && token !== "") {
+  //     history("/dashboard");
+  //   }
+  // }, []);
+
+  const strength = getStrength(password, 8, withoutuppercase);
+  const color = strength === 100 ? "teal" : strength > 50 ? "yellow" : "red";
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -38,18 +61,14 @@ const Login = () => {
       if ("error" in data) {
         throw data.error;
       }
-      // dispatch(useGetUserQuery({}));
+      await dispatch(fetchUserLinks());
+      dispatch(setLoading(false));
       appstate?.setSnackBarOpen({
         open: true,
         message: data.data.msg,
         severity: "success",
         position: "top-right",
       });
-      // await dispatch(fetchUserData());
-      // if (user.verified === 1) {
-      await dispatch(fetchUserLinks());
-      // }
-      dispatch(setLoading(false));
       history("/dashboard");
     } catch (error) {
       dispatch(setLoading(false));
@@ -124,14 +143,15 @@ const Login = () => {
                             <Form.Label htmlFor="email" className="">
                               Email
                             </Form.Label>
-                            <Form.Control
+                            <TextInput
+                              withAsterisk
                               type="email"
                               className=""
                               id="email"
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                               aria-describedby="email"
-                              placeholder=" "
+                              placeholder=""
                             />
                           </Form.Group>
                         </Col>
@@ -140,7 +160,7 @@ const Login = () => {
                             <Form.Label htmlFor="password" className="">
                               Password
                             </Form.Label>
-                            <Form.Control
+                            {/* <Form.Control
                               type="password"
                               className=""
                               id="password"
@@ -148,11 +168,46 @@ const Login = () => {
                               onChange={(e) => setPassword(e.target.value)}
                               aria-describedby="password"
                               placeholder=" "
-                            />
+                            /> */}
+                            <Popover
+                              opened={popoverOpened}
+                              position="bottom"
+                              width="target"
+                              transitionProps={{ transition: "pop" }}
+                            >
+                              <Popover.Target>
+                                <div
+                                  onFocusCapture={() => setPopoverOpened(true)}
+                                  onBlurCapture={() => setPopoverOpened(false)}
+                                >
+                                  <PasswordInput
+                                    withAsterisk
+                                    placeholder="Your password"
+                                    value={password}
+                                    onChange={(event) =>
+                                      setPassword(event.currentTarget.value)
+                                    }
+                                  />
+                                </div>
+                              </Popover.Target>
+                              <Popover.Dropdown>
+                                <Progress
+                                  color={color}
+                                  value={strength}
+                                  size={5}
+                                  mb="xs"
+                                />
+                                <PasswordRequirement
+                                  label="Includes at least 8 characters"
+                                  meets={password.length > 7}
+                                />
+                                {checks}
+                              </Popover.Dropdown>
+                            </Popover>
                           </Form.Group>
                         </Col>
                         <Col lg="12" className="d-flex justify-content-between">
-                          <Form.Check className="form-check mb-3">
+                          {/* <Form.Check className="form-check mb-3">
                             <Form.Check.Input
                               type="checkbox"
                               id="customCheck1"
@@ -160,7 +215,7 @@ const Login = () => {
                             <Form.Check.Label htmlFor="customCheck1">
                               Remember Me
                             </Form.Check.Label>
-                          </Form.Check>
+                          </Form.Check> */}
                           <Link to="/pwreset">Forgot Password?</Link>
                         </Col>
                       </Row>

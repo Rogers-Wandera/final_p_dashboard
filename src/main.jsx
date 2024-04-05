@@ -26,16 +26,13 @@ import { LoadingScreen } from "./components/Loading";
 import Error404 from "./views/dashboard/errors/error404";
 import Error401 from "./views/dashboard/errors/error401";
 import ConnectionProvider from "./contexts/connectioncontext";
-import {
-  QueryClientProvider,
-  QueryClient,
-  QueryCache,
-} from "@tanstack/react-query";
+import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import TableContextProvider from "./contexts/tablecontext";
 import { MantineProvider } from "@mantine/core";
+import ChangePassword from "./views/auth/changepassword";
 
 const queryClient = new QueryClient({
   // queryCache: new QueryCache({
@@ -56,6 +53,10 @@ const router = createBrowserRouter(
         {
           path: "/pwreset",
           element: <RecoverPassword />,
+        },
+        {
+          path: "/changepword",
+          element: <ChangePassword />,
         },
         ...DefaultRouter,
         ...IndexRouters,

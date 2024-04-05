@@ -3,16 +3,18 @@ import {
   MRT_ColumnDef,
   MRT_EditActionButtons,
   MRT_Row,
+  MRT_RowSelectionState,
   MRT_TableInstance,
   MRT_VisibilityState,
   MaterialReactTable,
   useMaterialReactTable,
 } from "material-react-table";
-import React, { useMemo } from "react";
+import React, { ReactNode, useMemo } from "react";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { useTableContext } from "../../contexts/tablecontext";
 import {
   Box,
+  Button,
   DialogActions,
   DialogContent,
   DialogTitle,
@@ -39,6 +41,32 @@ export interface ServerSideResponse<T> {
   totalDocs: number;
   totalPages: number;
   page: number;
+}
+
+export interface additionaltopbaractions<T extends {}> {
+  label: string;
+  icon: ReactNode;
+  visible?: (row: MRT_Row<T>) => boolean;
+  onClick: (
+    table: MRT_TableInstance<T>,
+    row: MRT_Row<T>,
+    rows: MRT_Row<T>[]
+  ) => void;
+  show?: "text" | "icon";
+  buttonconfigs?: {
+    variant?: "outlined" | "contained";
+    color?:
+      | "inherit"
+      | "primary"
+      | "secondary"
+      | "success"
+      | "error"
+      | "info"
+      | "warning";
+    size?: "small" | "medium" | "large";
+    otherprops?: any;
+    iconplacement?: "start" | "end";
+  };
 }
 
 export interface addeditprops {
@@ -86,10 +114,13 @@ export interface ServerSideProps<T extends {}> {
   error: any;
   deleteUrl?: string;
   idField?: string | number;
+  enableRowSelection?: boolean | ((row: MRT_Row<T>) => boolean);
+  rowSelection?: MRT_RowSelectionState;
+  setRowSelection?: React.Dispatch<React.SetStateAction<MRT_RowSelectionState>>;
   setManual?: React.Dispatch<React.SetStateAction<boolean>>;
   title: string;
   moreConfigs?: moreConfigsTypes;
-  editcomponents?: any;
+  editcomponents?: ReactNode | null;
   addeditprops?: addeditprops;
   actionprop?: actionconfigs;
   moreMenuItems?: menuitemsProps<T>[];
@@ -110,6 +141,12 @@ export interface ServerSideProps<T extends {}> {
   >;
   showback?: boolean;
   createCallback?: (values: any, table: any) => typeof values;
+  customCallback?: (table: MRT_TableInstance<T>) => void;
+  additiontopactions?: additionaltopbaractions<T>[];
+  enableSelectAll?: boolean;
+  enableMultiRowSelection?: boolean;
+  showadditionaltopactions?: boolean | ((row: MRT_Row<T>) => boolean);
+  tabledrawcallback?: (table: MRT_TableInstance<T>) => void;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -164,7 +201,16 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   columnVisibility = {},
   showback = false,
   createCallback = undefined,
-}: ServerSideProps<T>) => {
+  customCallback = () => {},
+  enableRowSelection = false,
+  rowSelection = {},
+  setRowSelection = () => {},
+  additiontopactions = [],
+  enableSelectAll = true,
+  enableMultiRowSelection = false,
+  showadditionaltopactions = true,
+}: // tabledrawcallback = () => {},
+ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
   const dispatch = useAppDispatch();
   const { enqueueSnackbar } = useSnackbar();
@@ -324,6 +370,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
+    enableMultiRowSelection: enableMultiRowSelection,
     ...moreConfigs,
     // enableEditing: enableEditing,
     manualFiltering: true,
@@ -334,6 +381,11 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
     onCreatingRowSave: handleCreate,
     onEditingRowCancel: () => setValidationErrors({}),
     onEditingRowSave: handleUpdate,
+    muiTableBodyRowProps: ({ row }) => ({
+      sx: {
+        fontWeight: row.getIsSelected() ? "bold" : "normal",
+      },
+    }),
     renderTopToolbarCustomActions: ({ table }) => (
       <>
         <div>
@@ -363,11 +415,59 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
             <IconButton
               onClick={() => {
                 table.setCreatingRow(true);
+                if (moreConfigs?.createDisplayMode === "custom") {
+                  if (customCallback) {
+                    customCallback(table);
+                  }
+                }
               }}
             >
               <AddBoxIcon />
             </IconButton>
           </Tooltip>
+          {showadditionaltopactions &&
+            additiontopactions.length > 0 &&
+            additiontopactions.map((action, index) => {
+              let show = (
+                <Tooltip arrow title={action.label} key={index}>
+                  <IconButton
+                    onClick={() => {
+                      const rows = table.getSelectedRowModel().rows;
+                      const row = rows[0];
+                      action.onClick(table, row, rows);
+                    }}
+                  >
+                    {action.icon}
+                  </IconButton>
+                </Tooltip>
+              );
+              if (action.show === "text") {
+                const placement =
+                  action.buttonconfigs?.iconplacement === "end"
+                    ? { endIcon: action.icon }
+                    : { startIcon: action.icon };
+                show = (
+                  <Tooltip arrow title={action.label} key={index}>
+                    <Button
+                      {...placement}
+                      // startIcon={action.icon}
+                      variant={action.buttonconfigs?.variant || "contained"}
+                      size={action.buttonconfigs?.size || "small"}
+                      color={action.buttonconfigs?.color || "primary"}
+                      {...action.buttonconfigs?.otherprops}
+                      onClick={() => {
+                        const rows = table.getSelectedRowModel().rows;
+                        const row = rows[0];
+                        action.onClick(table, row, rows);
+                      }}
+                    >
+                      {action.label}
+                    </Button>
+                  </Tooltip>
+                );
+              }
+              return show;
+            })}
         </div>
       </>
     ),
@@ -378,16 +478,19 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
         }
       : undefined,
     rowCount: totalDocs,
+    enableRowSelection: enableRowSelection,
+    enableSelectAll: enableSelectAll,
     enableRowActions: enableEditing,
     ...actionrendertypes,
     onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
     renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
       <>
         <DialogTitle
           variant={addeditprops.variant || "h5"}
           sx={{ textAlign: "center" }}
         >
-          {addeditprops.addtitle || "Add New" + { title }}
+          {addeditprops.addtitle || "Add New " + title}
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -405,7 +508,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
           variant={addeditprops.variant || "h5"}
           sx={{ textAlign: "center" }}
         >
-          {addeditprops.edittitle || "Edit" + { title }}
+          {addeditprops.edittitle || "Edit " + title}
         </DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
@@ -420,6 +523,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
     state: {
       columnFilters,
       globalFilter,
+      rowSelection,
       isLoading,
       pagination,
       showAlertBanner: isError,
@@ -428,6 +532,10 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
       columnVisibility,
     },
   });
+
+  // useEffect(() => {
+  //   tabledrawcallback(table);
+  // }, []);
   return (
     <div>
       <MaterialReactTable table={table} />

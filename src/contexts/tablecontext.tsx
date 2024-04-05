@@ -1,6 +1,7 @@
 import {
   MRT_ColumnFiltersState,
   MRT_PaginationState,
+  MRT_RowSelectionState,
   MRT_SortingState,
 } from "material-react-table";
 import React, { createContext, useContext, useEffect, useState } from "react";
@@ -18,6 +19,8 @@ interface TableContextState {
   setSorting: React.Dispatch<React.SetStateAction<MRT_SortingState>>;
   pagination: MRT_PaginationState;
   setPagination: React.Dispatch<React.SetStateAction<MRT_PaginationState>>;
+  rowSelection: MRT_RowSelectionState;
+  setRowSelection: React.Dispatch<React.SetStateAction<MRT_RowSelectionState>>;
 }
 
 const TableContext = createContext<TableContextState>({
@@ -31,12 +34,15 @@ const TableContext = createContext<TableContextState>({
   setSorting: () => {},
   pagination: { pageIndex: 0, pageSize: 5 },
   setPagination: () => {},
+  setRowSelection: () => {},
+  rowSelection: {},
 });
 
 const TableContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [manual, setManual] = useState(true);
+  const [rowSelection, setRowSelection] = useState<MRT_RowSelectionState>({});
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
     []
   );
@@ -66,6 +72,8 @@ const TableContextProvider: React.FC<{ children: React.ReactNode }> = ({
         setSorting,
         pagination,
         setPagination,
+        rowSelection,
+        setRowSelection,
       }}
     >
       {children}

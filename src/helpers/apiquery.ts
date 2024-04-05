@@ -6,6 +6,8 @@ import {
 } from "@tanstack/react-query";
 import axios, { AxiosRequestConfig } from "axios";
 import { useTableContext } from "../contexts/tablecontext";
+import { handleAxiosError } from "./utils";
+import { enqueueSnackbar } from "notistack";
 // import { MRT_ColumnFiltersState } from "material-react-table";
 
 export type ApiResponse<T> = {
@@ -34,7 +36,7 @@ export interface typeurlparams {
   size: number;
 }
 
-async function fetchApi<T>(
+export async function fetchApi<T>(
   url: string,
   method: AxiosRequestConfig["method"] = "GET",
   headers: AxiosRequestConfig["headers"] = {},
@@ -74,7 +76,8 @@ async function fetchApi<T>(
       status: response.status,
     };
   } catch (error: any) {
-    throw new Error(error.response?.data || "An error occured");
+    handleAxiosError(error, enqueueSnackbar);
+    throw new Error("An error occured");
   }
 }
 

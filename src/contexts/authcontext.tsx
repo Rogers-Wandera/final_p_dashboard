@@ -1,13 +1,16 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { store } from "../store";
-import { ModulesType, TypeToken } from "../store/services/auth";
+import { ModulesType, TypeToken, setLoading } from "../store/services/auth";
 import { jwtDecode } from "jwt-decode";
+import { useAppDispatch } from "../hooks/hook";
 
 export interface UserState {
   displayName?: string;
   isLocked?: number;
   verified?: number;
+  adminCreated?: number;
+  position?: string;
 }
 
 interface AuthContextState {
@@ -47,6 +50,7 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [roles, setRoles] = useState<number[]>([]);
   const [id, setId] = useState<string>("");
   const [user, setUser] = useState<UserState>({} as UserState);
+  const dispatch = useAppDispatch();
   const isLoggedIn = useSelector(
     (state: RootState) => state.appState.authuser.isLoggedIn
   );
@@ -63,6 +67,7 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
   );
 
   useEffect(() => {
+    dispatch(setLoading(true));
     if (token !== "") {
       const decoded: TypeToken = jwtDecode(token);
       const { user } = decoded;
@@ -72,11 +77,14 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
         displayName: user.displayName,
         verified: user.verified,
         isLocked: user.isLocked,
+        adminCreated: user.adminCreated,
+        position: user.position,
       });
     } else {
       setRoles([]);
       setId("");
     }
+    dispatch(setLoading(false));
   }, [token]);
 
   return (
