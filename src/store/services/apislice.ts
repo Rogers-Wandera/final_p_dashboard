@@ -131,7 +131,6 @@ export const handleDelete = async ({
       });
       setManual(true);
     } catch (error) {
-      console.log(error);
       handleError(error, appstate, enqueueSnackbar);
       //   Swal.fire("Error!", error.);
     }

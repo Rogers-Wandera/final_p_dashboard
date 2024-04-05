@@ -22,6 +22,9 @@ interface formmodalprops {
   opened: boolean;
   close: () => void;
   title: string;
+  formname: string;
+  resetform?: boolean;
+  setResetForm?: React.Dispatch<React.SetStateAction<boolean>>;
   size?: number | MantineSize | (string & {});
   overlayProps?: ModalBaseOverlayProps | undefined;
   description?: string;
@@ -121,6 +124,9 @@ function FormModal({
   opened,
   close,
   title,
+  formname,
+  resetform = false,
+  setResetForm = () => {},
   overlayProps = { backgroundOpacity: 0.5, blur: 3 },
   size = "lg",
   description = "",
@@ -131,6 +137,7 @@ function FormModal({
   buttonconfigs = {},
 }: formmodalprops) {
   const form = useForm({
+    name: formname,
     validate: joiResolver(formvalidation),
   });
   const defaultbuttonconfigs: buttonconfigs = {
@@ -149,6 +156,13 @@ function FormModal({
       form.setValues(initials);
     }
   }, [elements]);
+
+  useEffect(() => {
+    if (resetform) {
+      form.reset();
+      setResetForm(false);
+    }
+  }, [resetform]);
   return (
     <>
       <Modal
@@ -156,7 +170,7 @@ function FormModal({
         onClose={close}
         title={title}
         centered
-        zIndex={1000}
+        zIndex={999}
         overlayProps={overlayProps}
         size={size}
       >

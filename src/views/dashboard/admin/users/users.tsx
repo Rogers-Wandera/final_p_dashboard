@@ -5,8 +5,6 @@ import { useAppDispatch } from "../../../../hooks/hook";
 import { setHeaderText } from "../../../../store/services/defaults";
 import { useDisclosure } from "@mantine/hooks";
 import FormModal, {
-  formcomponentsprops,
-  globalconfigs,
   selectdataprops,
 } from "../../../../components/modals/formmodal/formmodal";
 import joi from "joi";
@@ -21,16 +19,16 @@ import { useAuthUser } from "../../../../contexts/authcontext";
 import { useTableContext } from "../../../../contexts/tablecontext";
 import {
   ServerSideTable,
-  TableColumns,
   moreConfigsTypes,
-  tableCols,
 } from "../../../../components/tables/serverside";
 import { MRT_VisibilityState } from "material-react-table";
 import { enqueueSnackbar } from "notistack";
 import { UseFormReturnType } from "@mantine/form";
-import { withoutuppercase } from "../../../../assets/defaults/passwordrequirements";
 import { handleError } from "../../../../helpers/utils";
 import { useAppState } from "../../../../contexts/sharedcontexts";
+import { Box, Loader, LoadingOverlay } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
+import { userconfigs } from "./configs/user";
 
 const validation = joi.object({
   firstname: joi.string().required(),
@@ -43,7 +41,7 @@ const validation = joi.object({
   confirmpassword: joi.string().required(),
 });
 
-type user = {
+export type user = {
   id: string;
   firstname: string;
   lastname: string;
@@ -57,6 +55,7 @@ type user = {
   tel: string;
   position: string;
   userName: string;
+  image: string | null;
 };
 
 type positionresponse = {
@@ -68,136 +67,23 @@ const modalconfigs: moreConfigsTypes = {
   createDisplayMode: "custom",
   editDisplayMode: "custom",
 };
-
-const tablecolumns: TableColumns[] = [
-  { name: "id", type: "text" },
-  { name: "userName", type: "text" },
-  { name: "gender", type: "text" },
-  { name: "position", type: "text" },
-  { name: "verified", type: "text" },
-  { name: "tel", type: "text" },
-];
-
-const forminputs: formcomponentsprops[] = [
-  {
-    inputtype: "text",
-    label: "First Name",
-    name: "firstname",
-    required: true,
-    initialvalue: "",
-  },
-  {
-    inputtype: "text",
-    label: "Last Name",
-    name: "lastname",
-    required: true,
-    initialvalue: "",
-  },
-  {
-    inputtype: "text",
-    label: "Email",
-    name: "email",
-    initialvalue: "",
-    required: true,
-  },
-  {
-    inputtype: "password",
-    label: "Password",
-    name: "password",
-    initialvalue: "",
-    required: true,
-  },
-  {
-    inputtype: "password",
-    label: "Confirm Password",
-    name: "confirmpassword",
-    initialvalue: "",
-    required: true,
-  },
-  {
-    inputtype: "select",
-    label: "Choose Gender",
-    name: "gender",
-    initialvalue: "",
-    required: true,
-  },
-  {
-    inputtype: "select",
-    label: "Position",
-    name: "position",
-    initialvalue: "",
-    required: true,
-  },
-  {
-    inputtype: "text",
-    label: "Tel",
-    name: "tel",
-    initialvalue: "",
-    required: true,
-  },
-];
-
-const otherconfigs: tableCols<user>[] = [
-  {
-    accessorKey: "id",
-    Edit: () => null,
-  },
-  {
-    accessorKey: "userName",
-    header: "Name",
-    Edit: () => null,
-  },
-  {
-    accessorKey: "gender",
-    header: "Gender",
-  },
-  {
-    accessorKey: "position",
-    header: "Position",
-  },
-  {
-    accessorKey: "verified",
-    header: "Verified",
-    Edit: () => null,
-    Cell: ({ cell }) => {
-      const show = cell.getValue<number>() === 1 ? "Yes" : "No";
-      return <span>{show}</span>;
-    },
-  },
-  {
-    accessorKey: "tel",
-    header: "Tel",
-  },
-];
-
-const selectdata: selectdataprops = {
-  name: "gender",
-  data: [
-    { label: "Male", value: "Male" },
-    { label: "Female", value: "Female" },
-  ],
-};
-
-const moremodalconfigs: globalconfigs = {
-  paswordvalidator: {
-    pwlength: 8,
-    check: true,
-    requirements: withoutuppercase,
-    morechecks: (form) => {
-      const checks = {
-        name: "confirmpassword",
-        label: "Matches Password",
-        checks:
-          form.getInputProps("password").value ===
-          form.getInputProps("confirmpassword").value,
-      };
-      return [checks];
-    },
-  },
-};
 const baseqry: string = import.meta.env.VITE_NODE_BASE_URL;
 const Users = (_: any) => {
-  const { manual, setManual } = useTableContext();
+  const navigate = useNavigate();
+  const { manual, setManual, rowSelection, setRowSelection } =
+    useTableContext();
+  const {
+    forminputs,
+    otherconfigs,
+    tablecolumns,
+    selectdata,
+    moremodalconfigs,
+    toptoolbaractions,
+  } = userconfigs(navigate, setManual, setRowSelection);
+  const [resetform, setResetform] = useState(false);
+  const [showactions, setShowAction] = useState(false);
+  const [visible, { open: openloader, close: closeloader }] =
+    useDisclosure(false);
   const [positions, setPositions] = useState<selectdataprops>({
     name: "position",
     data: [],
@@ -224,7 +110,9 @@ const Users = (_: any) => {
         }
       );
       setPositions({ ...positions, data: response?.data });
-    } catch (error) {}
+    } catch (error) {
+      closeloader();
+    }
   };
   const { data, refetch, isLoading, isError, isFetching, error } = useApiQuery<
     GenericApiResponse<user>
@@ -244,24 +132,29 @@ const Users = (_: any) => {
     >
   ) => {
     event.preventDefault();
-    console.log("1234");
     try {
-      form.validate();
-      if (form.validate()) {
+      const validation = form.validate();
+      if (validation.hasErrors === false) {
+        openloader();
         const values = form.values;
-        values["adminCreated"] = 1;
-        const response = await postUser({ url: "/register", data: values });
+        const postdata = { ...values, adminCreated: 1 };
+        const response = await postUser({ url: "/register", data: postdata });
         if ("error" in response) {
           throw response.error;
         }
         //  table.setCreatingRow(null);
-        refetch();
+        await refetch();
+        close();
+        form.reset();
+        // closeloader();
         enqueueSnackbar(response.data.msg, {
           variant: "success",
           anchorOrigin: { horizontal: "right", vertical: "top" },
         });
       }
+      closeloader();
     } catch (error) {
+      closeloader();
       handleError(error, appState, enqueueSnackbar);
     }
   };
@@ -281,15 +174,31 @@ const Users = (_: any) => {
       setManual(false);
     }
   }, [data, manual]);
+
+  useEffect(() => {
+    if (Object.keys(rowSelection).length > 0) {
+      setShowAction(true);
+    } else {
+      setShowAction(false);
+    }
+  }, [rowSelection]);
   const response = data?.data?.docs || [];
   return (
-    <div>
+    <Box>
+      <LoadingOverlay
+        visible={visible}
+        zIndex={1500}
+        loaderProps={{ children: <Loader color="blue" type="bars" /> }}
+      />
       <FormModal
         opened={opened}
         close={close}
+        formname={"Register-User"}
         title="Add User"
         elements={forminputs}
         size="xl"
+        setResetForm={setResetform}
+        resetform={resetform}
         selectdata={selectoptions}
         formvalidation={validation}
         buttonconfigs={{ handleSubmit: handleFormSubmit }}
@@ -313,9 +222,17 @@ const Users = (_: any) => {
         customCallback={(table) => {
           table.setCreatingRow(true);
           open();
+          setResetform(true);
         }}
+        setRowSelection={setRowSelection}
+        rowSelection={rowSelection}
+        enableRowSelection={true}
+        enableSelectAll={false}
+        enableMultiRowSelection={false}
+        additiontopactions={toptoolbaractions}
+        showadditionaltopactions={showactions}
       />
-    </div>
+    </Box>
   );
 };
 
