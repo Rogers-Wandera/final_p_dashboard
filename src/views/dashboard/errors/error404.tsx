@@ -1,33 +1,22 @@
 import { Container, Image } from "react-bootstrap";
 import { Link } from "react-router-dom";
 // img
-import error500 from "../../../assets/images/error/500.png";
-
-interface Error500Props {
-  heading: string | " Oops! This Page is Not Found";
-  subtitle: string | "The requested page dose not exist.";
-  link?: string;
-  linkText: string | "Back to Home";
-}
-
-const Error500 = ({
-  heading,
-  subtitle,
-  link = "/dashboard",
-  linkText,
-}: Error500Props) => {
+import error404 from "../../../assets/images/error/404.png";
+const Error404 = () => {
   return (
     <>
       <div className="gradient">
         <Container>
-          <Image src={error500} className="img-fluid mb-4 w-50" alt="" />
-          <h2 className="mb-0 mt-4 text-white">{heading}.</h2>
-          <p className="mt-2 text-white">{subtitle}.</p>
+          <Image src={error404} className="img-fluid mb-4 w-50" alt="" />
+          <h2 className="mb-0 mt-4 text-white">
+            Oops! This Page is Not Found.
+          </h2>
+          <p className="mt-2 text-white">The requested page dose not exist.</p>
           <Link
             className="btn bg-white text-primary d-inline-flex align-items-center"
-            to={link}
+            to="/dashboard"
           >
-            {linkText}
+            Back to Home
           </Link>
         </Container>
         <div className="box">
@@ -46,4 +35,4 @@ const Error500 = ({
   );
 };
 
-export default Error500;
+export default Error404;

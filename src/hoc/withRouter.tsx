@@ -9,6 +9,10 @@ export interface RouterContextType {
   appState: ReturnType<typeof useAppState>;
 }
 
+export type PropsRouterType = {
+  router: RouterContextType;
+};
+
 const withRouter = <P extends object>(
   Component: React.ComponentType<P>
 ): React.ComponentType<P> => {

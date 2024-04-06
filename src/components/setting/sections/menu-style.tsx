@@ -9,7 +9,7 @@ import image8 from "../../../assets/images/settings/light/04.png";
 import image9 from "../../../assets/images/settings/dark/05.png";
 import image10 from "../../../assets/images/settings/light/05.png";
 
-const MenuStyle = memo((props) => {
+const MenuStyle = memo((props: any) => {
   return (
     <Fragment>
       <h5 className="mt-4 mb-3">Sidebar Types</h5>

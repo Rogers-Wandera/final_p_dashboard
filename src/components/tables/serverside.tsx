@@ -35,6 +35,7 @@ import AddBoxIcon from "@mui/icons-material/AddBox";
 import { handleError } from "../../helpers/utils";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import { useTableTheme } from "../../helpers/tabletheme";
 
 export interface ServerSideResponse<T> {
   docs: Array<T>;
@@ -217,6 +218,7 @@ ServerSideProps<T>) => {
   const appstate = useAppState();
   const navigate = useNavigate();
 
+  const theme = useTableTheme();
   const HandleDeleteData = async (row: any) => {
     handleDelete({
       dispatch,
@@ -386,6 +388,14 @@ ServerSideProps<T>) => {
         fontWeight: row.getIsSelected() ? "bold" : "normal",
       },
     }),
+    muiTableBodyProps: {
+      sx: {
+        "& tr:nth-of-type(odd) > td": {
+          backgroundColor:
+            theme.palette.mode === "light" ? "#f5f5f5" : "#222738",
+        },
+      },
+    },
     renderTopToolbarCustomActions: ({ table }) => (
       <>
         <div>
@@ -520,6 +530,18 @@ ServerSideProps<T>) => {
         </DialogActions>
       </>
     ),
+    muiTableHeadCellProps: {
+      //easier way to create media queries, no useMediaQuery hook needed.
+      sx: {
+        fontSize: {
+          xs: "10px",
+          sm: "11px",
+          md: "12px",
+          lg: "13px",
+          xl: "14px",
+        },
+      },
+    },
     state: {
       columnFilters,
       globalFilter,

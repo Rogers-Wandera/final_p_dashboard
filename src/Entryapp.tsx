@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import { Dispatch, SetStateAction, useEffect } from "react";
 //router
 // import IndexRouters from "./router/index"
 
@@ -15,14 +15,13 @@ import { setSetting } from "./store/setting/actions";
 // imports
 import { setLoading, useCheckServerStatusQuery } from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
-import SnackBar from "./components/snackbar";
+import SnackBar, { SnackProps } from "./components/snackbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
 import { LoadingScreen } from "./components/Loading";
 
 import { useAuthUser } from "./contexts/authcontext";
 import VerifyEmail from "./views/auth/verifyemail";
-import ChangePassword from "./views/auth/changepassword";
 import { useAppDispatch } from "./hooks/hook";
 import AuthVerify from "./components/authverify";
 // import ModulesAuth from "./components/modulesfetch";
@@ -30,8 +29,8 @@ import { fetchUserLinks } from "./store/services/thunks";
 import { useTableContext } from "./contexts/tablecontext";
 import { useLocation } from "react-router-dom";
 
-function App() {
-  const { isError, isLoading } = useCheckServerStatusQuery();
+function EntryApp() {
+  const { isError, isLoading } = useCheckServerStatusQuery({});
   const history = useNavigate();
   const dispatch = useAppDispatch();
   const appState = useAppState();
@@ -46,7 +45,7 @@ function App() {
   } = useTableContext();
 
   useEffect(() => {
-    dispatch(setSetting());
+    dispatch(setSetting({}));
   }, [dispatch]);
 
   useEffect(() => {
@@ -93,8 +92,10 @@ function App() {
   return (
     <div className="App">
       <SnackBar
-        open={appState.snackBarOpen}
-        setOpen={appState.setSnackBarOpen}
+        open={appState?.snackBarOpen as SnackProps}
+        setOpen={
+          appState?.setSnackBarOpen as Dispatch<SetStateAction<SnackProps>>
+        }
       />
       <AuthVerify />
       {/* <ModulesAuth /> */}
@@ -103,4 +104,4 @@ function App() {
   );
 }
 
-export default App;
+export default EntryApp;

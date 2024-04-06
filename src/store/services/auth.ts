@@ -11,6 +11,7 @@ export interface ModulesTypeLinks {
   expired: number;
   linkname: string;
   route: string;
+  render: number;
 }
 
 export interface UserTokenObject {

@@ -14,14 +14,14 @@ import image4 from "../../../assets/images/settings/light/02.png";
 import { useDispatch } from "react-redux";
 import { theme_color } from "../../../store/setting/actions";
 
-const ThemeScheme = memo((props) => {
+const ThemeScheme = memo((props: any) => {
   const [open] = useState(false);
 
   const dispatch = useDispatch();
 
   const colorValue = props.themeColor;
 
-  const updateColor = (colorClassName, colorObj) => {
+  const updateColor = (colorClassName: any, colorObj: any) => {
     dispatch(theme_color({ value: colorClassName, colors: colorObj }));
   };
 
@@ -29,7 +29,11 @@ const ThemeScheme = memo((props) => {
     updateColor(colorClassName, colorObj);
   }, 300);
 
-  const colorChange = (colorClassName, colorObj, isDebounce = false) => {
+  const colorChange = (
+    colorClassName: any,
+    colorObj: any,
+    isDebounce = false
+  ) => {
     if (isDebounce) {
       slowChange(colorClassName, colorObj);
     } else {
@@ -168,7 +172,7 @@ const ThemeScheme = memo((props) => {
             <input
               name="theme_color"
               data-extra="primary"
-              onInput={(e) =>
+              onChange={(e) =>
                 colorChange(
                   "custom-color",
                   { "--{{prefix}}primary": e.target.value },
@@ -185,7 +189,7 @@ const ThemeScheme = memo((props) => {
             <input
               name="theme_color"
               data-extra="info"
-              onInput={(e) =>
+              onChange={(e) =>
                 colorChange(
                   "custom-color",
                   { "--{{prefix}}info": e.target.value },

@@ -25,6 +25,7 @@ export interface ModuleLinksProps {
   route: string;
   position: number;
   creationDate: string;
+  render: number;
   released: number;
 }
 
@@ -167,6 +168,26 @@ const ModulesLinks = (props: any) => {
           }),
       },
     },
+
+    {
+      accessorKey: "render",
+      header: "Show",
+      editVariant: "select",
+      editSelectOptions: [
+        { label: "Yes", value: "1" },
+        { label: "No", value: "0" },
+      ],
+      muiEditTextFieldProps: {
+        required: true,
+        error: !!validationErrors?.render,
+        helperText: validationErrors?.render,
+        onFocus: () =>
+          setValidationErrors({
+            ...validationErrors,
+            render: undefined,
+          }),
+      },
+    },
   ];
   useEffect(() => {
     if (!decrypted) {
@@ -209,12 +230,13 @@ const ModulesLinks = (props: any) => {
           { name: "route", type: "text" },
           { name: "position", type: "text" },
           { name: "released", type: "text" },
+          { name: "render", type: "text" },
         ]}
         setManual={setManual}
         enableEditing={true}
         postDataProps={{
           addurl: "/modules/links/" + decrypted,
-          dataFields: ["linkname", "position", "route"],
+          dataFields: ["linkname", "position", "route", "render"],
           editurl: (row) => `modules/links/${decrypted}/${row.id}`,
         }}
         columnVisibility={columnVisibility}

@@ -1,4 +1,4 @@
-import React, { useState, useContext, memo, Fragment, useEffect } from "react";
+import { useState, useContext, memo, Fragment, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Accordion,
@@ -8,9 +8,14 @@ import {
 import { useAuthUser } from "../../../../contexts/authcontext";
 import { useConnection } from "../../../../contexts/connectioncontext";
 import { useAppDispatch } from "../../../../hooks/hook";
-import { setModules } from "../../../../store/services/auth";
+import { ModulesType, setModules } from "../../../../store/services/auth";
 
-function CustomToggle({ children, eventKey, onClick }) {
+type customtoggleprops = {
+  eventKey: string;
+  onClick: (data: { state: boolean; eventKey: string }) => void;
+  children: any;
+};
+function CustomToggle({ children, eventKey, onClick }: customtoggleprops) {
   const { activeEventKey } = useContext(AccordionContext);
 
   const decoratedOnClick = useAccordionButton(eventKey, (active) =>
@@ -26,7 +31,7 @@ function CustomToggle({ children, eventKey, onClick }) {
       className="nav-link"
       role="button"
       onClick={(e) => {
-        decoratedOnClick(isCurrentEventKey);
+        decoratedOnClick(e);
       }}
     >
       {children}
@@ -34,14 +39,14 @@ function CustomToggle({ children, eventKey, onClick }) {
   );
 }
 
-const VerticalNav = memo((props) => {
+const VerticalNav = memo((_) => {
   const [activeMenu, setActiveMenu] = useState(false);
   const [active, setActive] = useState("");
   const { modules, id } = useAuthUser();
   const dispatch = useAppDispatch();
   //location
   let location = useLocation();
-  let modulesmain = [];
+  let modulesmain: string[] = [];
   if (modules) {
     modulesmain = Object.keys(modules).length > 0 ? Object.keys(modules) : [];
   }
@@ -50,7 +55,10 @@ const VerticalNav = memo((props) => {
   useEffect(() => {
     if (socket == null) return;
 
-    const handleRoleAdded = async (data) => {
+    const handleRoleAdded = async (data: {
+      userId: string;
+      data: ModulesType;
+    }) => {
       if (data.userId == id) {
         // setResponse(data);
         dispatch(setModules(data.data));
@@ -67,7 +75,7 @@ const VerticalNav = memo((props) => {
     <Fragment>
       <Accordion as="ul" className="navbar-nav iq-main-menu">
         <li className="nav-item static-item">
-          <Link className="nav-link static-item disabled" to="#" tabIndex="-1">
+          <Link className="nav-link static-item disabled" to="#" tabIndex={-1}>
             <span className="default-icon">Home</span>
             <span className="mini-icon">-</span>
           </Link>
@@ -108,7 +116,7 @@ const VerticalNav = memo((props) => {
             <span className="item-name">Dashboard</span>
           </Link>
         </li>
-        <Accordion.Item
+        {/* <Accordion.Item
           as="li"
           eventKey="horizontal-menu"
           bsPrefix={`nav-item ${active === "menustyle" ? "active" : ""} `}
@@ -302,8 +310,8 @@ const VerticalNav = memo((props) => {
               </li>
             </ul>
           </Accordion.Collapse>
-        </Accordion.Item>
-        <li className="nav-item">
+        </Accordion.Item> */}
+        {/* <li className="nav-item">
           <Link
             className={`${location.pathname === "/" ? "active" : ""} nav-link `}
             aria-current="page"
@@ -336,12 +344,12 @@ const VerticalNav = memo((props) => {
               <span className="badge rounded-pill bg-success ms-3">UI</span>
             </span>
           </Link>
-        </li>
+        </li> */}
         <li>
           <hr className="hr-horizontal" />
         </li>
         <li className="nav-item static-item">
-          <Link className="nav-link static-item disabled" to="#" tabIndex="-1">
+          <Link className="nav-link static-item disabled" to="#" tabIndex={-1}>
             <span className="default-icon">Pages</span>
             <span className="mini-icon">-</span>
           </Link>
@@ -349,6 +357,7 @@ const VerticalNav = memo((props) => {
 
         <Accordion.Item
           as="li"
+          className={`${activeMenu === true ? "active" : ""}`}
           eventKey="sidebar-special"
           bsPrefix={`nav-item ${active === "special" ? "active" : ""} `}
           onClick={() => setActive("special")}
@@ -356,12 +365,13 @@ const VerticalNav = memo((props) => {
           {/* display modules */}
           {modulesmain.length > 0 ? (
             modulesmain.map((module) => {
-              const modulelinks = modules[module];
+              const links = modules[module];
+              const modulelinks = links.filter((link) => link.render === 1);
               return (
                 <div key={module}>
                   <CustomToggle
                     eventKey={module}
-                    onClick={(activeKey) => setActiveMenu(activeKey)}
+                    onClick={(activeKey) => setActiveMenu(activeKey.state)}
                   >
                     <i className="icon">
                       <svg
@@ -407,7 +417,7 @@ const VerticalNav = memo((props) => {
                         return (
                           <li
                             className="nav-item"
-                            key={`${link.linkname}+index`}
+                            key={`${link.linkname}+${index}`}
                           >
                             <Link
                               className={`${
@@ -453,12 +463,12 @@ const VerticalNav = memo((props) => {
           <hr className="hr-horizontal" />
         </li>
         <li className="nav-item static-item">
-          <Link className="nav-link static-item disabled" to="#" tabIndex="-1">
+          <Link className="nav-link static-item disabled" to="#" tabIndex={-1}>
             <span className="default-icon">Ui</span>
             <span className="mini-icon">-</span>
           </Link>
         </li>
-        <Accordion.Item
+        {/* <Accordion.Item
           as="li"
           className={`${activeMenu === "0" ? "active" : ""}`}
           eventKey="sidebar-auth"
@@ -692,8 +702,8 @@ const VerticalNav = memo((props) => {
               </li>
             </ul>
           </Accordion.Collapse>
-        </Accordion.Item>
-        <Accordion.Item
+        </Accordion.Item> */}
+        {/* <Accordion.Item
           as="li"
           className={`${activeMenu === "0" ? "active" : ""}`}
           eventKey="sidebar-auth"
@@ -884,7 +894,7 @@ const VerticalNav = memo((props) => {
               </li>
             </ul>
           </Accordion.Collapse>
-        </Accordion.Item>
+        </Accordion.Item> */}
         <Accordion.Item
           as="li"
           eventKey="sidebar-user"
@@ -893,7 +903,7 @@ const VerticalNav = memo((props) => {
         >
           <CustomToggle
             eventKey="sidebar-user"
-            onClick={(activeKey) => setActiveMenu(activeKey)}
+            onClick={(activeKey) => setActiveMenu(activeKey.state)}
           >
             <i className="icon">
               <svg
@@ -1044,7 +1054,7 @@ const VerticalNav = memo((props) => {
             </ul>
           </Accordion.Collapse>
         </Accordion.Item>
-        <Accordion.Item
+        {/* <Accordion.Item
           as="li"
           eventKey="utilities-error"
           bsPrefix={`nav-item ${active === "error" ? "active" : ""} `}
@@ -1178,7 +1188,7 @@ const VerticalNav = memo((props) => {
               </li>
             </ul>
           </Accordion.Collapse>
-        </Accordion.Item>
+        </Accordion.Item> */}
         <li className="nav-item">
           <Link
             className={`${
@@ -1209,7 +1219,7 @@ const VerticalNav = memo((props) => {
             <span className="item-name">Admin</span>
           </Link>
         </li>
-        <li>
+        {/* <li>
           <hr className="hr-horizontal" />
         </li>
         <li className="nav-item static-item">
@@ -1914,7 +1924,7 @@ const VerticalNav = memo((props) => {
               </li>
             </ul>
           </Accordion.Collapse>
-        </Accordion.Item>
+        </Accordion.Item> */}
       </Accordion>
     </Fragment>
   );

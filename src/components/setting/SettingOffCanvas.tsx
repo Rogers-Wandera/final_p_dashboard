@@ -19,7 +19,10 @@ import MenuActiveStyle from "./sections/menu-active-style";
 import NavbarStyle from "./sections/navbar-style";
 import CardStyle from "./sections/card-style";
 
-const SettingOffCanvas = memo((props) => {
+type settingprops = {
+  name?: boolean;
+};
+const SettingOffCanvas = memo((props: settingprops) => {
   const [show, setShow] = useState(false);
 
   // Define selectors
@@ -38,11 +41,11 @@ const SettingOffCanvas = memo((props) => {
   const sidebarMenuStyle = useSelector(SettingSelector.sidebar_menu_style);
 
   useEffect(() => {
-    const onClick = (e) => {
+    const onClick = (e: MouseEvent) => {
       if (show) {
         if (
-          e.target.closest(".live-customizer") == null &&
-          e.target.closest("#settingbutton") == null
+          (e?.target as HTMLElement).closest(".live-customizer") == null &&
+          (e?.target as HTMLElement).closest("#settingbutton") == null
         ) {
           setShow(false);
         }
@@ -120,7 +123,7 @@ const SettingOffCanvas = memo((props) => {
                     themeColor={themeColor}
                   ></ThemeScheme>
 
-                  {props.name === true ? (
+                  {props?.name === true ? (
                     ""
                   ) : (
                     <Fragment>

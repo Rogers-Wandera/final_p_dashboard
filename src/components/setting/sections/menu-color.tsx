@@ -1,12 +1,12 @@
 import { memo, Fragment } from "react";
 import RadioBtn from "../elements/radio-btn";
 
-const MenuColor = memo((props) => {
+const MenuColor = memo((props: any) => {
   return (
     <Fragment>
       <h5 className="mt-4 mb-3">Sidebar Color</h5>
       <div className="d-grid gap-3 grid-cols-2 mb-3">
-      <RadioBtn
+        <RadioBtn
           btnName="sidebar_color"
           imgComponent
           labelclassName="text-center d-block"
@@ -26,7 +26,7 @@ const MenuColor = memo((props) => {
         >
           <span className=" ">Dark</span>
         </RadioBtn>
-        
+
         <RadioBtn
           btnName="sidebar_color"
           imgComponent
@@ -35,10 +35,8 @@ const MenuColor = memo((props) => {
           defaultChecked={props.sidebarColor}
           value="sidebar-color"
         >
-
           <span className="">Color</span>
         </RadioBtn>
-      
 
         <RadioBtn
           btnName="sidebar_color"
@@ -48,7 +46,6 @@ const MenuColor = memo((props) => {
           defaultChecked={props.sidebarColor}
           value="sidebar-transparent"
         >
-
           <span className=" ">Transparent</span>
         </RadioBtn>
       </div>

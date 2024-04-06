@@ -12,7 +12,7 @@ import image16 from "../../../assets/images/settings/light/08.png";
 import image17 from "../../../assets/images/settings/dark/09.png";
 import image18 from "../../../assets/images/settings/light/09.png";
 
-const MenuActiveStyle = memo((props) => {
+const MenuActiveStyle = memo((props: any) => {
   return (
     <Fragment>
       <h5 className="mt-4 mb-3">Sidebar Active Style</h5>

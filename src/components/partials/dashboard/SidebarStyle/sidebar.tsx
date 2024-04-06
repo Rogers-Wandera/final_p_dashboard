@@ -1,4 +1,4 @@
-import React, { useEffect, memo, Fragment } from "react";
+import { useEffect, memo, Fragment } from "react";
 import { Link } from "react-router-dom";
 import VerticalNav from "./vertical-nav";
 
@@ -18,8 +18,10 @@ import withAuthentication from "../../../../hoc/withUserAuth";
 // export const SidebarDark =() =>{
 
 // }
-
-const Sidebar = memo((props) => {
+type sidebarprops = {
+  app_name: string;
+};
+const Sidebar = memo(({ app_name }: sidebarprops) => {
   const sidebarColor = useSelector(SettingSelector.sidebar_color);
   const sidebarHide = useSelector(SettingSelector.sidebar_show); // array
   const sidebarType = useSelector(SettingSelector.sidebar_type); // array
@@ -29,7 +31,7 @@ const Sidebar = memo((props) => {
     document.getElementsByTagName("ASIDE")[0].classList.toggle("sidebar-mini");
   };
   useEffect(() => {
-    Scrollbar.init(document.querySelector("#my-scrollbar"));
+    Scrollbar.init(document.querySelector("#my-scrollbar") as HTMLElement);
 
     window.addEventListener("resize", () => {
       const tabs = document.querySelectorAll(".nav");
@@ -84,7 +86,7 @@ const Sidebar = memo((props) => {
         <div className="sidebar-header d-flex align-items-center justify-content-start">
           <Link to="/dashboard" className="navbar-brand">
             <Logo />
-            <h4 className="logo-title">{props.app_name}</h4>
+            <h4 className="logo-title">{app_name}</h4>
           </Link>
           <div
             className="sidebar-toggle"

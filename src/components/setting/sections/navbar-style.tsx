@@ -9,7 +9,7 @@ import image20 from "../../../assets/images/settings/light/10.png";
 import image23 from "../../../assets/images/settings/dark/12.png";
 import image24 from "../../../assets/images/settings/light/12.png";
 
-const NavbarStyle = memo((props) => {
+const NavbarStyle = memo((props: any) => {
   return (
     <Fragment>
       <h5 className="mt-4 mb-3">Navbar Style</h5>

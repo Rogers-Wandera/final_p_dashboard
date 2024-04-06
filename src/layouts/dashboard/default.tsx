@@ -48,7 +48,7 @@ const Tour = () => {
   return <Fragment></Fragment>;
 };
 
-const Default = memo((props) => {
+const Default = memo((_) => {
   // let location = useLocation();
   // const pageLayout = useSelector(SettingSelector.page_layout);
   const appName = useSelector(SettingSelector.app_name);
@@ -173,7 +173,7 @@ const Default = memo((props) => {
             Contact Support
           </Button>
         </div>
-        <Footer />
+        <Footer app_name={appName} />
       </main>
       <SettingOffCanvas />
     </Fragment>
