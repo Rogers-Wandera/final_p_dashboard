@@ -1,7 +1,19 @@
 import React, { useEffect } from "react";
-import { useAuthUser } from "../contexts/authcontext";
+import { UserState, useAuthUser } from "../contexts/authcontext";
 import { Navigate, useNavigate } from "react-router-dom";
 
+export interface WithUserAuthProps {
+  auth: {
+    isLoggedIn: boolean;
+    token: string;
+    user: UserState;
+  };
+}
+export type userauthprops = {
+  isLoggedIn: boolean;
+  token: string;
+  user: UserState;
+};
 const withAuthentication = <P extends object>(
   Component: React.ComponentType<P>
 ): React.ComponentType<P> => {
@@ -21,7 +33,7 @@ const withAuthentication = <P extends object>(
       return <Navigate to="/" />;
     }
 
-    return <Component {...props} />;
+    return <Component {...props} auth={{ isLoggedIn, token, user }} />;
   };
 
   return WrapperComponent;

@@ -13,48 +13,65 @@ import "./assets/scss/customizer.scss";
 import { setSetting } from "./store/setting/actions";
 
 // imports
-import { setLoading, useCheckServerStatusQuery } from "./store/services/auth";
+import {
+  loguserout,
+  setModules,
+  useCheckServerStatusQuery,
+} from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
 import SnackBar, { SnackProps } from "./components/snackbar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAppState } from "./contexts/sharedcontexts";
 import { LoadingScreen } from "./components/Loading";
 
-import { useAuthUser } from "./contexts/authcontext";
+import { RootState, useAuthUser } from "./contexts/authcontext";
 import VerifyEmail from "./views/auth/verifyemail";
 import { useAppDispatch } from "./hooks/hook";
 import AuthVerify from "./components/authverify";
-// import ModulesAuth from "./components/modulesfetch";
-import { fetchUserLinks } from "./store/services/thunks";
 import { useTableContext } from "./contexts/tablecontext";
 import { useLocation } from "react-router-dom";
+import { useConnection } from "./contexts/connectioncontext";
+import { enqueueSnackbar } from "notistack";
+import { useSelector } from "react-redux";
+import { setManual } from "./store/services/defaults";
+import { GetUserLinks } from "./helpers/utils";
 
 function EntryApp() {
   const { isError, isLoading } = useCheckServerStatusQuery({});
   const history = useNavigate();
   const dispatch = useAppDispatch();
   const appState = useAppState();
-  const { user, loading, token } = useAuthUser();
+  const { user, loading, token, id } = useAuthUser();
+  const manual = useSelector(
+    (state: RootState) => state.appState.defaultstate.manual
+  );
   const location = useLocation();
-  const {
-    setColumnFilters,
-    setGlobalFilter,
-    setManual,
-    setPagination,
-    setSorting,
-  } = useTableContext();
+  const socket = useConnection();
+  const { setColumnFilters, setGlobalFilter, setPagination, setSorting } =
+    useTableContext();
 
   useEffect(() => {
     dispatch(setSetting({}));
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(setLoading(true));
     if (token !== "") {
-      dispatch(fetchUserLinks());
+      dispatch(setManual(true));
     }
-    dispatch(setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (manual === true) {
+      GetUserLinks(token).then((data) => {
+        if (Object.keys(data).length > 0) {
+          dispatch(setModules(data));
+          dispatch(setManual(false));
+        } else {
+          dispatch(setManual(false));
+        }
+      });
+    }
+  }, [manual]);
   useEffect(() => {
     if (user.adminCreated === 1) {
       history("/changepword");
@@ -67,6 +84,26 @@ function EntryApp() {
     setColumnFilters([]);
     setManual(true);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (socket == null) return;
+    const handleLogUserOut = (data: { userId: string }) => {
+      if (data.userId === id) {
+        dispatch(loguserout({}));
+        enqueueSnackbar(
+          "You have been logged out, some configurations have changed, please login again",
+          {
+            variant: "info",
+            anchorOrigin: { horizontal: "right", vertical: "top" },
+          }
+        );
+      }
+    };
+    socket.on("loguserout", handleLogUserOut);
+    return () => {
+      socket.off("loguserout", handleLogUserOut);
+    };
+  }, [socket]);
 
   if (isLoading) {
     return <LoadingScreen />;

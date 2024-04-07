@@ -14,7 +14,6 @@ import { useAppState } from "../../contexts/sharedcontexts";
 import { useSnackbar } from "notistack";
 import { handleError } from "../../helpers/utils";
 import { useAuthUser } from "../../contexts/authcontext";
-import { fetchUserLinks } from "../../store/services/thunks";
 import { useAppDispatch } from "../../hooks/hook";
 import { PasswordInput, Popover, Progress, TextInput } from "@mantine/core";
 import {
@@ -22,6 +21,7 @@ import {
   getStrength,
 } from "../../components/modals/formmodal/formconfigs";
 import { withoutuppercase } from "../../assets/defaults/passwordrequirements";
+import { setManual } from "../../store/services/defaults";
 
 const Login = () => {
   let history = useNavigate();
@@ -61,8 +61,8 @@ const Login = () => {
       if ("error" in data) {
         throw data.error;
       }
-      await dispatch(fetchUserLinks());
       dispatch(setLoading(false));
+      dispatch(setManual(true));
       appstate?.setSnackBarOpen({
         open: true,
         message: data.data.msg,

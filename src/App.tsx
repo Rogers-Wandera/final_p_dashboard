@@ -16,6 +16,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 import TableContextProvider from "./contexts/tablecontext";
 import { MantineProvider } from "@mantine/core";
+import { ModalsProvider } from "@mantine/modals";
 import ChangePassword from "./views/auth/changepassword";
 import { useTableTheme } from "./helpers/tabletheme";
 
@@ -71,11 +72,13 @@ function App() {
           <AuthUserProvider>
             <ThemeProvider theme={tabletheme}>
               <MantineProvider>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <TableContextProvider>
-                    <RouterProvider router={router}></RouterProvider>
-                  </TableContextProvider>
-                </LocalizationProvider>
+                <ModalsProvider>
+                  <LocalizationProvider dateAdapter={AdapterDateFns}>
+                    <TableContextProvider>
+                      <RouterProvider router={router}></RouterProvider>
+                    </TableContextProvider>
+                  </LocalizationProvider>
+                </ModalsProvider>
               </MantineProvider>
             </ThemeProvider>
           </AuthUserProvider>

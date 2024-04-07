@@ -1,16 +1,8 @@
-import { Fragment, useState } from "react";
+import { useEffect, useState } from "react";
 import FsLightbox from "fslightbox-react";
 
-import { Row, Col, Image, Nav, Tab } from "react-bootstrap";
-import Card from "../../../../components/Card";
+import { Row, Col, Tab } from "react-bootstrap";
 // img
-
-import avatars11 from "../../../../assets/images/avatars/01.png";
-import avatars22 from "../../../../assets/images/avatars/avtar_1.png";
-import avatars33 from "../../../../assets/images/avatars/avtar_2.png";
-import avatars44 from "../../../../assets/images/avatars/avtar_3.png";
-import avatars55 from "../../../../assets/images/avatars/avtar_4.png";
-import avatars66 from "../../../../assets/images/avatars/avtar_5.png";
 
 import icon1 from "../../../../assets/images/icons/01.png";
 import icon2 from "../../../../assets/images/icons/02.png";
@@ -21,26 +13,70 @@ import icon5 from "../../../../assets/images/icons/05.png";
 import shap2 from "../../../../assets/images/shapes/02.png";
 import shap4 from "../../../../assets/images/shapes/04.png";
 import shap6 from "../../../../assets/images/shapes/06.png";
-import withAuthentication from "../../../../hoc/withUserAuth";
+import withAuthentication, {
+  WithUserAuthProps,
+} from "../../../../hoc/withUserAuth";
 import withRouteRole from "../../../../hoc/withRouteRole";
-import withRouter, {
-  PropsRouterType,
-  RouterContextType,
-} from "../../../../hoc/withRouter";
+import withRouter, { PropsRouterType } from "../../../../hoc/withRouter";
 import withRolesVerify from "../../../../hoc/withRolesVerify";
-import { useApiQuery } from "../../../../helpers/apiquery";
 import { decryptUrl } from "../../../../helpers/utils";
+import { user } from "./users";
+import { Box, Loader, LoadingOverlay } from "@mantine/core";
+import { useDisclosure } from "@mantine/hooks";
+import UserSideLeft from "./configs/manageuser/usersideleft";
+import UserSideRight from "./configs/manageuser/usersideright";
+import UserHeader from "./configs/manageuser/userheader";
+import {
+  HandleGetUser,
+  HandleGetUserRoles,
+} from "./configs/manageuser/userdataapi";
 
 export type manageuserprops = {
   acceptedroles: number[];
 };
-const ManageUser = ({ router }: manageuserprops & PropsRouterType) => {
+
+export type userrolestype = {
+  id: number;
+  rolename: string;
+  role: number;
+  isActive: number;
+  description: string;
+};
+const ManageUser = ({
+  router,
+  auth,
+}: manageuserprops & PropsRouterType & WithUserAuthProps) => {
   const [toggler, setToggler] = useState<boolean>(false);
-  const { params, navigate } = router;
+  const [userdata, setUserData] = useState<user>({} as user);
+  const [manual, setManual] = useState(false);
+  const [userroles, setUserRoles] = useState<userrolestype[]>([]);
+  const [visible, { open, close }] = useDisclosure(false);
+  const { params } = router;
   const { id } = params;
   const decrypted = decryptUrl(id as string);
+  const HandleGetUserData = async () => {
+    try {
+      open();
+      const user_data = await HandleGetUser(decrypted, auth.token);
+      const user_roles = await HandleGetUserRoles(decrypted, auth.token);
+      setUserData(user_data);
+      setUserRoles(user_roles);
+      close();
+    } catch (error) {
+      close();
+    }
+  };
+
+  useEffect(() => {
+    HandleGetUserData();
+  }, [manual]);
   return (
-    <Fragment>
+    <Box>
+      <LoadingOverlay
+        visible={visible}
+        zIndex={1000}
+        loaderProps={{ children: <Loader color="blue" type="bars" /> }}
+      />
       <FsLightbox
         toggler={toggler}
         sources={[
@@ -57,75 +93,27 @@ const ManageUser = ({ router }: manageuserprops & PropsRouterType) => {
       />
       <Tab.Container defaultActiveKey="first">
         <Row>
-          <Col lg="12">
-            <Card>
-              <Card.Body>
-                <div className="d-flex flex-wrap align-items-center justify-content-between">
-                  <div className="d-flex flex-wrap align-items-center">
-                    <div className="profile-img position-relative me-3 mb-3 mb-lg-0 profile-logo profile-logo1">
-                      <Image
-                        className="theme-color-default-img  img-fluid rounded-pill avatar-100"
-                        src={avatars11}
-                        alt="profile-pic"
-                      />
-                      <Image
-                        className="theme-color-purple-img img-fluid rounded-pill avatar-100"
-                        src={avatars22}
-                        alt="profile-pic"
-                      />
-                      <Image
-                        className="theme-color-blue-img img-fluid rounded-pill avatar-100"
-                        src={avatars33}
-                        alt="profile-pic"
-                      />
-                      <Image
-                        className="theme-color-green-img img-fluid rounded-pill avatar-100"
-                        src={avatars55}
-                        alt="profile-pic"
-                      />
-                      <Image
-                        className="theme-color-yellow-img img-fluid rounded-pill avatar-100"
-                        src={avatars66}
-                        alt="profile-pic"
-                      />
-                      <Image
-                        className="theme-color-pink-img img-fluid rounded-pill avatar-100"
-                        src={avatars44}
-                        alt="profile-pic"
-                      />
-                    </div>
-                    <div className="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
-                      <h4 className="me-2 h4">Austin Robertson</h4>
-                      <span> - Web Developer</span>
-                    </div>
-                  </div>
-                  <Nav
-                    as="ul"
-                    className="d-flex nav-pills mb-0 text-center profile-tab"
-                    data-toggle="slider-tab"
-                    id="profile-pills-tab"
-                    role="tablist"
-                  >
-                    <Nav.Item as="li">
-                      <Nav.Link eventKey="first">Feed</Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item as="li">
-                      <Nav.Link eventKey="second">Activity</Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item as="li">
-                      <Nav.Link eventKey="third">Friends</Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item as="li">
-                      <Nav.Link eventKey="fourth">Profile</Nav.Link>
-                    </Nav.Item>
-                  </Nav>
-                </div>
-              </Card.Body>
-            </Card>
-          </Col>
+          <UserHeader userdata={userdata} />
+          <UserSideLeft
+            user={userdata}
+            setToggler={setToggler}
+            toggler={toggler}
+            userroles={userroles}
+            viewer="Admin"
+            setManual={setManual}
+            manual={manual}
+          />
+          {/* content */}
+          <Col lg="6"></Col>
+          {/* end content */}
+          <UserSideRight
+            user={userdata}
+            setToggler={setToggler}
+            toggler={toggler}
+          />
         </Row>
       </Tab.Container>
-    </Fragment>
+    </Box>
   );
 };
 const ManageWithVerified = withAuthentication(

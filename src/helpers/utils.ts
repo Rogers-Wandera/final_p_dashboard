@@ -1,9 +1,11 @@
 import { EnqueueSnackbar } from "notistack";
 import { SharedStateContextType } from "../contexts/sharedcontexts";
-import { ErrorResponse } from "../store/services/auth";
+import { ErrorResponse, ModulesType } from "../store/services/auth";
 import Crypto from "crypto-js";
 import axios, { AxiosRequestConfig } from "axios";
 import { useLocation, useParams } from "react-router-dom";
+
+const baseqry: string = import.meta.env.VITE_NODE_BASE_URL;
 
 export const handleError = (
   error: any,
@@ -165,4 +167,16 @@ export const useBasePath = () => {
     const replaced = decodedpath.replace("/" + params[param], "");
     return replaced;
   }, location.pathname);
+};
+
+export const GetUserLinks = async (token: string): Promise<ModulesType> => {
+  try {
+    const url = `${baseqry}/modules/linkroles/user/view`;
+    const data = await FetchData<ModulesType>(url, {
+      Authorization: "Bearer " + token,
+    });
+    return data;
+  } catch (error) {
+    throw error;
+  }
 };

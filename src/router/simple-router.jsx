@@ -10,7 +10,7 @@ import SignUp from "../views/dashboard/auth/sign-up";
 // errors
 import Error404 from "../views/dashboard/errors/error404";
 import Error500 from "../views/dashboard/errors/error500";
-import Maintenance from "../views/dashboard/errors/maintenance";
+import Maintenance from "../views/auth/maintenance";
 
 // const SimpleRouter = () => {
 //     return (

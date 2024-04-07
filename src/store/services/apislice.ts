@@ -87,7 +87,7 @@ export const apiSlice = createApi({
       query: (payload) => ({
         url: payload.url,
         method: "DELETE",
-        data: payload.data,
+        body: payload.data,
       }),
       transformErrorResponse: (error: FetchBaseQueryError) => {
         if ("data" in error && Array.isArray(error.data)) {
