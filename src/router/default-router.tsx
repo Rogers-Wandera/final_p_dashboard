@@ -39,6 +39,7 @@ import ModulesLinks from "../views/dashboard/admin/modules/modulelinks";
 import Users from "../views/dashboard/admin/users/users";
 import Positions from "../views/dashboard/admin/users/positions";
 import ManageUser from "../views/dashboard/admin/users/manageuser";
+import Roles from "../views/configurations/roles/roles";
 
 export const DefaultRouter = [
   {
@@ -68,6 +69,10 @@ export const DefaultRouter = [
       {
         path: "dashboard/users/manage/:id",
         element: <ManageUser acceptedroles={[5150, 1982]} />,
+      },
+      {
+        path: "dashboard/configs/roles",
+        element: <Roles acceptedroles={[5150, 1982]} />,
       },
       // {
       //   path: "dashboard/special-pages/billing",

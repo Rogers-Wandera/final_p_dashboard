@@ -176,6 +176,13 @@ export const userconfigs = (
       icon: <ManageAccountsIcon color="primary" />,
       onClick: (_, row) => {
         const id = encryptUrl(row.original.id.toString());
+        if (row.original.verified !== 1) {
+          enqueueSnackbar("User must be verified first", {
+            variant: "info",
+            anchorOrigin: { horizontal: "right", vertical: "top" },
+          });
+          return null;
+        }
         navigate(`/dashboard/users/manage/${id}`);
       },
       show: "icon",

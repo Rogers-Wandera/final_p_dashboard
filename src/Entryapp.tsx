@@ -35,6 +35,7 @@ import { enqueueSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import { setManual } from "./store/services/defaults";
 import { GetUserLinks } from "./helpers/utils";
+import { fetchUserLinks } from "./store/services/thunks";
 
 function EntryApp() {
   const { isError, isLoading } = useCheckServerStatusQuery({});
@@ -56,7 +57,7 @@ function EntryApp() {
 
   useEffect(() => {
     if (token !== "") {
-      dispatch(setManual(true));
+      dispatch(fetchUserLinks());
     }
   }, []);
 

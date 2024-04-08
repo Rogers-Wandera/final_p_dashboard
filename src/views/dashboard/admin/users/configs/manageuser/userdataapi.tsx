@@ -1,4 +1,5 @@
 import { fetchApi } from "../../../../../../helpers/apiquery";
+import { rolesresponse } from "../../../../../configurations/roles/roles";
 import { userrolestype } from "../../manageuser";
 import { user } from "../../users";
 
@@ -36,5 +37,23 @@ export const HandleGetUserRoles = async (
     return response.data;
   } catch (error) {
     return [] as userrolestype[];
+  }
+};
+
+export const HandleGetUnAssignedRoles = async (
+  userId: string,
+  token: string
+): Promise<rolesresponse[]> => {
+  try {
+    const response = await fetchApi<rolesresponse[]>(
+      `${baseqry}/sysroles/unassigned/${userId}`,
+      "GET",
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return [];
   }
 };

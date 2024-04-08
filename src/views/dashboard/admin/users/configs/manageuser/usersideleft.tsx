@@ -23,6 +23,7 @@ import { handleError } from "../../../../../../helpers/utils";
 import { useAppState } from "../../../../../../contexts/sharedcontexts";
 import { enqueueSnackbar } from "notistack";
 import AddBoxIcon from "@mui/icons-material/AddBox";
+import { rolesresponse } from "../../../../../configurations/roles/roles";
 
 type userpageprops = {
   user: user;
@@ -32,6 +33,8 @@ type userpageprops = {
   viewer: "Admin" | "User";
   setManual?: React.Dispatch<React.SetStateAction<boolean>>;
   manual?: boolean;
+  unassignedroles?: rolesresponse[];
+  openmodal?: () => void;
 };
 const UserSideLeft = ({
   user,
@@ -41,10 +44,12 @@ const UserSideLeft = ({
   viewer,
   setManual = () => {},
   manual = false,
+  unassignedroles = [],
+  openmodal = () => {},
 }: userpageprops) => {
   const appstate = useAppState();
   const [deleterole] = useDeleteDataMutation({});
-  const openModal = (role: string) =>
+  const openModal = (roleId: number) =>
     modals.openConfirmModal({
       title: "Remove Role",
       children: (
@@ -60,7 +65,7 @@ const UserSideLeft = ({
       onConfirm: () => {
         deleterole({
           url: "/admin/roles/",
-          data: { role: role, userId: user.id },
+          data: { roleId: roleId, userId: user.id },
         })
           .unwrap()
           .then((res) => {
@@ -84,7 +89,22 @@ const UserSideLeft = ({
               <h4 className="card-title d-flex justify-content-between">
                 <span>Roles List</span>
                 <Tooltip label="Add Role" withArrow>
-                  <AddBoxIcon sx={{ color: "green", cursor: "pointer" }} />
+                  <AddBoxIcon
+                    sx={{ color: "green", cursor: "pointer" }}
+                    onClick={() => {
+                      if (unassignedroles.length <= 0) {
+                        enqueueSnackbar("No roles to assign to the user", {
+                          variant: "info",
+                          anchorOrigin: {
+                            horizontal: "right",
+                            vertical: "top",
+                          },
+                        });
+                        return;
+                      }
+                      openmodal();
+                    }}
+                  />
                 </Tooltip>
               </h4>
             )}
@@ -130,7 +150,7 @@ const UserSideLeft = ({
                             fontSize: "20px",
                             cursor: "pointer",
                           }}
-                          onClick={() => openModal(role.rolename)}
+                          onClick={() => openModal(role.roleId)}
                         />
                       </Tooltip>
                     </div>
