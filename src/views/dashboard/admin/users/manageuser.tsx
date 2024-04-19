@@ -27,9 +27,12 @@ import UserSideLeft from "./configs/manageuser/usersideleft";
 import UserSideRight from "./configs/manageuser/usersideright";
 import UserHeader from "./configs/manageuser/userheader";
 import {
+  HandleGetModules,
   HandleGetUnAssignedRoles,
   HandleGetUser,
   HandleGetUserRoles,
+  HandleGetLinkRoles,
+  selectoptionstype,
 } from "./configs/manageuser/userdataapi";
 import FormModal, {
   formcomponentsprops,
@@ -41,6 +44,9 @@ import { UseFormReturnType } from "@mantine/form";
 import { usePostDataMutation } from "../../../../store/services/apislice";
 import { enqueueSnackbar } from "notistack";
 import { useAppState } from "../../../../contexts/sharedcontexts";
+import ContentPage from "./configs/manageuser/content";
+import { ModuleLinksProps } from "../modules/modulelinks";
+import AddRoles from "./configs/manageuser/addroles";
 
 const validation = Joi.object({
   roleId: Joi.number().required().messages({
@@ -70,8 +76,12 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
   const [userroles, setUserRoles] = useState<userrolestype[]>([]);
   const [visible, { open, close }] = useDisclosure(false);
   const [opened, { open: openmodal, close: closemodal }] = useDisclosure(false);
+  const [modal, { open: modal_open, close: close_modal }] =
+    useDisclosure(false);
   const [selectoptions, setSelectOptions] = useState<selectdataprops[]>([]);
   const [unassignedroles, setUnassignedroles] = useState<rolesresponse[]>([]);
+  const [modules, setModules] = useState<selectoptionstype[]>([]);
+  const [linkroles, setLinkRoles] = useState<ModuleLinksProps[]>([]);
   const params = router?.params;
   const id = params?.id;
   const decrypted = decryptUrl(id as string);
@@ -90,9 +100,16 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
         decrypted,
         auth?.token as string
       );
+      const modules_links = await HandleGetModules(auth?.token as string);
+      const user_roles_links = await HandleGetLinkRoles(
+        decrypted,
+        auth?.token as string
+      );
       setUserData(user_data);
       setUserRoles(user_roles);
       setUnassignedroles(unassigned);
+      setModules(modules_links);
+      setLinkRoles(user_roles_links);
       close();
     } catch (error) {
       close();
@@ -167,13 +184,17 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
       setSelectOptions(selectdata);
     }
   }, [unassignedroles]);
-  return (
-    <Box>
+  if (visible) {
+    return (
       <LoadingOverlay
         visible={visible}
         zIndex={1500}
         loaderProps={{ children: <Loader color="blue" type="bars" /> }}
       />
+    );
+  }
+  return (
+    <Box>
       <FsLightbox
         toggler={toggler}
         sources={[
@@ -189,6 +210,12 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
         ]}
       />
       <Tab.Container defaultActiveKey="first">
+        <AddRoles
+          open={modal}
+          close={close_modal}
+          modules={modules}
+          modulelinks={linkroles}
+        />
         <FormModal
           opened={opened}
           close={closemodal}
@@ -204,7 +231,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
           // globalconfigs={moremodalconfigs}
         />
         <Row>
-          <UserHeader userdata={userdata} />
+          <UserHeader userdata={userdata} viewer="Admin" />
           <UserSideLeft
             user={userdata}
             setToggler={setToggler}
@@ -217,12 +244,21 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
             openmodal={openmodal}
           />
           {/* content */}
-          <Col lg="6"></Col>
+          <Col lg="6">
+            <ContentPage
+              userdata={userdata}
+              viewer="Admin"
+              userId={decrypted}
+              modal_opened={modal_open}
+              moduleslinks={linkroles}
+            />
+          </Col>
           {/* end content */}
           <UserSideRight
             user={userdata}
             setToggler={setToggler}
             toggler={toggler}
+            viewer="Admin"
           />
         </Row>
       </Tab.Container>

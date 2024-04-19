@@ -24,7 +24,7 @@ import {
   modalformconfigs,
 } from "./formconfigs";
 import { UseFormReturnType } from "@mantine/form";
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput, DateTimePicker } from "@mantine/dates";
 import { useState } from "react";
 
 export type elementconfigs = {
@@ -232,6 +232,7 @@ const ModalFormElement = ({
           placeholder={ele.placeholder}
           {...form.getInputProps(ele.name)}
           {...ele.otherprops}
+          popoverProps={{ zIndex: 1000 }}
           valueFormat={globaldata.dateformat}
           clearable
           leftSection={icon}
@@ -239,8 +240,9 @@ const ModalFormElement = ({
       )}
 
       {ele.inputtype == "datetimepicker" && (
-        <DatePickerInput
+        <DateTimePicker
           label={ele.label}
+          popoverProps={{ zIndex: 1000 }}
           placeholder={ele.placeholder}
           {...form.getInputProps(ele.name)}
           {...ele.otherprops}

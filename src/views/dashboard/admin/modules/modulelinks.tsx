@@ -125,14 +125,17 @@ const ModulesLinks = (props: any) => {
     {
       accessorKey: "released",
       header: "Released",
-      muiEditTextFieldProps: ({ table }) => ({
-        required: table.getState().creatingRow ? true : false,
-        hidden: table.getState().creatingRow ? true : false,
-        disabled: table.getState().creatingRow != undefined ? true : false,
-        error:
-          (table.getState().creatingRow && !!validationErrors?.released) ||
-          undefined,
-        helperText: table.getState().creatingRow && validationErrors?.released,
+      editVariant: "select",
+      editSelectOptions: [
+        { label: "Yes", value: "1" },
+        { label: "No", value: "0" },
+      ],
+      muiEditTextFieldProps: ({}) => ({
+        required: true,
+        // hidden: table.getState().creatingRow ? true : false,
+        // disabled: table.getState().creatingRow != undefined ? true : false,
+        error: !!validationErrors?.released,
+        helperText: validationErrors?.released,
         onFocus: () =>
           setValidationErrors({
             ...validationErrors,
@@ -236,7 +239,7 @@ const ModulesLinks = (props: any) => {
         enableEditing={true}
         postDataProps={{
           addurl: "/modules/links/" + decrypted,
-          dataFields: ["linkname", "position", "route", "render"],
+          dataFields: ["linkname", "position", "route", "render", "released"],
           editurl: (row) => `modules/links/${decrypted}/${row.id}`,
         }}
         columnVisibility={columnVisibility}
@@ -250,7 +253,6 @@ const ModulesLinks = (props: any) => {
         createCallback={(values) => {
           let newvalues = values;
           newvalues["position"] = 0;
-          newvalues["released"] = 0;
           return newvalues;
         }}
       />

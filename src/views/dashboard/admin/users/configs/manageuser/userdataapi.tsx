@@ -1,5 +1,6 @@
 import { fetchApi } from "../../../../../../helpers/apiquery";
 import { rolesresponse } from "../../../../../configurations/roles/roles";
+import { ModuleLinksProps } from "../../../modules/modulelinks";
 import { userrolestype } from "../../manageuser";
 import { user } from "../../users";
 
@@ -55,5 +56,43 @@ export const HandleGetUnAssignedRoles = async (
     return response.data;
   } catch (error) {
     return [];
+  }
+};
+
+export type selectoptionstype = {
+  label: string;
+  value: string;
+};
+export const HandleGetModules = async (
+  token: string
+): Promise<selectoptionstype[]> => {
+  try {
+    const modules = await fetchApi<selectoptionstype[]>(
+      `${baseqry}/modules/modules/selects/viewall`,
+      "GET",
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+    return modules.data;
+  } catch (error) {
+    return [] as selectoptionstype[];
+  }
+};
+export const HandleGetLinkRoles = async (
+  userId: string,
+  token: string
+): Promise<ModuleLinksProps[]> => {
+  try {
+    const modules = await fetchApi<ModuleLinksProps[]>(
+      `${baseqry}/modules/linkroles/assign/roles/${userId}`,
+      "GET",
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+    return modules.data;
+  } catch (error) {
+    return [] as ModuleLinksProps[];
   }
 };

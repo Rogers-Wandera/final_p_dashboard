@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 import icon1 from "../../../../../../assets/images/icons/01.png";
 import icon2 from "../../../../../../assets/images/icons/02.png";
-import icon3 from "../../../../../../assets/images/icons/03.png";
+// import icon3 from "../../../../../../assets/images/icons/03.png";
 import icon4 from "../../../../../../assets/images/icons/04.png";
 import icon8 from "../../../../../../assets/images/icons/08.png";
 
@@ -236,7 +236,7 @@ const UserSideLeft = ({
           </div>
         </Card.Body>
       </Card>
-      <Card>
+      {/* <Card>
         <Card.Header>
           <div className="header-title">
             <h4 className="card-title">Twitter Feeds</h4>
@@ -360,7 +360,7 @@ const UserSideLeft = ({
             </div>
           </div>
         </Card.Body>
-      </Card>
+      </Card> */}
     </Col>
   );
 };

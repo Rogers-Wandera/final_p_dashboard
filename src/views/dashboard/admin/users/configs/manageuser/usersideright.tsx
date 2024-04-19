@@ -1,25 +1,26 @@
-import { Card, Col, Image } from "react-bootstrap";
+import { Card, Col } from "react-bootstrap";
 import { user } from "../../users";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 // icons
 
-import icon1 from "../../../../../../assets/images/icons/01.png";
-import icon2 from "../../../../../../assets/images/icons/02.png";
-import icon3 from "../../../../../../assets/images/icons/03.png";
-import icon4 from "../../../../../../assets/images/icons/04.png";
-import icon8 from "../../../../../../assets/images/icons/08.png";
-import icon7 from "../../../../../../assets/images/icons/07.png";
-import icon6 from "../../../../../../assets/images/icons/06.png";
+// import icon1 from "../../../../../../assets/images/icons/01.png";
+// import icon2 from "../../../../../../assets/images/icons/02.png";
+// import icon3 from "../../../../../../assets/images/icons/03.png";
+// import icon4 from "../../../../../../assets/images/icons/04.png";
+// import icon8 from "../../../../../../assets/images/icons/08.png";
+// import icon7 from "../../../../../../assets/images/icons/07.png";
+// import icon6 from "../../../../../../assets/images/icons/06.png";
 
-import icon5 from "../../../../../../assets/images/icons/05.png";
+// import icon5 from "../../../../../../assets/images/icons/05.png";
 
 type userpageprops = {
   user: user;
   toggler: boolean;
+  viewer: "Admin" | "User";
   setToggler: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const UserSideRight = ({ user, toggler, setToggler }: userpageprops) => {
+const UserSideRight = ({ user }: userpageprops) => {
   return (
     <Col lg="3">
       <Card>
@@ -29,25 +30,18 @@ const UserSideRight = ({ user, toggler, setToggler }: userpageprops) => {
           </div>
         </Card.Header>
         <Card.Body>
-          <p>Lorem ipsum dolor sit amet, contur adipiscing elit.</p>
+          {/* <p></p> */}
+          <div className="mb-1">Email: {user.email}</div>
+          <div className="mb-1">Phone: {user.tel}</div>
           <div className="mb-1">
-            Email:{" "}
-            <Link to="#" className="ms-3">
-              nikjone@demoo.com
-            </Link>
-          </div>
-          <div className="mb-1">
-            Phone:{" "}
-            <Link to="#" className="ms-3">
-              001 2351 256 12
-            </Link>
+            Gender: <span className="ms-3">{user.gender}</span>
           </div>
           <div>
-            Location: <span className="ms-3">USA</span>
+            Position: <span className="ms-3">{user.position}</span>
           </div>
         </Card.Body>
       </Card>
-      <Card>
+      {/* <Card>
         <Card.Header>
           <div className="header-title">
             <h4 className="card-title">Stories</h4>
@@ -581,7 +575,7 @@ const UserSideRight = ({ user, toggler, setToggler }: userpageprops) => {
             </li>
           </ul>
         </Card.Body>
-      </Card>
+      </Card> */}
     </Col>
   );
 };

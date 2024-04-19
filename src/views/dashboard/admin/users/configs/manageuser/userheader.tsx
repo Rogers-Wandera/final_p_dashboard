@@ -4,9 +4,10 @@ import avatars11 from "../../../../../../assets/images/avatars/01.png";
 
 export type headeruserprops = {
   userdata: user;
+  viewer: "Admin" | "User";
 };
 
-function UserHeader({ userdata }: headeruserprops) {
+function UserHeader({ userdata, viewer }: headeruserprops) {
   return (
     <Col lg="12">
       <Card>
@@ -39,9 +40,11 @@ function UserHeader({ userdata }: headeruserprops) {
               <Nav.Item as="li">
                 <Nav.Link eventKey="first">Profile</Nav.Link>
               </Nav.Item>
-              <Nav.Item as="li">
-                <Nav.Link eventKey="second">Activity</Nav.Link>
-              </Nav.Item>
+              {viewer === "Admin" && (
+                <Nav.Item as="li">
+                  <Nav.Link eventKey="second">Assign Roles</Nav.Link>
+                </Nav.Item>
+              )}
               <Nav.Item as="li">
                 <Nav.Link eventKey="third">Friends</Nav.Link>
               </Nav.Item>
