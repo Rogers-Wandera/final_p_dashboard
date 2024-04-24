@@ -3,12 +3,13 @@ import withAuthentication from "../../../../hoc/withUserAuth";
 import { useEffect, useState } from "react";
 import withRouter, { RouterContextType } from "../../../../hoc/withRouter";
 import { useAppDispatch } from "../../../../hooks/hook";
-import { setHeaderText } from "../../../../store/services/defaults";
+import { setHeaderText, setManual } from "../../../../store/services/defaults";
 import { MRT_TableInstance, MRT_VisibilityState } from "material-react-table";
 import {
   ColumnVisibility,
   ServerSideTable,
   addeditprops,
+  menuitemsProps,
   tableCols,
 } from "../../../../components/tables/serverside";
 import { useApiQuery } from "../../../../helpers/apiquery";
@@ -17,6 +18,9 @@ import { useTableContext } from "../../../../contexts/tablecontext";
 import { format } from "date-fns";
 import withRouteRole from "../../../../hoc/withRouteRole";
 import withRolesVerify from "../../../../hoc/withRolesVerify";
+import { useDisclosure } from "@mantine/hooks";
+import ModulePermissions from "./modulepermissions";
+import LockPersonIcon from "@mui/icons-material/LockPerson";
 
 export interface ModuleLinksProps {
   id: number;
@@ -67,7 +71,11 @@ export function validateData(
 
 const ModulesLinks = (props: any) => {
   const { params, navigate } = props.router as RouterContextType;
-  const { manual, setManual } = useTableContext();
+  const { manual, setManual: setTableManual } = useTableContext();
+  const [pmanual, setPManual] = useState<boolean>(false);
+  const [linkId, setLinkId] = useState<number>(0);
+  const [opened, { open, close }] = useDisclosure(false);
+  const [title, setTitle] = useState<string>("");
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {
       id: false,
@@ -80,6 +88,20 @@ const ModulesLinks = (props: any) => {
   );
   const { id } = params;
   const decrypted = decryptUrl(id as string);
+  const moreMenuItems: menuitemsProps<ModuleLinksProps>[] = [
+    {
+      label: "Permission",
+      icon: <LockPersonIcon sx={{ color: "#1976d2" }} />,
+      onClick(row, _, closeMenu) {
+        closeMenu && closeMenu();
+        open();
+        setLinkId(row.original.id);
+        setTitle(`${row.original.linkname} Permissions`);
+        setPManual(true);
+      },
+      render: true,
+    },
+  ];
   const otherconfigs: tableCols<ModuleLinksProps>[] = [
     {
       accessorKey: "id",
@@ -211,7 +233,7 @@ const ModulesLinks = (props: any) => {
     });
   useEffect(() => {
     if (data?.data?.docs) {
-      setManual(false);
+      setTableManual(false);
     }
   }, [data, manual]);
   return (
@@ -235,7 +257,7 @@ const ModulesLinks = (props: any) => {
           { name: "released", type: "text" },
           { name: "render", type: "text" },
         ]}
-        setManual={setManual}
+        setManual={setTableManual}
         enableEditing={true}
         postDataProps={{
           addurl: "/modules/links/" + decrypted,
@@ -255,6 +277,16 @@ const ModulesLinks = (props: any) => {
           newvalues["position"] = 0;
           return newvalues;
         }}
+        moreMenuItems={moreMenuItems}
+        editCallback={() => dispatch(setManual(true))}
+      />
+      <ModulePermissions
+        visible={opened}
+        close={close}
+        pmanual={pmanual}
+        setPManual={setPManual}
+        linkId={linkId}
+        title={title}
       />
     </div>
   );

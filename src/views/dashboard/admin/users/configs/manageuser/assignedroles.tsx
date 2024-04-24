@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { MRT_VisibilityState } from "material-react-table";
 import {
+  ColumnVisibility,
   ServerSideTable,
   addeditprops,
+  menuitemsProps,
   tableCols,
 } from "../../../../../../components/tables/serverside";
 import { useApiQuery } from "../../../../../../helpers/apiquery";
@@ -11,6 +13,9 @@ import { useTableContext } from "../../../../../../contexts/tablecontext";
 import { format } from "date-fns";
 import { Tab } from "react-bootstrap";
 import { enqueueSnackbar } from "notistack";
+import { DateTimePicker } from "@mantine/dates";
+import LockPersonIcon from "@mui/icons-material/LockPerson";
+import { userrolestype } from "../../manageuser";
 
 export interface ModuleLinksProps {
   id: number;
@@ -41,12 +46,20 @@ type assignedrolesprops = {
   viewer: "Admin" | "User";
   modal_opened: () => void;
   moduleslinks: ModuleLinksProps[];
+  userroles: userrolestype[];
 };
+
+export function validateData() {
+  return {
+    expireDate: "",
+  };
+}
 const AssignedRoles = ({
   userId,
   viewer,
   modal_opened,
   moduleslinks,
+  userroles,
 }: assignedrolesprops) => {
   const { manual, setManual } = useTableContext();
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
@@ -54,6 +67,20 @@ const AssignedRoles = ({
       id: false,
     }
   );
+  const [validationErrors, setValidationErrors] = useState<ColumnVisibility>(
+    {}
+  );
+
+  const moreMenuItems: menuitemsProps<ModuleLinksProps>[] = [
+    {
+      label: "Permissions",
+      icon: <LockPersonIcon sx={{ color: "#1976d2" }} />,
+      onClick(row, _, closeMenu) {
+        closeMenu && closeMenu();
+      },
+      render: !userroles.find((role) => role.role === 5150),
+    },
+  ];
   const { token } = useAuthUser();
   const deleterender = viewer === "Admin" ? true : false;
   const otherconfigs: tableCols<ModuleLinksProps>[] = [
@@ -67,7 +94,6 @@ const AssignedRoles = ({
     {
       accessorKey: "expireDate",
       header: "Expiry Date",
-      Edit: () => null,
       Cell: ({ cell }) => {
         const value = cell.getValue<string | null>();
         const render =
@@ -75,6 +101,24 @@ const AssignedRoles = ({
             ? "No Expiry"
             : format(new Date(value), "yyyy-MM-dd hh:mm a");
         return <>{render}</>;
+      },
+      Edit: ({ cell, column, row, table }) => {
+        return (
+          <DateTimePicker
+            label="Expiry Date"
+            modalProps={{ zIndex: 1500 }}
+            valueFormat="YYYY-MM-DD hh:mm"
+            dropdownType="modal"
+            onChange={(value) => {
+              table.setEditingRow(row);
+              if (!value) {
+                row._valuesCache[column.id] = cell.getValue<string | null>();
+              } else {
+                row._valuesCache[column.id] = value;
+              }
+            }}
+          />
+        );
       },
     },
     {
@@ -129,11 +173,19 @@ const AssignedRoles = ({
         setColumnVisibility={setColumnVisibility}
         addeditprops={addeditconfig}
         columnConfigs={otherconfigs}
+        validateData={validateData}
+        validationErrors={validationErrors}
+        setValidationErrors={setValidationErrors}
         moreConfigs={{ createDisplayMode: "custom" }}
         actionprop={{
-          editrender: false,
+          editrender: deleterender,
           deleterender: deleterender,
-          actiontype: "inline",
+          actiontype: "menu",
+        }}
+        postDataProps={{
+          addurl: "",
+          editurl: (row) => `modules/linkroles/${row.id}`,
+          dataFields: ["expireDate"],
         }}
         customCallback={(table) => {
           if (moduleslinks.length > 0) {
@@ -146,6 +198,14 @@ const AssignedRoles = ({
             });
           }
         }}
+        editCreateCallBack={(values) => {
+          values.expireDate = format(
+            new Date(values.expireDate),
+            "yyyy-MM-dd hh:mm"
+          );
+          return values;
+        }}
+        moreMenuItems={moreMenuItems}
       />
     </Tab.Pane>
   );

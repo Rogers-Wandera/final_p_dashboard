@@ -38,6 +38,11 @@ export type deleteProps = {
   appstate: SharedStateContextType | null;
   enqueueSnackbar: EnqueueSnackbar;
   setManual?: React.Dispatch<React.SetStateAction<boolean>>;
+  onCancelCallback?: () => void;
+  onConfirmCallback?: () => void;
+  dialogProps?: {
+    zIndex?: number;
+  };
 };
 
 export interface ErrorResponse {

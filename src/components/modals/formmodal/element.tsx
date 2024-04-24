@@ -27,24 +27,21 @@ import { UseFormReturnType } from "@mantine/form";
 import { DatePickerInput, DateTimePicker } from "@mantine/dates";
 import { useState } from "react";
 
-export type elementconfigs = {
+export type elementconfigs<T extends Record<string, unknown>> = {
   element: formcomponentsprops;
   selectdata?: selectdataprops[];
   defaultformgrid?: formgridprops;
-  globaldata?: globalconfigs;
-  form: UseFormReturnType<
-    Record<string, unknown>,
-    (values: Record<string, unknown>) => Record<string, unknown>
-  >;
+  globaldata?: globalconfigs<T>;
+  form: UseFormReturnType<T, (values: T) => T>;
 };
 
-const ModalFormElement = ({
+const ModalFormElement = <T extends Record<string, unknown>>({
   element: ele,
   form,
   globaldata = {},
   selectdata = [],
   defaultformgrid = {},
-}: elementconfigs) => {
+}: elementconfigs<T>) => {
   const [popoverOpened, setPopoverOpened] = useState(false);
   const moreconfigs = modalformconfigs({ element: ele });
   const icon = moreconfigs?.icon;

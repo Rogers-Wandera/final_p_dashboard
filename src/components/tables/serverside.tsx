@@ -24,10 +24,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Edit, Delete } from "@mui/icons-material";
-import {
-  handleDelete,
-  usePostDataMutation,
-} from "../../store/services/apislice";
+import { usePostDataMutation } from "../../store/services/apislice";
 import { useAppDispatch } from "../../hooks/hook";
 import { useSnackbar } from "notistack";
 import { useAppState } from "../../contexts/sharedcontexts";
@@ -36,6 +33,7 @@ import { handleError } from "../../helpers/utils";
 import ArrowBack from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import { useTableTheme } from "../../helpers/tabletheme";
+import { HandleDelete } from "../../store/services/deletehandler";
 
 export interface ServerSideResponse<T> {
   docs: Array<T>;
@@ -142,12 +140,21 @@ export interface ServerSideProps<T extends {}> {
   >;
   showback?: boolean;
   createCallback?: (values: any, table: any) => typeof values;
+  editCallback?: (values: any, table: any) => void;
+  editCreateCallBack?: (values: any, table: any) => typeof values;
   customCallback?: (table: MRT_TableInstance<T>) => void;
   additiontopactions?: additionaltopbaractions<T>[];
   enableSelectAll?: boolean;
   enableMultiRowSelection?: boolean;
   showadditionaltopactions?: boolean | ((row: MRT_Row<T>) => boolean);
   tabledrawcallback?: (table: MRT_TableInstance<T>) => void;
+  deleteProps?: {
+    onCancelCallback?: () => void;
+    onConfirmCallback?: () => void;
+    dialogProps?: {
+      zIndex?: number;
+    };
+  };
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -209,7 +216,10 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   additiontopactions = [],
   enableSelectAll = true,
   enableMultiRowSelection = false,
+  editCreateCallBack = () => {},
   showadditionaltopactions = true,
+  editCallback = () => {},
+  deleteProps = {},
 }: // tabledrawcallback = () => {},
 ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
@@ -220,12 +230,13 @@ ServerSideProps<T>) => {
 
   const theme = useTableTheme();
   const HandleDeleteData = async (row: any) => {
-    handleDelete({
+    HandleDelete({
       dispatch,
       enqueueSnackbar,
       appstate,
       url: `/${deleteUrl}/${row.original[idField]}`,
       setManual,
+      ...deleteProps,
     });
   };
   const actionrendertypes = displayActionprop<T>(
@@ -321,6 +332,7 @@ ServerSideProps<T>) => {
     try {
       const newValidationErrors = validateData(values, table);
       if (Object.values(newValidationErrors).some((error) => error)) {
+        console.log(newValidationErrors);
         setValidationErrors(newValidationErrors);
         return;
       }
@@ -340,6 +352,9 @@ ServerSideProps<T>) => {
           dataToPost = postdata;
         }
         values = dataToPost;
+        if (editCreateCallBack) {
+          values = editCreateCallBack(dataToPost, table);
+        }
       }
       const data = await postData({
         url: url,
@@ -351,6 +366,7 @@ ServerSideProps<T>) => {
       }
       table.setEditingRow(null);
       refetch();
+      editCallback(values, table);
       enqueueSnackbar(data.data.msg, {
         variant: "success",
         anchorOrigin: { horizontal: "right", vertical: "top" },

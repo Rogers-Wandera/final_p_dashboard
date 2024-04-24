@@ -1965,6 +1965,13 @@
     "@types/yargs" "^17.0.8"
     chalk "^4.0.0"
 
+"@joi/date@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@joi/date/-/date-2.1.0.tgz#fa7e3069a63c17d9ebe51a0b667f090c288de237"
+  integrity sha512-2zN5m0LgxZp/cynHGbzEImVmFIa+n+IOb/Nlw5LX/PLJneeCwG1NbiGw7MvPjsAKUGQK8z31Nn6V6lEN+4fZhg==
+  dependencies:
+    moment "2.x.x"
+
 "@jridgewell/gen-mapping@^0.3.0", "@jridgewell/gen-mapping@^0.3.2":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.3.tgz#7e02e6eb5df901aaedb08514203b096614024098"
@@ -8062,7 +8069,7 @@ mkdirp@~0.5.1:
   dependencies:
     minimist "^1.2.6"
 
-moment@^2.29.3:
+moment@2.x.x, moment@^2.29.3:
   version "2.30.1"
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.30.1.tgz#f8c91c07b7a786e30c59926df530b4eac96974ae"
   integrity sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==

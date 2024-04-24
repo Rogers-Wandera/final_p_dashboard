@@ -1,6 +1,10 @@
 import { Card, Col, Image, Nav } from "react-bootstrap";
 import { user } from "../../users";
 import avatars11 from "../../../../../../assets/images/avatars/01.png";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+import { IconButton } from "@mui/material";
+import { Tooltip } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
 
 export type headeruserprops = {
   userdata: user;
@@ -8,6 +12,7 @@ export type headeruserprops = {
 };
 
 function UserHeader({ userdata, viewer }: headeruserprops) {
+  const navigate = useNavigate();
   return (
     <Col lg="12">
       <Card>
@@ -24,6 +29,16 @@ function UserHeader({ userdata, viewer }: headeruserprops) {
                   }
                   alt={userdata.userName}
                 />
+                <div>
+                  <Tooltip label="Back">
+                    <IconButton aria-label="back" onClick={() => navigate(-1)}>
+                      <KeyboardBackspaceIcon
+                        fontSize="inherit"
+                        color="secondary"
+                      />
+                    </IconButton>
+                  </Tooltip>
+                </div>
               </div>
               <div className="d-flex flex-wrap align-items-center mb-3 mb-sm-0">
                 <h4 className="me-2 h4">{userdata.userName}</h4>

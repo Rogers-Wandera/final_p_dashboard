@@ -5,17 +5,24 @@ import FormModal, {
 } from "../../../../../../components/modals/formmodal/formmodal";
 import { selectoptionstype } from "./userdataapi";
 import { ModuleLinksProps } from "../../../modules/modulelinks";
-import { UseFormReturnType } from "@mantine/form";
+import { UseFormReturnType, joiResolver, useForm } from "@mantine/form";
 import { handleError } from "../../../../../../helpers/utils";
 import { enqueueSnackbar } from "notistack";
 import { useAppState } from "../../../../../../contexts/sharedcontexts";
 import Joi from "joi";
+import { format } from "date-fns";
+import { usePostDataMutation } from "../../../../../../store/services/apislice";
+import { useTableContext } from "../../../../../../contexts/tablecontext";
+// import JoiDate from "@joi/date";
 
 export type openaddroles = {
   open: boolean;
   close: () => void;
   modules: selectoptionstype[];
   modulelinks: ModuleLinksProps[];
+  userId: string;
+  openprogress: () => void;
+  closeprogress: () => void;
 };
 const validation = Joi.object({
   linkId: Joi.number().required().messages({
@@ -31,22 +38,66 @@ const validation = Joi.object({
     "number.base": "Module must be a number",
   }),
 });
-const AddRoles = ({ open, close, modules, modulelinks }: openaddroles) => {
+export type addrolesformtype = {
+  linkId: string;
+  expireDate: string;
+  moduleId: string;
+};
+type postrolestype = {
+  userId: string;
+  linkId: number;
+  expireDate: string;
+};
+const AddRoles = ({
+  open,
+  close,
+  modules,
+  modulelinks,
+  userId,
+  openprogress,
+  closeprogress,
+}: openaddroles) => {
+  const { setManual, manual } = useTableContext();
   const [selectdata, setSelectData] = useState<selectdataprops[]>([
     { name: "module", data: modules, notfound: "No modules found" },
   ]);
+  const [postRole] = usePostDataMutation<postrolestype>({});
   const [moduleId, setModuleId] = useState<number>(0);
   const appState = useAppState();
+  const form = useForm<addrolesformtype>({
+    name: "addroles",
+    validate: joiResolver(validation),
+    initialValues: {
+      linkId: "",
+      expireDate: "",
+      moduleId: "",
+    },
+    enhanceGetInputProps: (payload) => {
+      if (payload.field === "linkId") {
+        return {
+          disabled:
+            payload.form.values.moduleId === "" ||
+            payload.form.values.moduleId === null,
+          value:
+            payload.form.values.moduleId === "" ||
+            payload.form.values.moduleId === null
+              ? null
+              : payload.form.values.linkId,
+        };
+      }
+    },
+    onValuesChange: (values) => {
+      if (values.moduleId !== "") {
+        setModuleId(parseInt(values.moduleId));
+      }
+    },
+  });
   const elements: formcomponentsprops[] = [
     {
       inputtype: "select",
       label: "Module",
       name: "moduleId",
-      otherprops: {
-        onChange: (value: string) => {
-          setModuleId(parseInt(value));
-        },
-      },
+      otherprops: {},
     },
     {
       inputtype: "select",
@@ -79,16 +130,40 @@ const AddRoles = ({ open, close, modules, modulelinks }: openaddroles) => {
   const HandleAddRoles = async (
     event: FormEvent<HTMLFormElement>,
     form: UseFormReturnType<
-      Record<string, unknown>,
-      (values: Record<string, unknown>) => Record<string, unknown>
+      addrolesformtype,
+      (values: addrolesformtype) => addrolesformtype
     >
   ) => {
     try {
       event.preventDefault();
+      openprogress();
       const validation = form.validate();
       if (validation.hasErrors === false) {
+        const values = form.values;
+        const expiredDate = format(values.expireDate, "yyyy-MM-dd hh:mm");
+        const postdata = {
+          linkId: values.linkId,
+          expireDate: expiredDate,
+          userId,
+        };
+        const response = await postRole({
+          url: "/modules/linkroles",
+          data: postdata,
+        });
+        if ("error" in response) {
+          throw response.error;
+        }
+        close();
+        setManual(!manual);
+        form.reset();
+        enqueueSnackbar(response.data.msg, {
+          variant: "success",
+          anchorOrigin: { horizontal: "right", vertical: "top" },
+        });
       }
+      closeprogress();
     } catch (error) {
+      closeprogress();
       handleError(error, appState, enqueueSnackbar);
     }
   };
@@ -100,16 +175,15 @@ const AddRoles = ({ open, close, modules, modulelinks }: openaddroles) => {
       { name: "linkId", data: formatted, notfound: "No roles found" },
     ];
     setSelectData(data);
-  }, [moduleId]);
+  }, [moduleId, manual]);
   return (
     <div>
-      <FormModal
+      <FormModal<addrolesformtype>
         opened={open}
         close={close}
+        forminstance={form}
         title="Add Roles"
-        formname="addroles"
         elements={elements}
-        formvalidation={validation}
         selectdata={selectdata}
         buttonconfigs={{
           text: "Add Role",

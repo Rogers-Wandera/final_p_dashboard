@@ -3,6 +3,7 @@ import UserProfileContent from "./userprofilecontent";
 import { user } from "../../users";
 import AssignedRoles from "./assignedroles";
 import { ModuleLinksProps } from "../../../modules/modulelinks";
+import { userrolestype } from "../../manageuser";
 
 export type contentprops = {
   userdata: user;
@@ -10,6 +11,7 @@ export type contentprops = {
   userId: string;
   modal_opened: () => void;
   moduleslinks: ModuleLinksProps[];
+  userroles: userrolestype[];
 };
 const ContentPage = ({
   userdata,
@@ -17,6 +19,7 @@ const ContentPage = ({
   userId,
   modal_opened,
   moduleslinks,
+  userroles,
 }: contentprops) => {
   return (
     <Tab.Content className="profile-content">
@@ -26,6 +29,7 @@ const ContentPage = ({
         viewer={viewer}
         modal_opened={modal_opened}
         moduleslinks={moduleslinks}
+        userroles={userroles}
       />
     </Tab.Content>
   );

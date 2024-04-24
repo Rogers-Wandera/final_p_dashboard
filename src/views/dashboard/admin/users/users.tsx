@@ -23,12 +23,12 @@ import {
 } from "../../../../components/tables/serverside";
 import { MRT_VisibilityState } from "material-react-table";
 import { enqueueSnackbar } from "notistack";
-import { UseFormReturnType } from "@mantine/form";
+import { UseFormReturnType, joiResolver, useForm } from "@mantine/form";
 import { handleError } from "../../../../helpers/utils";
 import { useAppState } from "../../../../contexts/sharedcontexts";
 import { Box, Loader, LoadingOverlay } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { userconfigs } from "./configs/user";
+import { userconfigs, userformtype } from "./configs/user";
 
 const validation = joi.object({
   firstname: joi.string().required(),
@@ -67,8 +67,23 @@ const modalconfigs: moreConfigsTypes = {
   createDisplayMode: "custom",
   editDisplayMode: "custom",
 };
+const initialvalues: userformtype = {
+  firstname: "",
+  lastname: "",
+  email: "",
+  password: "",
+  confirmpassword: "",
+  gender: "",
+  position: "",
+  tel: "",
+};
 const baseqry: string = import.meta.env.VITE_NODE_BASE_URL;
 const Users = (_: any) => {
+  const form = useForm<userformtype>({
+    name: "Register-User",
+    validate: joiResolver(validation),
+    initialValues: initialvalues,
+  });
   const navigate = useNavigate();
   const { manual, setManual, rowSelection, setRowSelection } =
     useTableContext();
@@ -80,7 +95,6 @@ const Users = (_: any) => {
     moremodalconfigs,
     toptoolbaractions,
   } = userconfigs(navigate, setManual, setRowSelection);
-  const [resetform, setResetform] = useState(false);
   const [showactions, setShowAction] = useState(false);
   const [visible, { open: openloader, close: closeloader }] =
     useDisclosure(false);
@@ -127,8 +141,8 @@ const Users = (_: any) => {
   const handleFormSubmit = async (
     event: FormEvent<HTMLFormElement>,
     form: UseFormReturnType<
-      Record<string, unknown>,
-      (values: Record<string, unknown>) => Record<string, unknown>
+      userformtype,
+      (values: userformtype) => userformtype
     >
   ) => {
     event.preventDefault();
@@ -138,7 +152,10 @@ const Users = (_: any) => {
         openloader();
         const values = form.values;
         const postdata = { ...values, adminCreated: 1 };
-        const response = await postUser({ url: "/register", data: postdata });
+        const response = await postUser({
+          url: "/register/admin",
+          data: postdata,
+        });
         if ("error" in response) {
           throw response.error;
         }
@@ -190,17 +207,14 @@ const Users = (_: any) => {
         zIndex={1500}
         loaderProps={{ children: <Loader color="blue" type="bars" /> }}
       />
-      <FormModal
+      <FormModal<userformtype>
         opened={opened}
         close={close}
-        formname={"Register-User"}
+        forminstance={form}
         title="Add User"
         elements={forminputs}
         size="xl"
-        setResetForm={setResetform}
-        resetform={resetform}
         selectdata={selectoptions}
-        formvalidation={validation}
         buttonconfigs={{ handleSubmit: handleFormSubmit }}
         globalconfigs={moremodalconfigs}
       />
@@ -222,7 +236,7 @@ const Users = (_: any) => {
         customCallback={(table) => {
           table.setCreatingRow(true);
           open();
-          setResetform(true);
+          form.reset();
         }}
         setRowSelection={setRowSelection}
         rowSelection={rowSelection}

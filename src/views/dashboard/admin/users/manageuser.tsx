@@ -40,7 +40,7 @@ import FormModal, {
 } from "../../../../components/modals/formmodal/formmodal";
 import { rolesresponse } from "../../../configurations/roles/roles";
 import Joi from "joi";
-import { UseFormReturnType } from "@mantine/form";
+import { UseFormReturnType, joiResolver, useForm } from "@mantine/form";
 import { usePostDataMutation } from "../../../../store/services/apislice";
 import { enqueueSnackbar } from "notistack";
 import { useAppState } from "../../../../contexts/sharedcontexts";
@@ -69,7 +69,15 @@ export type userrolestype = {
   description: string;
   roleId: number;
 };
+
+export type userfromroletype = {
+  roleId: number;
+};
 const ManageUser = ({ router, auth }: manageuserprops) => {
+  const form = useForm<userfromroletype>({
+    name: "Add-Roles",
+    validate: joiResolver(validation),
+  });
   const [toggler, setToggler] = useState<boolean>(false);
   const [userdata, setUserData] = useState<user>({} as user);
   const [manual, setManual] = useState(false);
@@ -119,8 +127,8 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
   const handleFormSubmit = async (
     event: FormEvent<HTMLFormElement>,
     form: UseFormReturnType<
-      Record<string, unknown>,
-      (values: Record<string, unknown>) => Record<string, unknown>
+      userfromroletype,
+      (values: userfromroletype) => userfromroletype
     >
   ) => {
     event.preventDefault();
@@ -215,20 +223,19 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
           close={close_modal}
           modules={modules}
           modulelinks={linkroles}
+          userId={decrypted}
+          openprogress={open}
+          closeprogress={close}
         />
-        <FormModal
+        <FormModal<userfromroletype>
           opened={opened}
           close={closemodal}
-          formname={"Add-Roles"}
           title="Add Role"
           elements={forminputs}
           size="lg"
           selectdata={selectoptions}
-          // setResetForm={setResetform}
-          // resetform={resetform}
-          formvalidation={validation}
+          forminstance={form}
           buttonconfigs={{ handleSubmit: handleFormSubmit }}
-          // globalconfigs={moremodalconfigs}
         />
         <Row>
           <UserHeader userdata={userdata} viewer="Admin" />
@@ -251,6 +258,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
               userId={decrypted}
               modal_opened={modal_open}
               moduleslinks={linkroles}
+              userroles={userroles}
             />
           </Col>
           {/* end content */}

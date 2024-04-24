@@ -24,6 +24,16 @@ import { enqueueSnackbar } from "notistack";
 import { MRT_RowSelectionState } from "material-react-table";
 import { useAuthUser } from "../../../../../contexts/authcontext";
 
+export type userformtype = {
+  firstname: string;
+  lastname: string;
+  email: string;
+  password: string;
+  confirmpassword: string;
+  gender: string;
+  position: string;
+  tel: string;
+};
 export const userconfigs = (
   navigate: NavigateFunction,
   setManual: React.Dispatch<React.SetStateAction<boolean>>,
@@ -152,7 +162,7 @@ export const userconfigs = (
     ],
   };
 
-  const moremodalconfigs: globalconfigs = {
+  const moremodalconfigs: globalconfigs<userformtype> = {
     paswordvalidator: {
       pwlength: 8,
       check: true,
@@ -183,6 +193,7 @@ export const userconfigs = (
           });
           return null;
         }
+        setRowSelection({});
         navigate(`/dashboard/users/manage/${id}`);
       },
       show: "icon",
