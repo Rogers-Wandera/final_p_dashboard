@@ -1,8 +1,7 @@
 import { Tab } from "react-bootstrap";
 import UserProfileContent from "./userprofilecontent";
 import { user } from "../../users";
-import AssignedRoles from "./assignedroles";
-import { ModuleLinksProps } from "../../../modules/modulelinks";
+import AssignedRoles, { ModuleLinksProps } from "./assignedroles";
 import { userrolestype } from "../../manageuser";
 
 export type contentprops = {
@@ -12,6 +11,9 @@ export type contentprops = {
   modal_opened: () => void;
   moduleslinks: ModuleLinksProps[];
   userroles: userrolestype[];
+  open: () => void;
+  close: () => void;
+  loader: boolean;
 };
 const ContentPage = ({
   userdata,
@@ -20,6 +22,9 @@ const ContentPage = ({
   modal_opened,
   moduleslinks,
   userroles,
+  open,
+  close,
+  loader,
 }: contentprops) => {
   return (
     <Tab.Content className="profile-content">
@@ -30,6 +35,8 @@ const ContentPage = ({
         modal_opened={modal_opened}
         moduleslinks={moduleslinks}
         userroles={userroles}
+        userdata={userdata}
+        loader={{ open, close, loader }}
       />
     </Tab.Content>
   );

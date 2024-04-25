@@ -16,6 +16,11 @@ import { enqueueSnackbar } from "notistack";
 import { DateTimePicker } from "@mantine/dates";
 import LockPersonIcon from "@mui/icons-material/LockPerson";
 import { userrolestype } from "../../manageuser";
+import { useDisclosure } from "@mantine/hooks";
+import PermissionAssign from "./permissions";
+import { user } from "../../users";
+import { HandleGetPermissions } from "./userdataapi";
+import { Loader, LoadingOverlay } from "@mantine/core";
 
 export interface ModuleLinksProps {
   id: number;
@@ -28,8 +33,33 @@ export interface ModuleLinksProps {
   released: number;
 }
 
+export interface modulepermissiontype {
+  id: number;
+  linkId: number;
+  linkname: string;
+  route: string;
+  position: number;
+  creationDate: string;
+  render: number;
+  released: number;
+  days_left: number;
+}
+
+export interface permissionstype {
+  id: number;
+  linkId: number;
+  accessName: string;
+  acessRoute: string;
+  method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | "OPTIONS";
+  description: string;
+  creationDate: string;
+  checked: number;
+  rpId: number;
+  isActive: number;
+}
+
 export interface modulesApiResponse {
-  docs: Array<ModuleLinksProps>;
+  docs: Array<modulepermissiontype>;
   totalDocs: number;
   totalPages: number;
   page: number;
@@ -47,6 +77,12 @@ type assignedrolesprops = {
   modal_opened: () => void;
   moduleslinks: ModuleLinksProps[];
   userroles: userrolestype[];
+  userdata: user;
+  loader: {
+    close: () => void;
+    open: () => void;
+    loader: boolean;
+  };
 };
 
 export function validateData() {
@@ -60,8 +96,16 @@ const AssignedRoles = ({
   modal_opened,
   moduleslinks,
   userroles,
+  userdata,
+  loader,
 }: assignedrolesprops) => {
+  const [opened, { open, close }] = useDisclosure(false);
   const { manual, setManual } = useTableContext();
+  const [title, setTitle] = useState<string>("");
+  const [permissions, setPermissions] = useState<permissionstype[]>([]);
+  const [linkId, setLinkId] = useState<number>(0);
+  const [roleId, setRoleId] = useState<number>(0);
+  const [reload, setReload] = useState<boolean>(false);
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {
       id: false,
@@ -70,20 +114,23 @@ const AssignedRoles = ({
   const [validationErrors, setValidationErrors] = useState<ColumnVisibility>(
     {}
   );
-
-  const moreMenuItems: menuitemsProps<ModuleLinksProps>[] = [
+  const moreMenuItems: menuitemsProps<modulepermissiontype>[] = [
     {
       label: "Permissions",
       icon: <LockPersonIcon sx={{ color: "#1976d2" }} />,
       onClick(row, _, closeMenu) {
         closeMenu && closeMenu();
+        setLinkId(row.original.linkId);
+        setTitle(row.original.linkname);
+        setRoleId(row.original.id);
+        open();
       },
       render: !userroles.find((role) => role.role === 5150),
     },
   ];
   const { token } = useAuthUser();
   const deleterender = viewer === "Admin" ? true : false;
-  const otherconfigs: tableCols<ModuleLinksProps>[] = [
+  const otherconfigs: tableCols<modulepermissiontype>[] = [
     {
       accessorKey: "id",
       header: "Id",
@@ -137,6 +184,16 @@ const AssignedRoles = ({
     },
   ];
 
+  const FetchModulePermissions = async () => {
+    try {
+      loader.open();
+      const data = await HandleGetPermissions(linkId, userId, token);
+      return data;
+    } catch (error) {
+      loader.close();
+    }
+  };
+
   const { data, refetch, isLoading, isError, isFetching, error } =
     useApiQuery<modulesApiResponse>({
       url: `/modules/linkroles/assigned/roles/${userId}`,
@@ -150,9 +207,37 @@ const AssignedRoles = ({
       setManual(false);
     }
   }, [data, manual]);
+
+  useEffect(() => {
+    if (linkId > 0) {
+      FetchModulePermissions().then((data) => setPermissions(data || []));
+    }
+    loader.close();
+  }, [reload, linkId]);
+
+  if (loader.loader) {
+    return (
+      <LoadingOverlay
+        visible={loader.loader}
+        zIndex={100}
+        loaderProps={{ children: <Loader color="blue" type="dots" /> }}
+      />
+    );
+  }
   return (
     <Tab.Pane eventKey="second" id="profile-profile">
-      <ServerSideTable<ModuleLinksProps>
+      <PermissionAssign
+        opened={opened}
+        close={close}
+        userdata={userdata}
+        title={title}
+        permissions={permissions}
+        roleId={roleId}
+        reload={reload}
+        setReload={setReload}
+        setPermissions={setPermissions}
+      />
+      <ServerSideTable<modulepermissiontype>
         refetch={refetch}
         title={"Roles"}
         data={data?.data?.docs ?? []}

@@ -86,6 +86,8 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
   const [opened, { open: openmodal, close: closemodal }] = useDisclosure(false);
   const [modal, { open: modal_open, close: close_modal }] =
     useDisclosure(false);
+  const [loader, { open: loaderopen, close: loaderclose }] =
+    useDisclosure(false);
   const [selectoptions, setSelectOptions] = useState<selectdataprops[]>([]);
   const [unassignedroles, setUnassignedroles] = useState<rolesresponse[]>([]);
   const [modules, setModules] = useState<selectoptionstype[]>([]);
@@ -259,6 +261,9 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
               modal_opened={modal_open}
               moduleslinks={linkroles}
               userroles={userroles}
+              open={loaderopen}
+              close={loaderclose}
+              loader={loader}
             />
           </Col>
           {/* end content */}

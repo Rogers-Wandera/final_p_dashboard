@@ -3,6 +3,7 @@ import { rolesresponse } from "../../../../../configurations/roles/roles";
 import { ModuleLinksProps } from "../../../modules/modulelinks";
 import { userrolestype } from "../../manageuser";
 import { user } from "../../users";
+import { permissionstype } from "./assignedroles";
 
 const baseqry: string = import.meta.env.VITE_NODE_BASE_URL;
 export const HandleGetUser = async (
@@ -94,5 +95,24 @@ export const HandleGetLinkRoles = async (
     return modules.data;
   } catch (error) {
     return [] as ModuleLinksProps[];
+  }
+};
+
+export const HandleGetPermissions = async (
+  linkId: number,
+  userId: string,
+  token: string
+): Promise<permissionstype[]> => {
+  try {
+    const modules = await fetchApi<permissionstype[]>(
+      `${baseqry}/rolepermission/user/${linkId}?userId=${userId}`,
+      "GET",
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+    return modules.data;
+  } catch (error) {
+    return [] as permissionstype[];
   }
 };

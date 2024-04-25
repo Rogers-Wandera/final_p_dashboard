@@ -1,9 +1,12 @@
 import {
   MRT_ActionMenuItem,
   MRT_ColumnDef,
+  MRT_ColumnFiltersState,
   MRT_EditActionButtons,
+  MRT_PaginationState,
   MRT_Row,
   MRT_RowSelectionState,
+  MRT_SortingState,
   MRT_TableInstance,
   MRT_VisibilityState,
   MaterialReactTable,
@@ -155,6 +158,19 @@ export interface ServerSideProps<T extends {}> {
       zIndex?: number;
     };
   };
+
+  overridecolumnFilters?: MRT_ColumnFiltersState;
+  setOverrideColumnFilters?: React.Dispatch<
+    React.SetStateAction<MRT_ColumnFiltersState>
+  >;
+  overrideglobalFilter?: string;
+  setOverrideGlobalFilter?: React.Dispatch<React.SetStateAction<string>>;
+  overridesorting?: MRT_SortingState;
+  setOverrideSorting?: React.Dispatch<React.SetStateAction<MRT_SortingState>>;
+  overridepagination?: MRT_PaginationState;
+  setOverridePagination?: React.Dispatch<
+    React.SetStateAction<MRT_PaginationState>
+  >;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -216,10 +232,18 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   additiontopactions = [],
   enableSelectAll = true,
   enableMultiRowSelection = false,
-  editCreateCallBack = () => {},
+  editCreateCallBack,
   showadditionaltopactions = true,
   editCallback = () => {},
   deleteProps = {},
+  setOverrideColumnFilters = undefined,
+  setOverrideGlobalFilter = undefined,
+  setOverridePagination = undefined,
+  setOverrideSorting = undefined,
+  overridecolumnFilters = undefined,
+  overrideglobalFilter = undefined,
+  overridepagination = undefined,
+  overridesorting = undefined,
 }: // tabledrawcallback = () => {},
 ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
@@ -384,10 +408,10 @@ ServerSideProps<T>) => {
     data: data,
     columns: columns,
     initialState: { showColumnFilters: true },
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
+    onColumnFiltersChange: setOverrideColumnFilters || setColumnFilters,
+    onGlobalFilterChange: setOverrideGlobalFilter || setGlobalFilter,
+    onPaginationChange: setOverridePagination || setPagination,
+    onSortingChange: setOverrideSorting || setSorting,
     enableMultiRowSelection: enableMultiRowSelection,
     ...moreConfigs,
     // enableEditing: enableEditing,
@@ -559,14 +583,14 @@ ServerSideProps<T>) => {
       },
     },
     state: {
-      columnFilters,
-      globalFilter,
+      columnFilters: overridecolumnFilters || columnFilters,
+      globalFilter: overrideglobalFilter || globalFilter,
       rowSelection,
       isLoading,
-      pagination,
+      pagination: overridepagination || pagination,
       showAlertBanner: isError,
       showProgressBars: isFetching,
-      sorting,
+      sorting: overridesorting || sorting,
       columnVisibility,
     },
   });

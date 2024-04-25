@@ -8,6 +8,11 @@ import axios, { AxiosRequestConfig } from "axios";
 import { useTableContext } from "../contexts/tablecontext";
 import { handleAxiosError } from "./utils";
 import { enqueueSnackbar } from "notistack";
+import {
+  MRT_ColumnFiltersState,
+  MRT_PaginationState,
+  MRT_SortingState,
+} from "material-react-table";
 // import { MRT_ColumnFiltersState } from "material-react-table";
 
 export type ApiResponse<T> = {
@@ -26,6 +31,8 @@ export type payLoadData = {
   key?: string;
   base_url?: string;
   urlparams?: typeurlparams;
+  filter_url?: string;
+  overidedefaults?: overidedefaults;
 };
 
 export interface typeurlparams {
@@ -76,6 +83,7 @@ export async function fetchApi<T>(
       status: response.status,
     };
   } catch (error: any) {
+    console.log(error);
     handleAxiosError(error, enqueueSnackbar);
     throw new Error("An error occured");
   }
@@ -90,6 +98,12 @@ type apimethods =
   | "HEAD"
   | "OPTIONS";
 
+type overidedefaults = {
+  columnFilters: MRT_ColumnFiltersState;
+  globalFilter: string;
+  sorting: MRT_SortingState;
+  pagination: MRT_PaginationState;
+};
 export function useApiQuery<T, E = unknown>({
   url,
   key = "api",
@@ -98,15 +112,26 @@ export function useApiQuery<T, E = unknown>({
   data = {},
   manual = false,
   base_url = baseqry,
+  overidedefaults = undefined,
 }: payLoadData) {
   const { pagination, columnFilters, globalFilter, sorting } =
     useTableContext();
+  let pgn = pagination;
+  let cmf = columnFilters;
+  let gf = globalFilter;
+  let st = sorting;
+  if (overidedefaults) {
+    pgn = overidedefaults.pagination;
+    cmf = overidedefaults.columnFilters;
+    gf = overidedefaults.globalFilter;
+    st = overidedefaults.sorting;
+  }
   const urlparams = {
-    columnFilters,
-    globalFilter,
-    sorting,
-    start: pagination.pageIndex + 1,
-    size: pagination.pageSize,
+    columnFilters: cmf,
+    globalFilter: gf,
+    sorting: st,
+    start: pgn.pageIndex + 1,
+    size: pgn.pageSize,
   } as typeurlparams;
   const queryFn: QueryFunction<ApiResponse<T>, QueryKey> = async ({
     queryKey,

@@ -10,7 +10,12 @@ import {
 } from "../../../../components/tables/serverside";
 import { format } from "date-fns";
 import { useTableTheme } from "../../../../helpers/tabletheme";
-import { MRT_VisibilityState } from "material-react-table";
+import {
+  MRT_ColumnFiltersState,
+  MRT_PaginationState,
+  MRT_SortingState,
+  MRT_VisibilityState,
+} from "material-react-table";
 import { validateRequired } from "./modules";
 
 export interface modulepermissions {
@@ -63,6 +68,15 @@ const ModulePermissions = ({
   const [validationErrors, setValidationErrors] = useState<ColumnVisibility>(
     {}
   );
+  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+    []
+  );
+  const [globalFilter, setGlobalFilter] = useState<string>("");
+  const [sorting, setSorting] = useState<MRT_SortingState>([]);
+  const [pagination, setPagination] = useState<MRT_PaginationState>({
+    pageIndex: 0,
+    pageSize: 5,
+  });
   const { token } = useAuthUser();
   const theme = useTableTheme();
   //   "#ffffff" : "#222738"
@@ -163,12 +177,18 @@ const ModulePermissions = ({
     url: `/modulepermission/permissions/${linkId}`,
     headers: { Authorization: `Bearer ${token}` },
     manual: pmanual,
+    overidedefaults: { pagination, sorting, columnFilters, globalFilter },
   });
   useEffect(() => {
     if (data?.data?.docs) {
       setPManual(false);
     }
   }, [data, pmanual]);
+  useEffect(() => {
+    if (!pmanual) {
+      setPManual(true);
+    }
+  }, [pagination, globalFilter, columnFilters]);
   return (
     <div>
       <Modal
@@ -214,6 +234,14 @@ const ModulePermissions = ({
           setValidationErrors={setValidationErrors}
           validateData={validateData}
           setManual={setPManual}
+          setOverrideColumnFilters={setColumnFilters}
+          setOverrideGlobalFilter={setGlobalFilter}
+          setOverridePagination={setPagination}
+          setOverrideSorting={setSorting}
+          overridecolumnFilters={columnFilters}
+          overrideglobalFilter={globalFilter}
+          overridepagination={pagination}
+          overridesorting={sorting}
           postDataProps={{
             addurl: "/modulepermission/permissions/" + linkId,
             dataFields: ["accessName", "acessRoute", "method", "description"],
