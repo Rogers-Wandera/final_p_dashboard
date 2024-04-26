@@ -286,7 +286,7 @@ const AssignedRoles = ({
         editCreateCallBack={(values) => {
           values.expireDate = format(
             new Date(values.expireDate),
-            "yyyy-MM-dd hh:mm"
+            "yyyy-MM-dd HH:mm"
           );
           return values;
         }}

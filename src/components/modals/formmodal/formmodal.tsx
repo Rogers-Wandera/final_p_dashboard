@@ -121,7 +121,7 @@ function FormModal<T extends Record<string, unknown>>({
       pwlength: 5,
     },
     dateformat: "YYYY-MM-DD",
-    datetimeformat: "YYYY-MM-DD HH:mm",
+    datetimeformat: "YYYY-MM-DD hh:mm",
   };
   const form = forminstance;
   const defaultbuttonconfigs: buttonconfigs<T> = {
