@@ -15,3 +15,5 @@ export const defaultmodules: defaultmodulestypes[] = [
     accessroles: [1982, 5150],
   },
 ];
+
+export const urlexcludes = ["/dashboard/users/manage"];

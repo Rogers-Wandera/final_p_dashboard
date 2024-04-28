@@ -18,7 +18,7 @@ import withAuthentication, {
 } from "../../../../hoc/withUserAuth";
 import withRouteRole from "../../../../hoc/withRouteRole";
 import withRouter, { RouterContextType } from "../../../../hoc/withRouter";
-import withRolesVerify from "../../../../hoc/withRolesVerify";
+// import withRolesVerify from "../../../../hoc/withRolesVerify";
 import { decryptUrl, handleError } from "../../../../helpers/utils";
 import { user } from "./users";
 import { Box, Loader, LoadingOverlay } from "@mantine/core";
@@ -47,6 +47,8 @@ import { useAppState } from "../../../../contexts/sharedcontexts";
 import ContentPage from "./configs/manageuser/content";
 import { ModuleLinksProps } from "../modules/modulelinks";
 import AddRoles from "./configs/manageuser/addroles";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../contexts/authcontext";
 
 const validation = Joi.object({
   roleId: Joi.number().required().messages({
@@ -56,7 +58,6 @@ const validation = Joi.object({
 });
 
 export type manageuserprops = {
-  acceptedroles: number[];
   router?: RouterContextType;
   auth?: userauthprops;
 };
@@ -78,6 +79,9 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
     name: "Add-Roles",
     validate: joiResolver(validation),
   });
+  const viewer = useSelector(
+    (state: RootState) => state.appState.defaultstate.viewer
+  );
   const [toggler, setToggler] = useState<boolean>(false);
   const [userdata, setUserData] = useState<user>({} as user);
   const [manual, setManual] = useState(false);
@@ -106,20 +110,22 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
         decrypted,
         auth?.token as string
       );
-      const unassigned = await HandleGetUnAssignedRoles(
-        decrypted,
-        auth?.token as string
-      );
-      const modules_links = await HandleGetModules(auth?.token as string);
-      const user_roles_links = await HandleGetLinkRoles(
-        decrypted,
-        auth?.token as string
-      );
+      if (viewer === "Admin") {
+        const unassigned = await HandleGetUnAssignedRoles(
+          decrypted,
+          auth?.token as string
+        );
+        const modules_links = await HandleGetModules(auth?.token as string);
+        const user_roles_links = await HandleGetLinkRoles(
+          decrypted,
+          auth?.token as string
+        );
+        setUnassignedroles(unassigned);
+        setModules(modules_links);
+        setLinkRoles(user_roles_links);
+      }
       setUserData(user_data);
       setUserRoles(user_roles);
-      setUnassignedroles(unassigned);
-      setModules(modules_links);
-      setLinkRoles(user_roles_links);
       close();
     } catch (error) {
       close();
@@ -174,7 +180,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
 
   useEffect(() => {
     HandleGetUserData();
-  }, [manual]);
+  }, [manual, viewer, params]);
 
   useEffect(() => {
     const selectdata: selectdataprops[] = [];
@@ -240,13 +246,13 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
           buttonconfigs={{ handleSubmit: handleFormSubmit }}
         />
         <Row>
-          <UserHeader userdata={userdata} viewer="Admin" />
+          <UserHeader userdata={userdata} viewer={viewer} />
           <UserSideLeft
             user={userdata}
             setToggler={setToggler}
             toggler={toggler}
             userroles={userroles}
-            viewer="Admin"
+            viewer={viewer}
             setManual={setManual}
             manual={manual}
             unassignedroles={unassignedroles}
@@ -256,7 +262,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
           <Col lg="6">
             <ContentPage
               userdata={userdata}
-              viewer="Admin"
+              viewer={viewer}
               userId={decrypted}
               modal_opened={modal_open}
               moduleslinks={linkroles}
@@ -271,7 +277,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
             user={userdata}
             setToggler={setToggler}
             toggler={toggler}
-            viewer="Admin"
+            viewer={viewer}
           />
         </Row>
       </Tab.Container>
@@ -281,6 +287,6 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
 const ManageWithVerified = withAuthentication(
   withRouter(withRouteRole(ManageUser))
 );
-const ManageWithAcceptedRoles = withRolesVerify(ManageWithVerified);
+// const ManageWithAcceptedRoles = withRolesVerify(ManageWithVerified);
 
-export default ManageWithAcceptedRoles;
+export default ManageWithVerified;

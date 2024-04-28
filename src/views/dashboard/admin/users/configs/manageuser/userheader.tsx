@@ -60,12 +60,12 @@ function UserHeader({ userdata, viewer }: headeruserprops) {
                   <Nav.Link eventKey="second">Assign Roles</Nav.Link>
                 </Nav.Item>
               )}
-              <Nav.Item as="li">
+              {/* <Nav.Item as="li">
                 <Nav.Link eventKey="third">Friends</Nav.Link>
               </Nav.Item>
               <Nav.Item as="li">
                 <Nav.Link eventKey="fourth">Profile</Nav.Link>
-              </Nav.Item>
+              </Nav.Item> */}
             </Nav>
           </div>
         </Card.Body>

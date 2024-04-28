@@ -6,6 +6,7 @@ import { Button } from "@mantine/core";
 import { enqueueSnackbar } from "notistack";
 import { useAuthUser } from "../../../../../../contexts/authcontext";
 import { user } from "../../users";
+import { useEffect } from "react";
 
 type userprofileprops = {
   userdata: user;

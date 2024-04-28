@@ -1,6 +1,6 @@
 import { useEffect, Fragment, memo } from "react";
 import { Navbar, Container, Nav, Dropdown } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import CustomToggle from "../../../dropdowns";
 
 //img
@@ -32,13 +32,20 @@ import * as SettingSelector from "../../../../store/setting/selectors";
 
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import { RootState, useAuthUser } from "../../../../contexts/authcontext";
+import { useAuthUser } from "../../../../contexts/authcontext";
 import withAuthentication from "../../../../hoc/withUserAuth";
 import { loguserout } from "../../../../store/services/auth";
 import { useSnackbar } from "notistack";
+import { encryptUrl } from "../../../../helpers/utils";
+import {
+  revertAll,
+  setHeaderText,
+  setViewer,
+} from "../../../../store/services/defaults";
 
 const Header = memo((_) => {
-  const { user } = useAuthUser();
+  const { user, id } = useAuthUser();
+  const navigate = useNavigate();
   const navbarHide = useSelector(SettingSelector.navbar_show); // array
   const headerNavbar = useSelector(SettingSelector.header_navbar);
   const { enqueueSnackbar } = useSnackbar();
@@ -432,12 +439,21 @@ const Header = memo((_) => {
                   className="dropdown-menu-end"
                   aria-labelledby="navbarDropdown"
                 >
-                  <Dropdown.Item href="/">Profile</Dropdown.Item>
+                  <Dropdown.Item
+                    onClick={() => {
+                      navigate("/dashboard/users/manage/" + encryptUrl(id));
+                      dispatch(setViewer("User"));
+                      dispatch(setHeaderText("Manage Profile"));
+                    }}
+                  >
+                    Profile
+                  </Dropdown.Item>
                   <Dropdown.Item href="">Privacy Setting</Dropdown.Item>
                   <Dropdown.Divider />
                   <Dropdown.Item
                     onClick={() => {
                       dispatch(loguserout({}));
+                      dispatch(revertAll());
                       enqueueSnackbar("Logged out successfully", {
                         variant: "success",
                         anchorOrigin: {

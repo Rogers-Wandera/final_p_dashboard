@@ -64,11 +64,11 @@ export const DefaultRouter = [
       },
       {
         path: "dashboard/positions",
-        element: <Positions acceptedroles={[5150, 1982]} />,
+        element: <Positions />,
       },
       {
         path: "dashboard/users/manage/:id",
-        element: <ManageUser acceptedroles={[5150, 1982]} />,
+        element: <ManageUser />,
       },
       {
         path: "dashboard/configs/roles",

@@ -5,6 +5,7 @@ import {
   fetchBaseQuery,
 } from "@reduxjs/toolkit/query/react";
 import { RootState } from "../../contexts/authcontext";
+import { revertAll } from "./defaults";
 
 export interface ModulesTypeLinks {
   name: string;
@@ -161,13 +162,15 @@ const AuthSlice = createSlice({
   },
   extraReducers: (builder) => {
     try {
-      builder.addMatcher(
-        AuthApi.endpoints.loginUser.matchFulfilled,
-        (state, action) => {
-          state.token = action.payload.accessToken;
-          state.isLoggedIn = true;
-        }
-      );
+      builder
+        .addCase(revertAll, () => initialState)
+        .addMatcher(
+          AuthApi.endpoints.loginUser.matchFulfilled,
+          (state, action) => {
+            state.token = action.payload.accessToken;
+            state.isLoggedIn = true;
+          }
+        );
     } catch (error) {
       throw error;
     }

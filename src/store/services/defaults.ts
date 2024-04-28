@@ -1,13 +1,16 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAction, createSlice } from "@reduxjs/toolkit";
 
+export const revertAll = createAction("REVERT_ALL");
 export interface DefaultState {
   headerText: string;
   manual: boolean;
+  viewer: "Admin" | "User";
 }
 
 const defaultState: DefaultState = {
   headerText: "",
   manual: false,
+  viewer: "User",
 };
 
 const defaultSlice = createSlice({
@@ -20,8 +23,12 @@ const defaultSlice = createSlice({
     setManual: (state, action: { payload: boolean }) => {
       state.manual = action.payload;
     },
+    setViewer: (state, action: { payload: "Admin" | "User" }) => {
+      state.viewer = action.payload;
+    },
   },
+  extraReducers: (builder) => builder.addCase(revertAll, () => defaultState),
 });
 
 export const defaultReducer = defaultSlice.reducer;
-export const { setHeaderText, setManual } = defaultSlice.actions;
+export const { setHeaderText, setManual, setViewer } = defaultSlice.actions;

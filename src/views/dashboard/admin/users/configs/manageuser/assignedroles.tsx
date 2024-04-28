@@ -200,7 +200,7 @@ const AssignedRoles = ({
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      manual,
+      manual: viewer !== "Admin" ? false : manual,
     });
   useEffect(() => {
     if (data?.data?.docs) {

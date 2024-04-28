@@ -23,6 +23,7 @@ import { useAppState } from "../../../../../contexts/sharedcontexts";
 import { enqueueSnackbar } from "notistack";
 import { MRT_RowSelectionState } from "material-react-table";
 import { useAuthUser } from "../../../../../contexts/authcontext";
+import { setViewer } from "../../../../../store/services/defaults";
 
 export type userformtype = {
   firstname: string;
@@ -194,6 +195,7 @@ export const userconfigs = (
           return null;
         }
         setRowSelection({});
+        dispatch(setViewer("Admin"));
         navigate(`/dashboard/users/manage/${id}`);
       },
       show: "icon",
