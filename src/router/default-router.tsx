@@ -40,6 +40,8 @@ import Users from "../views/dashboard/admin/users/users";
 import Positions from "../views/dashboard/admin/users/positions";
 import ManageUser from "../views/dashboard/admin/users/manageuser";
 import Roles from "../views/configurations/roles/roles";
+import Person from "../views/dashboard/admin/people/person";
+import ManagePerson from "../views/dashboard/admin/people/manageperson";
 
 export const DefaultRouter = [
   {
@@ -74,10 +76,14 @@ export const DefaultRouter = [
         path: "dashboard/configs/roles",
         element: <Roles acceptedroles={[5150, 1982]} />,
       },
-      // {
-      //   path: "dashboard/special-pages/billing",
-      //   element: <Billing />,
-      // },
+      {
+        path: "dashboard/admin/persons",
+        element: <Person />,
+      },
+      {
+        path: "dashboard/admin/persons/manage/:personId",
+        element: <ManagePerson />,
+      },
       {
         path: "dashboard/app/user-profile",
         element: <UserProfile />,

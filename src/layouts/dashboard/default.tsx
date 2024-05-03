@@ -33,6 +33,7 @@ import * as SettingSelector from "../../store/setting/selectors";
 // Redux Selector / Action
 import { useSelector } from "react-redux";
 import withAuthentication from "../../hoc/withUserAuth";
+import SupportAgentIcon from "@mui/icons-material/SupportAgent";
 
 const Tour = () => {
   const tour = useContext(ShepherdTourContext);
@@ -168,9 +169,9 @@ const Default = memo((_) => {
           {/* <DefaultRouter /> */}
           <Outlet />
         </div>
-        <div className="btn-download ">
-          <Button variant="success py-2 px-3 d-flex gap-2" target="_blank">
-            Contact Support
+        <div className="btn-download">
+          <Button variant="success py-1 px-1 d-flex gap-0" target="_blank">
+            <SupportAgentIcon />
           </Button>
         </div>
         <Footer app_name={appName} />

@@ -2036,6 +2036,13 @@
   dependencies:
     clsx "2.1.0"
 
+"@mantine/dropzone@^7.8.1":
+  version "7.8.1"
+  resolved "https://registry.yarnpkg.com/@mantine/dropzone/-/dropzone-7.8.1.tgz#408a0c9ddbce99d7f1f4822fafbfe5ccd21ae4d3"
+  integrity sha512-S2kuD21k4gdDp9cCosx+6bVL6974a4NdR0vXeKPV+IgvyCcSXyLKnJ+YhcZArND5SVzITkEMLEml1ZqL8hLjAQ==
+  dependencies:
+    react-dropzone-esm "15.0.1"
+
 "@mantine/form@^7.7.0":
   version "7.7.0"
   resolved "https://registry.yarnpkg.com/@mantine/form/-/form-7.7.0.tgz#998ff6b8e29a1fb4e901ab8970f5c4367eb4f67a"
@@ -9438,6 +9445,13 @@ react-dom@^18.2.0:
     loose-envify "^1.1.0"
     scheduler "^0.23.0"
 
+react-dropzone-esm@15.0.1:
+  version "15.0.1"
+  resolved "https://registry.yarnpkg.com/react-dropzone-esm/-/react-dropzone-esm-15.0.1.tgz#8c689638aaa9feb5b2a429dd565acfa6792263e5"
+  integrity sha512-RdeGpqwHnoV/IlDFpQji7t7pTtlC2O1i/Br0LWkRZ9hYtLyce814S71h5NolnCZXsIN5wrZId6+8eQj2EBnEzg==
+  dependencies:
+    prop-types "^15.8.1"
+
 react-dropzone-uploader@^2.11.0:
   version "2.11.0"
   resolved "https://registry.yarnpkg.com/react-dropzone-uploader/-/react-dropzone-uploader-2.11.0.tgz#6579e83f4f98c8248a3f3b5825c436ca3d6441cf"
@@ -9466,6 +9480,11 @@ react-flatpickr@^3.10.11:
   dependencies:
     flatpickr "^4.6.2"
     prop-types "^15.5.10"
+
+react-grid-gallery@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-grid-gallery/-/react-grid-gallery-1.0.1.tgz#51e9e920cb83df6c61fbd1f2c7eed7db3b6e5a1b"
+  integrity sha512-+fVd6fH9tm0W+UMgzRHET/gmzSs2/l2sGOuELLaHXMto6UhuZdscj9ILHOYe7hn0GBRUJiczMllsEs7OJz9uPA==
 
 react-icons@^4.6.0:
   version "4.12.0"

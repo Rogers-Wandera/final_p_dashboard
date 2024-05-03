@@ -1,19 +1,19 @@
-import { Card, Col, Image } from "react-bootstrap";
+import { Card, Col } from "react-bootstrap";
 import { user } from "../../users";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 
 // icons
 
-import icon1 from "../../../../../../assets/images/icons/01.png";
-import icon2 from "../../../../../../assets/images/icons/02.png";
-// import icon3 from "../../../../../../assets/images/icons/03.png";
-import icon4 from "../../../../../../assets/images/icons/04.png";
-import icon8 from "../../../../../../assets/images/icons/08.png";
+// import icon1 from "../../../../../../assets/images/icons/01.png";
+// import icon2 from "../../../../../../assets/images/icons/02.png";
+// // import icon3 from "../../../../../../assets/images/icons/03.png";
+// import icon4 from "../../../../../../assets/images/icons/04.png";
+// import icon8 from "../../../../../../assets/images/icons/08.png";
 
-import icon5 from "../../../../../../assets/images/icons/05.png";
-import shap2 from "../../../../../../assets/images/shapes/02.png";
-import shap4 from "../../../../../../assets/images/shapes/04.png";
-import shap6 from "../../../../../../assets/images/shapes/06.png";
+// import icon5 from "../../../../../../assets/images/icons/05.png";
+// import shap2 from "../../../../../../assets/images/shapes/02.png";
+// import shap4 from "../../../../../../assets/images/shapes/04.png";
+// import shap6 from "../../../../../../assets/images/shapes/06.png";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { userrolestype } from "../../manageuser";
 import { modals } from "@mantine/modals";
@@ -38,8 +38,6 @@ type userpageprops = {
 };
 const UserSideLeft = ({
   user,
-  toggler,
-  setToggler,
   userroles,
   viewer,
   setManual = () => {},
@@ -160,7 +158,7 @@ const UserSideLeft = ({
           </ul>
         </Card.Body>
       </Card>
-      <Card>
+      {/* <Card>
         <Card.Header className="d-flex align-items-center justify-content-between">
           <div className="header-title">
             <h4 className="card-title">Gallery</h4>
@@ -235,7 +233,7 @@ const UserSideLeft = ({
             </Link>
           </div>
         </Card.Body>
-      </Card>
+      </Card> */}
       {/* <Card>
         <Card.Header>
           <div className="header-title">

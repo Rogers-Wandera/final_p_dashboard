@@ -6,7 +6,6 @@ import { Button } from "@mantine/core";
 import { enqueueSnackbar } from "notistack";
 import { useAuthUser } from "../../../../../../contexts/authcontext";
 import { user } from "../../users";
-import { useEffect } from "react";
 
 type userprofileprops = {
   userdata: user;
@@ -14,6 +13,7 @@ type userprofileprops = {
 };
 const UserProfileContent = ({ userdata, viewer }: userprofileprops) => {
   const { id } = useAuthUser();
+  const show = viewer === "User" ? true : id === userdata.id ? true : false;
   return (
     <Tab.Pane eventKey="first" id="profile-profile">
       <Card>
@@ -58,23 +58,22 @@ const UserProfileContent = ({ userdata, viewer }: userprofileprops) => {
               </Col>
               <Col lg={4}>
                 {" "}
-                {viewer === "User" ||
-                  (userdata.id === id && (
-                    <Button
-                      type="button"
-                      onClick={() =>
-                        enqueueSnackbar("Feature coming soon", {
-                          variant: "info",
-                          anchorOrigin: {
-                            horizontal: "right",
-                            vertical: "top",
-                          },
-                        })
-                      }
-                    >
-                      Update
-                    </Button>
-                  ))}
+                {show && (
+                  <Button
+                    type="button"
+                    onClick={() =>
+                      enqueueSnackbar("Feature coming soon", {
+                        variant: "info",
+                        anchorOrigin: {
+                          horizontal: "right",
+                          vertical: "top",
+                        },
+                      })
+                    }
+                  >
+                    Update
+                  </Button>
+                )}
               </Col>
             </Row>
           </div>

@@ -105,6 +105,18 @@ export const decrypt = (encrypted: string) => {
   return ciphedInput;
 };
 
+export const encryptBackData = (input: string) => {
+  const secretKey = import.meta.env.VITE_ENCRYPTION_KEY;
+  const cipherInput = Crypto.AES.encrypt(input, secretKey).toString();
+  return cipherInput;
+};
+export const decryptBackData = (encrypted: string) => {
+  const secretKey = import.meta.env.VITE_ENCRYPTION_KEY;
+  const bytes = Crypto.AES.decrypt(encrypted, secretKey);
+  const ciphedInput = bytes.toString(Crypto.enc.Utf8);
+  return ciphedInput;
+};
+
 export const encryptUrl = (input: string) => {
   const encrypted = encrypt(input);
   return encodeURIComponent(encrypted);

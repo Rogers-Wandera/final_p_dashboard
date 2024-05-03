@@ -99,7 +99,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
   const params = router?.params;
   const id = params?.id;
   const decrypted = decryptUrl(id as string);
-  const [postRole] = usePostDataMutation<userrolestype>({});
+  const [postRole] = usePostDataMutation({});
   const appState = useAppState();
 
   const HandleGetUserData = async () => {
@@ -180,7 +180,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
 
   useEffect(() => {
     HandleGetUserData();
-  }, [manual, viewer, params]);
+  }, [manual, viewer]);
 
   useEffect(() => {
     const selectdata: selectdataprops[] = [];
@@ -200,6 +200,7 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
       setSelectOptions(selectdata);
     }
   }, [unassignedroles]);
+
   if (visible) {
     return (
       <LoadingOverlay
@@ -246,7 +247,12 @@ const ManageUser = ({ router, auth }: manageuserprops) => {
           buttonconfigs={{ handleSubmit: handleFormSubmit }}
         />
         <Row>
-          <UserHeader userdata={userdata} viewer={viewer} />
+          <UserHeader
+            userdata={userdata}
+            viewer={viewer}
+            setManual={setManual}
+            manual={manual}
+          />
           <UserSideLeft
             user={userdata}
             setToggler={setToggler}

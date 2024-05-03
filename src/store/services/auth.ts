@@ -23,6 +23,7 @@ export interface UserTokenObject {
   verified: number;
   adminCreated: number;
   position: string;
+  image: string;
 }
 
 export interface TypeToken {

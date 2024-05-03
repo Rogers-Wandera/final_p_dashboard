@@ -1,4 +1,4 @@
-import { useEffect, Fragment, memo } from "react";
+import { useEffect, Fragment, memo, useState } from "react";
 import { Navbar, Container, Nav, Dropdown } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import CustomToggle from "../../../dropdowns";
@@ -16,11 +16,6 @@ import flag6 from "../../../../assets/images/Flag/flag-06.png";
 // import shapes4 from "../../../../assets/images/shapes/04.png";
 // import shapes5 from "../../../../assets/images/shapes/05.png";
 import avatars1 from "../../../../assets/images/avatars/01.png";
-import avatars2 from "../../../../assets/images/avatars/avtar_1.png";
-import avatars3 from "../../../../assets/images/avatars/avtar_2.png";
-import avatars4 from "../../../../assets/images/avatars/avtar_3.png";
-import avatars5 from "../../../../assets/images/avatars/avtar_4.png";
-import avatars6 from "../../../../assets/images/avatars/avtar_5.png";
 // logo
 import Logo from "../../components/logo";
 
@@ -32,9 +27,9 @@ import * as SettingSelector from "../../../../store/setting/selectors";
 
 import Alert from "@mui/material/Alert";
 import AlertTitle from "@mui/material/AlertTitle";
-import { useAuthUser } from "../../../../contexts/authcontext";
+import { RootState, useAuthUser } from "../../../../contexts/authcontext";
 import withAuthentication from "../../../../hoc/withUserAuth";
-import { loguserout } from "../../../../store/services/auth";
+import { ModulesTypeLinks, loguserout } from "../../../../store/services/auth";
 import { useSnackbar } from "notistack";
 import { encryptUrl } from "../../../../helpers/utils";
 import {
@@ -42,14 +37,42 @@ import {
   setHeaderText,
   setViewer,
 } from "../../../../store/services/defaults";
-
+import { Combobox, useCombobox } from "@mantine/core";
 const Header = memo((_) => {
+  const modules = useSelector(
+    (state: RootState) => state.appState.authuser.modules
+  );
+  const combobox = useCombobox();
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [modulelinks, setModuleLinks] = useState<ModulesTypeLinks[]>([]);
   const { user, id } = useAuthUser();
+  const image = user.image;
   const navigate = useNavigate();
   const navbarHide = useSelector(SettingSelector.navbar_show); // array
   const headerNavbar = useSelector(SettingSelector.header_navbar);
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useDispatch();
+  const minisidebar = () => {
+    document.getElementsByTagName("ASIDE")[0].classList.toggle("sidebar-mini");
+  };
+  const shouldFilterOptions = !modulelinks.some(
+    (item) => item.linkname === searchTerm
+  );
+  const filteredOptions = shouldFilterOptions
+    ? modulelinks.filter(
+        (item) =>
+          item.linkname
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase().trim()) ||
+          item.name.toLowerCase().includes(searchTerm.toLowerCase().trim())
+      )
+    : modulelinks;
+
+  const options = filteredOptions.map((item) => (
+    <Combobox.Option value={item.linkname} key={item.linkname}>
+      {item.linkname}
+    </Combobox.Option>
+  ));
   useEffect(() => {
     // navbarstylemode
     if (headerNavbar === "navs-sticky" || headerNavbar === "nav-glass") {
@@ -64,9 +87,14 @@ const Header = memo((_) => {
       };
     }
   });
-  const minisidebar = () => {
-    document.getElementsByTagName("ASIDE")[0].classList.toggle("sidebar-mini");
-  };
+
+  useEffect(() => {
+    if (Object.keys(modules)) {
+      const linkmodules = Object.values(modules);
+      const flatarray = linkmodules.reduce((a, b) => a.concat(b), []);
+      setModuleLinks(flatarray);
+    }
+  }, [modules]);
   return (
     <Fragment>
       <Navbar
@@ -120,11 +148,51 @@ const Header = memo((_) => {
                 ></path>
               </svg>
             </span>
-            <input
-              type="search"
-              className="form-control"
-              placeholder="Search..."
-            />
+            <Combobox
+              onOptionSubmit={(optionValue) => {
+                setSearchTerm(optionValue);
+                combobox.closeDropdown();
+                const find = modulelinks.find(
+                  (item) => item.linkname === optionValue
+                );
+                if (find && find.render === 1) {
+                  navigate(`/dashboard${find.route}`);
+                } else {
+                  enqueueSnackbar("Link cannot be called", {
+                    anchorOrigin: { horizontal: "right", vertical: "top" },
+                    variant: "info",
+                  });
+                }
+              }}
+              store={combobox}
+            >
+              <Combobox.Target>
+                <input
+                  type="search"
+                  className="form-control"
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.currentTarget.value);
+                    combobox.openDropdown();
+                    combobox.updateSelectedOptionIndex();
+                  }}
+                  onClick={() => combobox.openDropdown()}
+                  onFocus={() => combobox.openDropdown()}
+                  onBlur={() => combobox.closeDropdown()}
+                  placeholder="Search..."
+                />
+              </Combobox.Target>
+
+              <Combobox.Dropdown>
+                <Combobox.Options>
+                  {options.length === 0 ? (
+                    <Combobox.Empty>Nothing found</Combobox.Empty>
+                  ) : (
+                    options
+                  )}
+                </Combobox.Options>
+              </Combobox.Dropdown>
+            </Combobox>
           </div>
           <Navbar.Toggle aria-controls="navbarSupportedContent">
             <span className="navbar-toggler-icon">
@@ -401,34 +469,9 @@ const Header = memo((_) => {
                   aria-expanded="false"
                 >
                   <img
-                    src={avatars1}
-                    alt="User-Profile"
+                    src={image !== "" && image !== null ? image : avatars1}
+                    alt={user.displayName}
                     className="theme-color-default-img img-fluid avatar avatar-50 avatar-rounded"
-                  />
-                  <img
-                    src={avatars2}
-                    alt="User-Profile"
-                    className="theme-color-purple-img img-fluid avatar avatar-50 avatar-rounded"
-                  />
-                  <img
-                    src={avatars3}
-                    alt="User-Profile"
-                    className="theme-color-blue-img img-fluid avatar avatar-50 avatar-rounded"
-                  />
-                  <img
-                    src={avatars5}
-                    alt="User-Profile"
-                    className="theme-color-green-img img-fluid avatar avatar-50 avatar-rounded"
-                  />
-                  <img
-                    src={avatars6}
-                    alt="User-Profile"
-                    className="theme-color-yellow-img img-fluid avatar avatar-50 avatar-rounded"
-                  />
-                  <img
-                    src={avatars4}
-                    alt="User-Profile"
-                    className="theme-color-pink-img img-fluid avatar avatar-50 avatar-rounded"
                   />
                   <div className="caption ms-3 d-none d-md-block ">
                     <h6 className="mb-0 caption-title">{user.displayName}</h6>
@@ -441,9 +484,10 @@ const Header = memo((_) => {
                 >
                   <Dropdown.Item
                     onClick={() => {
-                      navigate("/dashboard/users/manage/" + encryptUrl(id));
                       dispatch(setViewer("User"));
                       dispatch(setHeaderText("Manage Profile"));
+                      window.location.href =
+                        "/dashboard/users/manage/" + encryptUrl(id);
                     }}
                   >
                     Profile

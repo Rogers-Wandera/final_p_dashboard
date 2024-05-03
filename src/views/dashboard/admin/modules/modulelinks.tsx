@@ -152,6 +152,9 @@ const ModulesLinks = (props: any) => {
         { label: "Yes", value: "1" },
         { label: "No", value: "0" },
       ],
+      Cell: ({ cell }) => {
+        return cell.getValue<number>() == 1 ? "Yes" : "No";
+      },
       muiEditTextFieldProps: ({}) => ({
         required: true,
         // hidden: table.getState().creatingRow ? true : false,
@@ -202,6 +205,9 @@ const ModulesLinks = (props: any) => {
         { label: "Yes", value: "1" },
         { label: "No", value: "0" },
       ],
+      Cell: ({ cell }) => {
+        return cell.getValue<number>() == 1 ? "Yes" : "No";
+      },
       muiEditTextFieldProps: {
         required: true,
         error: !!validationErrors?.render,

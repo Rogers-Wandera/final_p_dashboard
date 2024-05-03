@@ -40,7 +40,6 @@ export const HandleDelete = ({
         onConfirmCallback();
       } catch (error) {
         handleError(error, appstate, enqueueSnackbar);
-        //   Swal.fire("Error!", error.);
       }
     },
   });

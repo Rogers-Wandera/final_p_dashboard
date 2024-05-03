@@ -34,7 +34,7 @@ import { useAppState } from "../../contexts/sharedcontexts";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import { handleError } from "../../helpers/utils";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
 import { useTableTheme } from "../../helpers/tabletheme";
 import { HandleDelete } from "../../store/services/deletehandler";
 
@@ -115,6 +115,7 @@ export interface ServerSideProps<T extends {}> {
   isFetching?: boolean;
   error: any;
   deleteUrl?: string;
+  deleteOverride?: (row: MRT_Row<T>) => string;
   idField?: string | number;
   enableRowSelection?: boolean | ((row: MRT_Row<T>) => boolean);
   rowSelection?: MRT_RowSelectionState;
@@ -244,6 +245,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   overrideglobalFilter = undefined,
   overridepagination = undefined,
   overridesorting = undefined,
+  deleteOverride = undefined,
 }: // tabledrawcallback = () => {},
 ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
@@ -258,7 +260,9 @@ ServerSideProps<T>) => {
       dispatch,
       enqueueSnackbar,
       appstate,
-      url: `/${deleteUrl}/${row.original[idField]}`,
+      url: deleteOverride
+        ? deleteOverride(row)
+        : `/${deleteUrl}/${row.original[idField]}`,
       setManual,
       ...deleteProps,
     });
@@ -267,7 +271,8 @@ ServerSideProps<T>) => {
     actionprop,
     HandleDeleteData,
     title,
-    moreMenuItems
+    moreMenuItems,
+    navigate
   );
   const {
     setColumnFilters,
@@ -635,7 +640,8 @@ export type menuitemsProps<T extends {}> = {
   onClick: (
     row: MRT_Row<T>,
     table: MRT_TableInstance<T>,
-    closeMenu?: () => void
+    closeMenu?: () => void,
+    navigate?: NavigateFunction
   ) => void;
   render?: boolean;
 };
@@ -644,7 +650,8 @@ const displayActionprop = <T extends {}>(
   { actiontype, deleterender, editrender }: actionconfigs,
   HandleDeleteData: (row: any) => void,
   title: string,
-  moreMenuItems: menuitemsProps<T>[] = []
+  moreMenuItems: menuitemsProps<T>[] = [],
+  navigate: NavigateFunction
 ) => {
   if (actiontype === "menu") {
     return {
@@ -663,7 +670,7 @@ const displayActionprop = <T extends {}>(
                 label={item.label}
                 table={table}
                 onClick={() => {
-                  item.onClick(row, table, closeMenu);
+                  item.onClick(row, table, closeMenu, navigate);
                 }}
               />
             );

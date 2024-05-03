@@ -6,6 +6,8 @@ import reportWebVitals from "./reportWebVitals";
 // css
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import "@mantine/dropzone/styles.css";
+import "./main.css";
 
 // imports
 import ConnectionProvider from "./contexts/connectioncontext";

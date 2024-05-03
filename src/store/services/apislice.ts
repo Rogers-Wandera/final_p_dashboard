@@ -78,7 +78,7 @@ export const apiSlice = createApi({
         method: payload.method || "POST",
         body: payload.data,
         headers: {
-          "Content-Type": payload.type || "application/json",
+          // "Content-Type": payload.type || "application/json",
         },
       }),
       transformErrorResponse: (error: FetchBaseQueryError) => {

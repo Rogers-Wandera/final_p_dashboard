@@ -213,7 +213,7 @@ const Users = (_: any) => {
         forminstance={form}
         title="Add User"
         elements={forminputs}
-        size="xl"
+        size="lg"
         selectdata={selectoptions}
         buttonconfigs={{ handleSubmit: handleFormSubmit }}
         globalconfigs={moremodalconfigs}
