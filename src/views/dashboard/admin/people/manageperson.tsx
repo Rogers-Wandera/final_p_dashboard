@@ -12,13 +12,18 @@ import PersonMeta from "./manage/meta";
 import { persontype } from "./person";
 import { useAppState } from "../../../../contexts/sharedcontexts";
 import { enqueueSnackbar } from "notistack";
-import { ViewPersonImages, ViewSinglePerson } from "./manage/personapi";
+import {
+  ViewPersonAudios,
+  ViewPersonImages,
+  ViewSinglePerson,
+} from "./manage/personapi";
 import { useAuthUser } from "../../../../contexts/authcontext";
 import { useDisclosure } from "@mantine/hooks";
 import { Col, Row, Tab } from "react-bootstrap";
 import PersonImages, { personimagestypes } from "./manage/personimages";
 import ManagePersonSideLeft from "./manage/leftside";
 import { Image } from "react-grid-gallery";
+import PersonAudio, { personaudiotype } from "./manage/personaudio";
 
 export interface customImage extends Image {
   publicId: string;
@@ -28,6 +33,7 @@ export interface customImage extends Image {
 const ManagePerson = () => {
   const [person, setPerson] = useState<persontype>({} as persontype);
   const [images, setImages] = useState<personimagestypes[]>([]);
+  const [audios, setAudios] = useState<personaudiotype[]>([]);
   const [visible, { open, close }] = useDisclosure(false);
   const [reload, setReload] = useState(false);
   const dispatch = useAppDispatch();
@@ -42,8 +48,10 @@ const ManagePerson = () => {
       open();
       const viewperson = await ViewSinglePerson(decrypted, token);
       const viewimages = await ViewPersonImages(decrypted, token);
+      const audiofiles = await ViewPersonAudios(decrypted, token);
       setPerson(viewperson);
       setImages(viewimages);
+      setAudios(audiofiles);
       close();
     } catch (error) {
       close();
@@ -87,6 +95,12 @@ const ManagePerson = () => {
                 setImages={setImages}
                 reload={reload}
                 setReload={setReload}
+              />
+              <PersonAudio
+                personId={decrypted}
+                reload={reload}
+                setReload={setReload}
+                audios={audios}
               />
             </Tab.Content>
           </Col>

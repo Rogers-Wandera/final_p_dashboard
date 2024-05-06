@@ -7,6 +7,7 @@ import reportWebVitals from "./reportWebVitals";
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
 import "@mantine/dropzone/styles.css";
+import "react-dropzone-uploader/dist/styles.css";
 import "./main.css";
 
 // imports

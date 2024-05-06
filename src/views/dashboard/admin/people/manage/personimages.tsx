@@ -180,7 +180,6 @@ const PersonImages = ({
         throw response.error;
       }
       let message = "Something went wrong";
-      console.log(response);
       if (response?.data?.images) {
         const uploads = await uploadimage({
           url: "/person/images/" + personId,

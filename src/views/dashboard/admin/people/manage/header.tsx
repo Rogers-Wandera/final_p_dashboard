@@ -52,7 +52,7 @@ const ManagePersonHeader = ({ person }: MP_headerprops) => {
                 <Nav.Link eventKey="second">Images</Nav.Link>
               </Nav.Item>
               <Nav.Item as="li">
-                <Nav.Link eventKey="three">Audios</Nav.Link>
+                <Nav.Link eventKey="third">Audios</Nav.Link>
               </Nav.Item>
             </Nav>
           </div>
