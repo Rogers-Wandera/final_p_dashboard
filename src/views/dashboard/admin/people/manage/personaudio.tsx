@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Tab } from "react-bootstrap";
+import { Col, Row, Tab } from "react-bootstrap";
 import Dropzone, {
   IDropzoneProps,
   IFileWithMeta,
@@ -17,6 +17,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { modals } from "@mantine/modals";
 import { useAppDispatch } from "../../../../../hooks/hook";
 import { deleteDataApi } from "../../../../../store/services/thunks";
+import AudioRecorder from "./audiorecorder";
 
 export type personaudiotype = {
   id: number;
@@ -174,16 +175,29 @@ const PersonAudio = ({
   // useEffect(() => {}, [status, removed]);
   return (
     <Tab.Pane eventKey="third" id="person-audios">
-      <Dropzone
-        onChangeStatus={handleChangeStatus}
-        onSubmit={handleSubmit}
-        accept="audio/*"
-        maxFiles={5}
-        submitButtonContent="Upload Audios"
-        LayoutComponent={Layout}
-        PreviewComponent={(props) => <CustomPreview {...props} />}
-        inputContent="Drop Audio Files"
-      />
+      <Row>
+        <Col>
+          <Dropzone
+            onChangeStatus={handleChangeStatus}
+            onSubmit={handleSubmit}
+            accept="audio/*"
+            maxFiles={5}
+            submitButtonContent="Upload Audios"
+            LayoutComponent={Layout}
+            PreviewComponent={(props) => <CustomPreview {...props} />}
+            inputContent="Drop Audio Files"
+          />
+        </Col>
+        <Col>
+          <AudioRecorder
+            personId={personId}
+            reload={reload}
+            setReload={setReload}
+            open={open}
+            close={close}
+          />
+        </Col>
+      </Row>
 
       {audios.length > 0 && (
         <Grid mt="xs">

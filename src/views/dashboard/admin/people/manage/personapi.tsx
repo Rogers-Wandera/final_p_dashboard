@@ -1,5 +1,6 @@
 import { fetchApi } from "../../../../../helpers/apiquery";
 import { persontype } from "../person";
+import { audioreturntype } from "./audiorecorder";
 import { personaudiotype } from "./personaudio";
 import { personimagestypes } from "./personimages";
 
@@ -47,5 +48,26 @@ export const ViewPersonAudios = async (personId: string, token: string) => {
     return images.data;
   } catch (error) {
     return [] as personaudiotype[];
+  }
+};
+
+export const GetAudioFile = async ({
+  personId,
+  token,
+}: {
+  personId: string;
+  token: string;
+}) => {
+  try {
+    const response = await fetchApi<audioreturntype>(
+      `${baseqry}/person/audio/${personId}`,
+      "GET",
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    );
+    return response.data;
+  } catch (error) {
+    return {} as audioreturntype;
   }
 };

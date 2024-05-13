@@ -11,6 +11,7 @@ export type audiocomponent = {
   title?: string;
   id: string;
   Removed?: (id: string) => void;
+  col?: number;
 };
 const AudioView = ({
   url = "",
@@ -18,11 +19,12 @@ const AudioView = ({
   type = "url",
   file = undefined,
   title = "",
+  col = 6,
   Removed = () => {},
 }: audiocomponent) => {
   const theme = useTableTheme();
   return (
-    <Grid.Col span={6} mb="xs">
+    <Grid.Col span={col} mb="xs">
       <Card
         shadow="sm"
         padding="lg"

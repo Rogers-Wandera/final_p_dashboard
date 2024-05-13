@@ -27,9 +27,6 @@ const Login = () => {
   let history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { isLoggedIn, token } = useAuthUser();
-  if (isLoggedIn && token !== "") {
-    return <Navigate to="/dashboard" />;
-  }
   const appstate = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -75,6 +72,10 @@ const Login = () => {
       handleError(error, appstate, enqueueSnackbar);
     }
   };
+
+  if (isLoggedIn && token !== "") {
+    return <Navigate to="/dashboard" />;
+  }
   return (
     <>
       <section className="login-content">
