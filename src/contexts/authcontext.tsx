@@ -15,7 +15,7 @@ export interface UserState {
   image?: string;
 }
 
-interface AuthContextState {
+export interface AuthContextState {
   isLoggedIn: boolean;
   token: string;
   user: UserState;
@@ -88,7 +88,7 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
       setId("");
     }
     dispatch(setLoading(false));
-  }, [token]);
+  }, [token, isLoggedIn]);
 
   return (
     <AuthUserContext.Provider

@@ -8,7 +8,7 @@ import Dropzone, {
   StatusValue,
 } from "react-dropzone-uploader";
 import AudioView from "./audio";
-import { Grid, Loader, LoadingOverlay, Text } from "@mantine/core";
+import { Alert, Grid, Loader, LoadingOverlay, Text } from "@mantine/core";
 import { usePostDataMutation } from "../../../../../store/services/apislice";
 import { handleError } from "../../../../../helpers/utils";
 import { enqueueSnackbar } from "notistack";
@@ -18,6 +18,8 @@ import { modals } from "@mantine/modals";
 import { useAppDispatch } from "../../../../../hooks/hook";
 import { deleteDataApi } from "../../../../../store/services/thunks";
 import AudioRecorder from "./audiorecorder";
+import InfoIcon from "@mui/icons-material/Info";
+import { useTableTheme } from "../../../../../helpers/tabletheme";
 
 export type personaudiotype = {
   id: number;
@@ -75,6 +77,7 @@ const PersonAudio = ({
   const [visible, { open, close }] = useDisclosure(false);
   const appState = useAppState();
   const dispatch = useAppDispatch();
+  const theme = useTableTheme();
   const handleSubmit: IDropzoneProps["onSubmit"] = async (_, allFiles) => {
     try {
       open();
@@ -212,6 +215,19 @@ const PersonAudio = ({
           ))}
         </Grid>
       )}
+
+      <Text mt="xl">
+        {audios.length <= 0 && (
+          <Alert
+            variant={theme.palette.mode === "dark" ? "filled" : "light"}
+            color="blue"
+            title="No Audios"
+            icon={<InfoIcon />}
+          >
+            No Audios for the person found, please upload or record audios
+          </Alert>
+        )}
+      </Text>
     </Tab.Pane>
   );
 };

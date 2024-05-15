@@ -21,7 +21,7 @@ import {
   getStrength,
 } from "../../components/modals/formmodal/formconfigs";
 import { withoutuppercase } from "../../assets/defaults/passwordrequirements";
-import { setManual } from "../../store/services/defaults";
+import { setManual, setOnline } from "../../store/services/defaults";
 
 const Login = () => {
   let history = useNavigate();
@@ -58,8 +58,6 @@ const Login = () => {
       if ("error" in data) {
         throw data.error;
       }
-      dispatch(setLoading(false));
-      dispatch(setManual(true));
       appstate?.setSnackBarOpen({
         open: true,
         message: data.data.msg,
@@ -67,6 +65,9 @@ const Login = () => {
         position: "top-right",
       });
       history("/dashboard");
+      dispatch(setOnline(true));
+      dispatch(setManual(true));
+      dispatch(setLoading(false));
     } catch (error) {
       dispatch(setLoading(false));
       handleError(error, appstate, enqueueSnackbar);

@@ -15,6 +15,10 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { handleError } from "../../../../../../helpers/utils";
 import { useAppState } from "../../../../../../contexts/sharedcontexts";
 import { enqueueSnackbar } from "notistack";
+import { useAppDispatch } from "../../../../../../hooks/hook";
+import { setSession } from "../../../../../../store/services/defaults";
+import { setToken } from "../../../../../../store/services/auth";
+import { useConnection } from "../../../../../../contexts/connectioncontext";
 
 export type headeruserprops = {
   userdata: user;
@@ -101,8 +105,21 @@ function UserHeader({
   const [opened, { open, close }] = useDisclosure(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [files, setFiles] = useState<FileWithPath[]>([]);
+  const socket = useConnection();
   const [uploadimage] = usePostDataMutation();
+  const dispatch = useAppDispatch();
   const appState = useAppState();
+  const HandleUpdateSession = async () => {
+    const response = await uploadimage({
+      url: "/refreshtoken/" + userdata.id,
+      data: {},
+    });
+    if ("error" in response) {
+      return;
+    }
+    dispatch(setSession(false));
+    dispatch(setToken(response.data.data));
+  };
   const handleUploadImage = async () => {
     try {
       setLoading(true);
@@ -115,6 +132,7 @@ function UserHeader({
       if ("error" in response) {
         throw response.error;
       }
+      await HandleUpdateSession();
       setLoading(false);
       enqueueSnackbar(response.data.msg, {
         variant: "success",
@@ -123,6 +141,7 @@ function UserHeader({
       close();
       setFiles([]);
       setManual(!manual);
+      socket?.emit("clientusersrefresh", {});
     } catch (error) {
       setLoading(false);
       handleError(error, appState, enqueueSnackbar);

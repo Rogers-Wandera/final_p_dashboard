@@ -1,5 +1,5 @@
 import { Tab } from "react-bootstrap";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from "@mantine/dropzone";
 import {
   Alert,
@@ -11,6 +11,8 @@ import {
   SimpleGrid,
   Text,
   Tooltip,
+  Grid,
+  Modal,
 } from "@mantine/core";
 import { Gallery } from "react-grid-gallery";
 import { format } from "date-fns";
@@ -29,6 +31,10 @@ import { usePostDataMutation } from "../../../../../store/services/apislice";
 import { customImage } from "../manageperson";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InfoIcon from "@mui/icons-material/Info";
+import ImageCapture from "./imagecapture";
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import SaveIcon from "@mui/icons-material/Save";
+import WebCam from "react-webcam";
 
 export type personimageprops = {
   personId: string;
@@ -54,6 +60,7 @@ const PersonImages = ({
   const [showimages, setShowImages] = useState<customImage[]>([]);
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [uploadimage] = usePostDataMutation();
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [toggler, setToggler] = useState<boolean>(false);
   const [sources, setSources] = useState<string[]>([]);
@@ -63,6 +70,19 @@ const PersonImages = ({
   const dispatch = useAppDispatch();
   const appState = useAppState();
   const [visible, { open, close }] = useDisclosure();
+  const [show, { open: open1, close: close1 }] = useDisclosure();
+  const webcamRef = useRef<WebCam>(null);
+
+  const capture = useCallback(() => {
+    if (webcamRef.current) {
+      const imageSrc = webcamRef.current.getScreenshot();
+      setImgSrc(imageSrc);
+    }
+  }, [webcamRef]);
+
+  const retake = () => {
+    setImgSrc(null);
+  };
 
   const previews = files.map((file, index) => {
     const imageUrl = URL.createObjectURL(file);
@@ -205,6 +225,35 @@ const PersonImages = ({
       handleError(error, appState, enqueueSnackbar);
     }
   };
+
+  const HandleUploadTakenImages = async () => {
+    try {
+      close1();
+      setLoading(true);
+      open();
+      const response = await uploadimage({
+        url: "/person/images/uploads/person/single/" + personId,
+        data: { image: imgSrc },
+      });
+      if ("error" in response) {
+        throw response.error;
+      }
+      setLoading(false);
+      close();
+      setReload(!reload);
+      setImgSrc(null);
+      const message = response.data.msg || "Uploaded successfully";
+      enqueueSnackbar(message, {
+        variant: "success",
+        anchorOrigin: { horizontal: "right", vertical: "top" },
+      });
+    } catch (error) {
+      setLoading(false);
+      setImgSrc(null);
+      close();
+      handleError(error, appState, enqueueSnackbar);
+    }
+  };
   useEffect(() => {
     HandleFormatShowImages();
   }, [images]);
@@ -223,15 +272,66 @@ const PersonImages = ({
     <Tab.Pane eventKey="second" id="person-images">
       <FsLightbox toggler={toggler} type="image" sources={sources} />
       <div>
-        <Dropzone
-          accept={IMAGE_MIME_TYPE}
-          onDrop={setFiles}
-          maxSize={5 * 1024 ** 2}
-          multiple={true}
+        <Grid>
+          <Grid.Col span={9}>
+            <Dropzone
+              accept={IMAGE_MIME_TYPE}
+              onDrop={setFiles}
+              maxSize={5 * 1024 ** 2}
+              multiple={true}
+            >
+              <Text ta="center">Drop images here</Text>
+            </Dropzone>
+          </Grid.Col>
+          <Grid.Col span={3}>
+            <Button leftSection={<PhotoCameraIcon />} onClick={open1}>
+              Take Photo
+            </Button>
+          </Grid.Col>
+        </Grid>
+        <Modal
+          title={
+            <Grid>
+              <Grid.Col span={8}>
+                {imgSrc ? (
+                  <Button onClick={retake} leftSection={<PhotoCameraIcon />}>
+                    Retake
+                  </Button>
+                ) : (
+                  <Button onClick={capture} leftSection={<PhotoCameraIcon />}>
+                    Capture
+                  </Button>
+                )}
+              </Grid.Col>
+              <Grid.Col span={4}>
+                {imgSrc && (
+                  <Button
+                    onClick={HandleUploadTakenImages}
+                    leftSection={<SaveIcon />}
+                    variant="outline"
+                  >
+                    Save
+                  </Button>
+                )}
+              </Grid.Col>
+            </Grid>
+          }
+          opened={show}
+          onClose={() => {
+            close1();
+            setImgSrc(null);
+          }}
+          size="lg"
+          centered
+          zIndex={999}
+          styles={{
+            content: { backgroundColor: theme.palette.background.default },
+            header: { backgroundColor: theme.palette.background.default },
+            title: { fontSize: "1.3rem", fontWeight: "bold" },
+          }}
         >
-          <Text ta="center">Drop images here</Text>
-        </Dropzone>
-
+          <ImageCapture imgSrc={imgSrc} webcamRef={webcamRef} />
+        </Modal>
         <div>
           {previews.length > 0 && (
             <Button m={"md"} onClick={UploadImages} loading={loading}>
@@ -282,7 +382,7 @@ const PersonImages = ({
             title="No images"
             icon={<InfoIcon />}
           >
-            No images for the person found, please upload images
+            No images for the person found, please upload images or take images
           </Alert>
         )}
         {showimages.length > 0 && (

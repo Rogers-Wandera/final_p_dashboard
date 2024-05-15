@@ -34,6 +34,30 @@ import * as SettingSelector from "../../store/setting/selectors";
 import { useSelector } from "react-redux";
 import withAuthentication from "../../hoc/withUserAuth";
 import SupportAgentIcon from "@mui/icons-material/SupportAgent";
+import { Fab, styled } from "@mui/material";
+import AlarmOnIcon from "@mui/icons-material/AlarmOn";
+import { RootState, useAuthUser } from "../../contexts/authcontext";
+import { useAppDispatch } from "../../hooks/hook";
+import { usePostDataMutation } from "../../store/services/apislice";
+import { handleError } from "../../helpers/utils";
+import { useAppState } from "../../contexts/sharedcontexts";
+import { enqueueSnackbar } from "notistack";
+import { setSession } from "../../store/services/defaults";
+import { setToken } from "../../store/services/auth";
+
+const ShakeAnimation = styled("div")({
+  "@keyframes shake": {
+    "0%": { transform: "translateX(0)" },
+    "25%": { transform: "translateX(-5px)" },
+    "50%": { transform: "translateX(5px)" },
+    "75%": { transform: "translateX(-5px)" },
+    "100%": { transform: "translateX(0)" },
+  },
+  animation: "shake 0.5s infinite",
+  "&:hover": {
+    animation: "none",
+  },
+});
 
 const Tour = () => {
   const tour = useContext(ShepherdTourContext);
@@ -53,6 +77,37 @@ const Default = memo((_) => {
   // let location = useLocation();
   // const pageLayout = useSelector(SettingSelector.page_layout);
   const appName = useSelector(SettingSelector.app_name);
+  const session = useSelector(
+    (state: RootState) => state.appState.defaultstate.session
+  );
+  const [updateSession] = usePostDataMutation();
+
+  const dispatch = useAppDispatch();
+  const { id } = useAuthUser();
+  const appstate = useAppState();
+
+  const HandleUpdateSession = async () => {
+    try {
+      const response = await updateSession({
+        url: "/refreshtoken/" + id,
+        data: {},
+      });
+      if ("error" in response) {
+        throw response.error;
+      }
+      const msg = response.data.msg || "Someting went wrong";
+      dispatch(setSession(false));
+      dispatch(setToken(response.data.data));
+      appstate?.setSnackBarOpen({
+        open: true,
+        message: msg,
+        severity: "success",
+        position: "top-right",
+      });
+    } catch (error) {
+      handleError(error, appstate, enqueueSnackbar);
+    }
+  };
 
   // const closeTour = () => {
   //   sessionStorage.setItem("tour", "true");
@@ -174,6 +229,21 @@ const Default = memo((_) => {
             <SupportAgentIcon />
           </Button>
         </div>
+        {session && (
+          <Fab
+            variant="extended"
+            onClick={HandleUpdateSession}
+            color="info"
+            sx={{ position: "fixed", bottom: 16, right: 500 }}
+          >
+            <ShakeAnimation>
+              <AlarmOnIcon sx={{ mr: 1, color: "white" }} />
+            </ShakeAnimation>
+            <div style={{ fontSize: "16px", color: "#fff" }}>
+              Update Session
+            </div>
+          </Fab>
+        )}
         <Footer app_name={appName} />
       </main>
       <SettingOffCanvas />

@@ -29,6 +29,7 @@ import { useAppState } from "../../../../contexts/sharedcontexts";
 import { Box, Loader, LoadingOverlay } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { userconfigs, userformtype } from "./configs/user";
+import { useConnection } from "../../../../contexts/connectioncontext";
 
 const validation = joi.object({
   firstname: joi.string().required(),
@@ -56,6 +57,7 @@ export type user = {
   position: string;
   userName: string;
   image: string | null;
+  online: boolean;
 };
 
 type positionresponse = {
@@ -96,6 +98,7 @@ const Users = (_: any) => {
     toptoolbaractions,
   } = userconfigs(navigate, setManual, setRowSelection);
   const [showactions, setShowAction] = useState(false);
+  const socket = useConnection();
   const [visible, { open: openloader, close: closeloader }] =
     useDisclosure(false);
   const [positions, setPositions] = useState<selectdataprops>({
@@ -110,7 +113,11 @@ const Users = (_: any) => {
   );
   const [opened, { open, close }] = useDisclosure(false);
   const dispatch = useAppDispatch();
-  const { token } = useAuthUser();
+  const { token, isLoggedIn, modules } = useAuthUser();
+  const childmodules = Object.keys(modules)
+    .map((key) => modules[key])
+    .reduce((a, b) => a.concat(b), [])
+    .map((key) => key.route);
   const appState = useAppState();
   const [postUser] = usePostDataMutation<user>({});
 
@@ -199,6 +206,21 @@ const Users = (_: any) => {
       setShowAction(false);
     }
   }, [rowSelection]);
+
+  useEffect(() => {
+    if (socket) {
+      if (
+        isLoggedIn &&
+        token !== "" &&
+        Object.values(modules).length > 0 &&
+        childmodules.includes("/users")
+      ) {
+        socket.on("refreshusers", () => {
+          refetch();
+        });
+      }
+    }
+  }, []);
   const response = data?.data?.docs || [];
   return (
     <Box>

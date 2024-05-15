@@ -5,6 +5,7 @@ import { useAuthUser } from "../contexts/authcontext";
 import { useAppDispatch } from "../hooks/hook";
 import { enqueueSnackbar } from "notistack";
 import { useInterval } from "@mantine/hooks";
+import { useConnection } from "../contexts/connectioncontext";
 
 const parseJwt = (token: string): TypeToken => {
   try {
@@ -19,12 +20,14 @@ const AuthVerify = (props: any) => {
   const [isLoggedOut, setIsLoggedOut] = useState(false);
   const authUser = useAuthUser();
   const { location } = props.router as RouterContextType;
+  const socket = useConnection();
 
   const OnLogOutUser = () => {
     if (authUser.token !== "") {
       const jwt = parseJwt(authUser.token);
       if (jwt?.exp * 1000 < Date.now()) {
         dispatch(loguserout({}));
+        socket?.emit("userloggedout", { userId: authUser.id });
         authUser.setId("");
         authUser.setRoles([]);
         authUser.token = "";

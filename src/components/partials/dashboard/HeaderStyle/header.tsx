@@ -37,11 +37,17 @@ import {
   setHeaderText,
   setViewer,
 } from "../../../../store/services/defaults";
-import { Combobox, useCombobox } from "@mantine/core";
+import { Combobox, Switch, useCombobox } from "@mantine/core";
+import { useConnection } from "../../../../contexts/connectioncontext";
+
 const Header = memo((_) => {
   const modules = useSelector(
     (state: RootState) => state.appState.authuser.modules
   );
+  const online = useSelector(
+    (state: RootState) => state.appState.defaultstate.online
+  );
+  const socket = useConnection();
   const combobox = useCombobox();
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [modulelinks, setModuleLinks] = useState<ModulesTypeLinks[]>([]);
@@ -476,6 +482,13 @@ const Header = memo((_) => {
                   <div className="caption ms-3 d-none d-md-block ">
                     <h6 className="mb-0 caption-title">{user.displayName}</h6>
                     <p className="mb-0 caption-sub-title">{user.position}</p>
+                    <Switch
+                      size="lg"
+                      color="green"
+                      checked={online}
+                      onLabel="Online"
+                      offLabel="Offline"
+                    />
                   </div>
                 </Dropdown.Toggle>
                 <Dropdown.Menu
@@ -498,6 +511,7 @@ const Header = memo((_) => {
                     onClick={() => {
                       dispatch(loguserout({}));
                       dispatch(revertAll());
+                      socket?.emit("userloggedout", { userId: id });
                       enqueueSnackbar("Logged out successfully", {
                         variant: "success",
                         anchorOrigin: {

@@ -13,11 +13,7 @@ import "./assets/scss/customizer.scss";
 import { setSetting } from "./store/setting/actions";
 
 // imports
-import {
-  loguserout,
-  setModules,
-  useCheckServerStatusQuery,
-} from "./store/services/auth";
+import { setModules, useCheckServerStatusQuery } from "./store/services/auth";
 import Error500 from "./views/dashboard/errors/error500";
 import SnackBar, { SnackProps } from "./components/snackbar";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -31,18 +27,19 @@ import AuthVerify from "./components/authverify";
 import { useTableContext } from "./contexts/tablecontext";
 import { useLocation } from "react-router-dom";
 import { useConnection } from "./contexts/connectioncontext";
-import { enqueueSnackbar } from "notistack";
 import { useSelector } from "react-redux";
 import { setManual } from "./store/services/defaults";
 import { GetUserLinks } from "./helpers/utils";
 import { fetchUserLinks } from "./store/services/thunks";
+import HandleAuthSockets from "./sockets/authsockets";
 
 function EntryApp() {
   const { isError, isLoading } = useCheckServerStatusQuery({});
   const history = useNavigate();
   const dispatch = useAppDispatch();
   const appState = useAppState();
-  const { user, loading, token, id } = useAuthUser();
+  const { user, loading, token } = useAuthUser();
+  const authuser = useAuthUser();
   const manual = useSelector(
     (state: RootState) => state.appState.defaultstate.manual
   );
@@ -88,22 +85,8 @@ function EntryApp() {
 
   useEffect(() => {
     if (socket == null) return;
-    const handleLogUserOut = (data: { userId: string }) => {
-      if (data.userId === id) {
-        dispatch(loguserout({}));
-        enqueueSnackbar(
-          "You have been logged out, some configurations have changed, please login again",
-          {
-            variant: "info",
-            anchorOrigin: { horizontal: "right", vertical: "top" },
-          }
-        );
-      }
-    };
-    socket.on("loguserout", handleLogUserOut);
-    return () => {
-      socket.off("loguserout", handleLogUserOut);
-    };
+    const { cleanup } = HandleAuthSockets({ socket, dispatch, authuser });
+    return cleanup;
   }, [socket]);
 
   if (isLoading) {

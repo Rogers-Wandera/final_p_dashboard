@@ -11,7 +11,7 @@ import {
 import { user } from "../users";
 import defaultavatar from "../../../../../assets/images/avatars/avtar_1.png";
 import femaledefault from "../../../../../assets/images/avatars/avtar_5.png";
-import { Avatar } from "@mantine/core";
+import { Avatar, Switch } from "@mantine/core";
 import { withoutuppercase } from "../../../../../assets/defaults/passwordrequirements";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -135,6 +135,25 @@ export const userconfigs = (
       Edit: () => null,
     },
     {
+      accessorKey: "online",
+      header: "Online",
+      Edit: () => null,
+      Cell: ({ cell }) => {
+        const value = cell.getValue<number>();
+        return (
+          <>
+            <Switch
+              size="lg"
+              onLabel="Online"
+              color="green"
+              checked={value === 1}
+              offLabel="Offline"
+            />
+          </>
+        );
+      },
+    },
+    {
       accessorKey: "gender",
       header: "Gender",
     },
@@ -154,6 +173,7 @@ export const userconfigs = (
     { name: "gender", type: "text" },
     { name: "position", type: "text" },
     { name: "tel", type: "text" },
+    { name: "online", type: "text" },
   ];
   const selectdata: selectdataprops = {
     name: "gender",
