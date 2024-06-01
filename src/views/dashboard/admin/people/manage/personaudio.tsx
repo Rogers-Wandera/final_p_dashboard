@@ -8,7 +8,14 @@ import Dropzone, {
   StatusValue,
 } from "react-dropzone-uploader";
 import AudioView from "./audio";
-import { Alert, Grid, Loader, LoadingOverlay, Text } from "@mantine/core";
+import {
+  Alert,
+  Container,
+  Grid,
+  Loader,
+  LoadingOverlay,
+  Text,
+} from "@mantine/core";
 import { usePostDataMutation } from "../../../../../store/services/apislice";
 import { handleError } from "../../../../../helpers/utils";
 import { enqueueSnackbar } from "notistack";
@@ -216,7 +223,7 @@ const PersonAudio = ({
         </Grid>
       )}
 
-      <Text mt="xl">
+      <Container fluid mt="xl">
         {audios.length <= 0 && (
           <Alert
             variant={theme.palette.mode === "dark" ? "filled" : "light"}
@@ -227,7 +234,7 @@ const PersonAudio = ({
             No Audios for the person found, please upload or record audios
           </Alert>
         )}
-      </Text>
+      </Container>
     </Tab.Pane>
   );
 };

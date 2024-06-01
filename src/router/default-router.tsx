@@ -42,6 +42,8 @@ import ManageUser from "../views/dashboard/admin/users/manageuser";
 import Roles from "../views/configurations/roles/roles";
 import Person from "../views/dashboard/admin/people/person";
 import ManagePerson from "../views/dashboard/admin/people/manageperson";
+import MainClassifier from "../views/dashboard/recognition/classifier/main";
+import AuthenticatedTrainer from "../views/dashboard/recognition/trainer/trainer";
 
 export const DefaultRouter = [
   {
@@ -71,6 +73,14 @@ export const DefaultRouter = [
       {
         path: "dashboard/users/manage/:id",
         element: <ManageUser />,
+      },
+      {
+        path: "dashboard/recognition/images",
+        element: <MainClassifier />,
+      },
+      {
+        path: "dashboard/recognition/trainer",
+        element: <AuthenticatedTrainer acceptedroles={[1982]} />,
       },
       {
         path: "dashboard/configs/roles",

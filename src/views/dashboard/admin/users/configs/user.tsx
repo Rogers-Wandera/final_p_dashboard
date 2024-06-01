@@ -1,9 +1,4 @@
 import {
-  formcomponentsprops,
-  globalconfigs,
-  selectdataprops,
-} from "../../../../../components/modals/formmodal/formmodal";
-import {
   TableColumns,
   additionaltopbaractions,
   tableCols,
@@ -12,7 +7,6 @@ import { user } from "../users";
 import defaultavatar from "../../../../../assets/images/avatars/avtar_1.png";
 import femaledefault from "../../../../../assets/images/avatars/avtar_5.png";
 import { Avatar, Switch } from "@mantine/core";
-import { withoutuppercase } from "../../../../../assets/defaults/passwordrequirements";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { encryptUrl } from "../../../../../helpers/utils";
@@ -43,64 +37,6 @@ export const userconfigs = (
   const dispatch = useAppDispatch();
   const appstate = useAppState();
   const { id: userId } = useAuthUser();
-  const forminputs: formcomponentsprops[] = [
-    {
-      inputtype: "text",
-      label: "First Name",
-      name: "firstname",
-      required: true,
-      initialvalue: "",
-    },
-    {
-      inputtype: "text",
-      label: "Last Name",
-      name: "lastname",
-      required: true,
-      initialvalue: "",
-    },
-    {
-      inputtype: "text",
-      label: "Email",
-      name: "email",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "password",
-      label: "Password",
-      name: "password",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "password",
-      label: "Confirm Password",
-      name: "confirmpassword",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "select",
-      label: "Choose Gender",
-      name: "gender",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "select",
-      label: "Position",
-      name: "position",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "text",
-      label: "Tel",
-      name: "tel",
-      initialvalue: "",
-      required: true,
-    },
-  ];
   const otherconfigs: tableCols<user>[] = [
     {
       accessorKey: "id",
@@ -175,31 +111,6 @@ export const userconfigs = (
     { name: "tel", type: "text" },
     { name: "online", type: "text" },
   ];
-  const selectdata: selectdataprops = {
-    name: "gender",
-    data: [
-      { label: "Male", value: "Male" },
-      { label: "Female", value: "Female" },
-    ],
-  };
-
-  const moremodalconfigs: globalconfigs<userformtype> = {
-    paswordvalidator: {
-      pwlength: 8,
-      check: true,
-      requirements: withoutuppercase,
-      morechecks: (form) => {
-        const checks = {
-          name: "confirmpassword",
-          label: "Matches Password",
-          checks:
-            form.getInputProps("password").value ===
-            form.getInputProps("confirmpassword").value,
-        };
-        return [checks];
-      },
-    },
-  };
 
   const toptoolbaractions: additionaltopbaractions<user>[] = [
     {
@@ -247,11 +158,8 @@ export const userconfigs = (
     },
   ];
   return {
-    forminputs,
     otherconfigs,
     tablecolumns,
-    selectdata,
-    moremodalconfigs,
     toptoolbaractions,
   };
 };

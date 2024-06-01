@@ -172,6 +172,7 @@ export interface ServerSideProps<T extends {}> {
   setOverridePagination?: React.Dispatch<
     React.SetStateAction<MRT_PaginationState>
   >;
+  showCreateBtn?: boolean;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -213,6 +214,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   isFetching = false,
   idField = "id" as string,
   deleteUrl = "",
+  showCreateBtn = true,
   setManual = () => {},
   editcomponents = null,
   addeditprops = {},
@@ -466,20 +468,23 @@ ServerSideProps<T>) => {
               <RefreshIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip arrow title={"Add New " + title}>
-            <IconButton
-              onClick={() => {
-                table.setCreatingRow(true);
-                if (moreConfigs?.createDisplayMode === "custom") {
-                  if (customCallback) {
-                    customCallback(table);
+          {showCreateBtn && (
+            <Tooltip arrow title={"Add New " + title}>
+              <IconButton
+                onClick={() => {
+                  table.setCreatingRow(true);
+                  if (moreConfigs?.createDisplayMode === "custom") {
+                    if (customCallback) {
+                      customCallback(table);
+                    }
                   }
-                }
-              }}
-            >
-              <AddBoxIcon />
-            </IconButton>
-          </Tooltip>
+                }}
+              >
+                <AddBoxIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+
           {showadditionaltopactions &&
             additiontopactions.length > 0 &&
             additiontopactions.map((action, index) => {

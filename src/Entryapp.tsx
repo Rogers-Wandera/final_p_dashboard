@@ -28,10 +28,12 @@ import { useTableContext } from "./contexts/tablecontext";
 import { useLocation } from "react-router-dom";
 import { useConnection } from "./contexts/connectioncontext";
 import { useSelector } from "react-redux";
-import { setManual } from "./store/services/defaults";
+import { setManual, setSession } from "./store/services/defaults";
 import { GetUserLinks } from "./helpers/utils";
 import { fetchUserLinks } from "./store/services/thunks";
 import HandleAuthSockets from "./sockets/authsockets";
+import { isTokenExpired } from "./app/utils";
+import { enqueueSnackbar } from "notistack";
 
 function EntryApp() {
   const { isError, isLoading } = useCheckServerStatusQuery({});
@@ -43,6 +45,10 @@ function EntryApp() {
   const manual = useSelector(
     (state: RootState) => state.appState.defaultstate.manual
   );
+  const isLoggedIn = useSelector(
+    (state: RootState) => state.appState.authuser.isLoggedIn
+  );
+
   const location = useLocation();
   const socket = useConnection();
   const { setColumnFilters, setGlobalFilter, setPagination, setSorting } =
@@ -88,6 +94,28 @@ function EntryApp() {
     const { cleanup } = HandleAuthSockets({ socket, dispatch, authuser });
     return cleanup;
   }, [socket]);
+
+  useEffect(() => {
+    const checkTokenExpiration = () => {
+      if (isTokenExpired(token) && isLoggedIn) {
+        dispatch(setSession(true));
+        enqueueSnackbar(
+          `Your session is about to expire, please update your session`,
+          {
+            variant: "info",
+            anchorOrigin: { horizontal: "center", vertical: "top" },
+            preventDuplicate: true,
+            autoHideDuration: 2000,
+            hideIconVariant: true,
+            disableWindowBlurListener: true,
+          }
+        );
+      }
+    };
+    checkTokenExpiration();
+    const intervalId = setInterval(checkTokenExpiration, 60000);
+    return () => clearInterval(intervalId);
+  }, [token]);
 
   if (isLoading) {
     return <LoadingScreen />;
