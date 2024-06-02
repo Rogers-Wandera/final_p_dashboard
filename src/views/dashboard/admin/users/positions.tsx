@@ -6,7 +6,7 @@ import { MRT_TableInstance, MRT_VisibilityState } from "material-react-table";
 import { setHeaderText } from "../../../../store/services/defaults";
 import withAuthentication from "../../../../hoc/withUserAuth";
 import withRouteRole from "../../../../hoc/withRouteRole";
-import withRolesVerify from "../../../../hoc/withRolesVerify";
+// import withRolesVerify from "../../../../hoc/withRolesVerify";
 import {
   ColumnVisibility,
   ServerSideTable,
@@ -132,6 +132,6 @@ const Positions = (_: any) => {
 const PositionWithVerified = withAuthentication(
   withRouter(withRouteRole(Positions))
 );
-const PositionWithAcceptedRoles = withRolesVerify(PositionWithVerified);
+// const PositionWithAcceptedRoles = withRolesVerify(PositionWithVerified);
 
-export default PositionWithAcceptedRoles;
+export default PositionWithVerified;

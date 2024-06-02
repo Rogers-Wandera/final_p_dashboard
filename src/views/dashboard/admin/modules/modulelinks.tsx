@@ -3,12 +3,13 @@ import withAuthentication from "../../../../hoc/withUserAuth";
 import { useEffect, useState } from "react";
 import withRouter, { RouterContextType } from "../../../../hoc/withRouter";
 import { useAppDispatch } from "../../../../hooks/hook";
-import { setHeaderText } from "../../../../store/services/defaults";
+import { setHeaderText, setManual } from "../../../../store/services/defaults";
 import { MRT_TableInstance, MRT_VisibilityState } from "material-react-table";
 import {
   ColumnVisibility,
   ServerSideTable,
   addeditprops,
+  menuitemsProps,
   tableCols,
 } from "../../../../components/tables/serverside";
 import { useApiQuery } from "../../../../helpers/apiquery";
@@ -17,6 +18,9 @@ import { useTableContext } from "../../../../contexts/tablecontext";
 import { format } from "date-fns";
 import withRouteRole from "../../../../hoc/withRouteRole";
 import withRolesVerify from "../../../../hoc/withRolesVerify";
+import { useDisclosure } from "@mantine/hooks";
+import ModulePermissions from "./modulepermissions";
+import LockPersonIcon from "@mui/icons-material/LockPerson";
 
 export interface ModuleLinksProps {
   id: number;
@@ -25,6 +29,7 @@ export interface ModuleLinksProps {
   route: string;
   position: number;
   creationDate: string;
+  render: number;
   released: number;
 }
 
@@ -66,7 +71,11 @@ export function validateData(
 
 const ModulesLinks = (props: any) => {
   const { params, navigate } = props.router as RouterContextType;
-  const { manual, setManual } = useTableContext();
+  const { manual, setManual: setTableManual } = useTableContext();
+  const [pmanual, setPManual] = useState<boolean>(false);
+  const [linkId, setLinkId] = useState<number>(0);
+  const [opened, { open, close }] = useDisclosure(false);
+  const [title, setTitle] = useState<string>("");
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {
       id: false,
@@ -79,6 +88,20 @@ const ModulesLinks = (props: any) => {
   );
   const { id } = params;
   const decrypted = decryptUrl(id as string);
+  const moreMenuItems: menuitemsProps<ModuleLinksProps>[] = [
+    {
+      label: "Permission",
+      icon: <LockPersonIcon sx={{ color: "#1976d2" }} />,
+      onClick(row, _, closeMenu) {
+        closeMenu && closeMenu();
+        open();
+        setLinkId(row.original.id);
+        setTitle(`${row.original.linkname} Permissions`);
+        setPManual(true);
+      },
+      render: true,
+    },
+  ];
   const otherconfigs: tableCols<ModuleLinksProps>[] = [
     {
       accessorKey: "id",
@@ -124,14 +147,20 @@ const ModulesLinks = (props: any) => {
     {
       accessorKey: "released",
       header: "Released",
-      muiEditTextFieldProps: ({ table }) => ({
-        required: table.getState().creatingRow ? true : false,
-        hidden: table.getState().creatingRow ? true : false,
-        disabled: table.getState().creatingRow != undefined ? true : false,
-        error:
-          (table.getState().creatingRow && !!validationErrors?.released) ||
-          undefined,
-        helperText: table.getState().creatingRow && validationErrors?.released,
+      editVariant: "select",
+      editSelectOptions: [
+        { label: "Yes", value: "1" },
+        { label: "No", value: "0" },
+      ],
+      Cell: ({ cell }) => {
+        return cell.getValue<number>() == 1 ? "Yes" : "No";
+      },
+      muiEditTextFieldProps: ({}) => ({
+        required: true,
+        // hidden: table.getState().creatingRow ? true : false,
+        // disabled: table.getState().creatingRow != undefined ? true : false,
+        error: !!validationErrors?.released,
+        helperText: validationErrors?.released,
         onFocus: () =>
           setValidationErrors({
             ...validationErrors,
@@ -167,6 +196,29 @@ const ModulesLinks = (props: any) => {
           }),
       },
     },
+
+    {
+      accessorKey: "render",
+      header: "Show",
+      editVariant: "select",
+      editSelectOptions: [
+        { label: "Yes", value: "1" },
+        { label: "No", value: "0" },
+      ],
+      Cell: ({ cell }) => {
+        return cell.getValue<number>() == 1 ? "Yes" : "No";
+      },
+      muiEditTextFieldProps: {
+        required: true,
+        error: !!validationErrors?.render,
+        helperText: validationErrors?.render,
+        onFocus: () =>
+          setValidationErrors({
+            ...validationErrors,
+            render: undefined,
+          }),
+      },
+    },
   ];
   useEffect(() => {
     if (!decrypted) {
@@ -187,7 +239,7 @@ const ModulesLinks = (props: any) => {
     });
   useEffect(() => {
     if (data?.data?.docs) {
-      setManual(false);
+      setTableManual(false);
     }
   }, [data, manual]);
   return (
@@ -209,12 +261,13 @@ const ModulesLinks = (props: any) => {
           { name: "route", type: "text" },
           { name: "position", type: "text" },
           { name: "released", type: "text" },
+          { name: "render", type: "text" },
         ]}
-        setManual={setManual}
+        setManual={setTableManual}
         enableEditing={true}
         postDataProps={{
           addurl: "/modules/links/" + decrypted,
-          dataFields: ["linkname", "position", "route"],
+          dataFields: ["linkname", "position", "route", "render", "released"],
           editurl: (row) => `modules/links/${decrypted}/${row.id}`,
         }}
         columnVisibility={columnVisibility}
@@ -228,9 +281,18 @@ const ModulesLinks = (props: any) => {
         createCallback={(values) => {
           let newvalues = values;
           newvalues["position"] = 0;
-          newvalues["released"] = 0;
           return newvalues;
         }}
+        moreMenuItems={moreMenuItems}
+        editCallback={() => dispatch(setManual(true))}
+      />
+      <ModulePermissions
+        visible={opened}
+        close={close}
+        pmanual={pmanual}
+        setPManual={setPManual}
+        linkId={linkId}
+        title={title}
       />
     </div>
   );

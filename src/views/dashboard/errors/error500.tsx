@@ -6,11 +6,16 @@ import error500 from "../../../assets/images/error/500.png";
 interface Error500Props {
   heading: string | " Oops! This Page is Not Found";
   subtitle: string | "The requested page dose not exist.";
-  link: string | "/dashboard";
+  link?: string;
   linkText: string | "Back to Home";
 }
 
-const Error500 = ({ heading, subtitle, link, linkText }: Error500Props) => {
+const Error500 = ({
+  heading,
+  subtitle,
+  link = "/dashboard",
+  linkText,
+}: Error500Props) => {
   return (
     <>
       <div className="gradient">

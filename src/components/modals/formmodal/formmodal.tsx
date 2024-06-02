@@ -8,57 +8,47 @@ import {
   Group,
   Button,
 } from "@mantine/core";
-import { UseFormReturnType, useForm } from "@mantine/form";
-import { FormEvent, useEffect } from "react";
+import { UseFormReturnType } from "@mantine/form";
+import { FormEvent } from "react";
 import {
   passwordrequirements,
   withspecialchars,
 } from "../../../assets/defaults/passwordrequirements";
 import ModalFormElement from "./element";
-import joi from "joi";
-import { joiResolver } from "mantine-form-joi-resolver";
+import { useTableTheme } from "../../../helpers/tabletheme";
 
-interface formmodalprops {
+interface formmodalprops<T extends Record<string, unknown>> {
+  forminstance: UseFormReturnType<T, (values: T) => T>;
   opened: boolean;
   close: () => void;
   title: string;
-  formname: string;
-  resetform?: boolean;
-  setResetForm?: React.Dispatch<React.SetStateAction<boolean>>;
   size?: number | MantineSize | (string & {});
   overlayProps?: ModalBaseOverlayProps | undefined;
   description?: string;
   elements: formcomponentsprops[];
-  globalconfigs?: globalconfigs;
+  globalconfigs?: globalconfigs<T>;
   selectdata?: selectdataprops[];
-  formvalidation?: joi.ObjectSchema<any>;
-  buttonconfigs?: buttonconfigs;
+  buttonconfigs?: buttonconfigs<T>;
 }
 
-export interface globalconfigs {
+export interface globalconfigs<T extends Record<string, unknown>> {
   paswordvalidator?: {
     check?: boolean;
     requirements?: passwordrequirements[];
     pwlength?: number;
     morechecks?: (
-      form: UseFormReturnType<
-        Record<string, unknown>,
-        (values: Record<string, unknown>) => Record<string, unknown>
-      >
+      form: UseFormReturnType<T, (values: T) => T>
     ) => { name: string; label: string; checks: boolean }[];
   };
   dateformat?: string;
   datetimeformat?: string;
 }
 
-export type buttonconfigs = {
+export type buttonconfigs<T extends Record<string, unknown>> = {
   text?: string;
   handleSubmit?: (
     event: FormEvent<HTMLFormElement>,
-    form: UseFormReturnType<
-      Record<string, unknown>,
-      (values: Record<string, unknown>) => Record<string, unknown>
-    >,
+    form: UseFormReturnType<T, (values: T) => T>,
     close: () => void
   ) => void;
   type?: "submit" | "reset" | "button";
@@ -107,62 +97,39 @@ export interface formgridprops {
   span?: { base: number; md: number; lg: number } | number | "auto";
 }
 
-const defaultdata: globalconfigs = {
-  paswordvalidator: {
-    check: true,
-    requirements: withspecialchars,
-    pwlength: 5,
-  },
-  dateformat: "YYYY-MM-DD",
-  datetimeformat: "YYYY-MM-DD HH:mm",
-};
-
 const defaultformgrid: formgridprops = {
   span: { base: 12, md: 6, lg: 6 },
 };
-function FormModal({
+function FormModal<T extends Record<string, unknown>>({
   opened,
   close,
+  forminstance,
   title,
-  formname,
-  resetform = false,
-  setResetForm = () => {},
   overlayProps = { backgroundOpacity: 0.5, blur: 3 },
   size = "lg",
   description = "",
   elements = [],
   globalconfigs = {},
   selectdata = [],
-  formvalidation = joi.object({}),
   buttonconfigs = {},
-}: formmodalprops) {
-  const form = useForm({
-    name: formname,
-    validate: joiResolver(formvalidation),
-  });
-  const defaultbuttonconfigs: buttonconfigs = {
+}: formmodalprops<T>) {
+  const theme = useTableTheme();
+  const defaultdata: globalconfigs<T> = {
+    paswordvalidator: {
+      check: true,
+      requirements: withspecialchars,
+      pwlength: 5,
+    },
+    dateformat: "YYYY-MM-DD",
+    datetimeformat: "YYYY-MM-DD hh:mm",
+  };
+  const form = forminstance;
+  const defaultbuttonconfigs: buttonconfigs<T> = {
     text: "Submit",
     type: "submit",
   };
   const globaldata = { ...defaultdata, ...globalconfigs };
   const buttonconfigsdata = { ...defaultbuttonconfigs, ...buttonconfigs };
-  useEffect(() => {
-    if (elements.length > 0) {
-      const initials: Record<string, unknown> = {};
-      elements.forEach((ele) => {
-        initials[ele.name] = ele.initialvalue;
-      });
-      form.setInitialValues(initials);
-      form.setValues(initials);
-    }
-  }, [elements]);
-
-  useEffect(() => {
-    if (resetform) {
-      form.reset();
-      setResetForm(false);
-    }
-  }, [resetform]);
   return (
     <>
       <Modal
@@ -170,6 +137,11 @@ function FormModal({
         onClose={close}
         title={title}
         centered
+        styles={{
+          content: { backgroundColor: theme.palette.background.default },
+          header: { backgroundColor: theme.palette.background.default },
+          title: { fontSize: "1.3rem", fontWeight: "bold" },
+        }}
         zIndex={999}
         overlayProps={overlayProps}
         size={size}

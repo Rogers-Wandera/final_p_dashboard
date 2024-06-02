@@ -14,7 +14,6 @@ import { useAppState } from "../../contexts/sharedcontexts";
 import { useSnackbar } from "notistack";
 import { handleError } from "../../helpers/utils";
 import { useAuthUser } from "../../contexts/authcontext";
-import { fetchUserLinks } from "../../store/services/thunks";
 import { useAppDispatch } from "../../hooks/hook";
 import { PasswordInput, Popover, Progress, TextInput } from "@mantine/core";
 import {
@@ -22,14 +21,12 @@ import {
   getStrength,
 } from "../../components/modals/formmodal/formconfigs";
 import { withoutuppercase } from "../../assets/defaults/passwordrequirements";
+import { setManual, setOnline } from "../../store/services/defaults";
 
 const Login = () => {
   let history = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const { isLoggedIn, token } = useAuthUser();
-  if (isLoggedIn && token !== "") {
-    return <Navigate to="/dashboard" />;
-  }
   const appstate = useAppState();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -61,8 +58,6 @@ const Login = () => {
       if ("error" in data) {
         throw data.error;
       }
-      await dispatch(fetchUserLinks());
-      dispatch(setLoading(false));
       appstate?.setSnackBarOpen({
         open: true,
         message: data.data.msg,
@@ -70,11 +65,18 @@ const Login = () => {
         position: "top-right",
       });
       history("/dashboard");
+      dispatch(setOnline(true));
+      dispatch(setManual(true));
+      dispatch(setLoading(false));
     } catch (error) {
       dispatch(setLoading(false));
       handleError(error, appstate, enqueueSnackbar);
     }
   };
+
+  if (isLoggedIn && token !== "") {
+    return <Navigate to="/dashboard" />;
+  }
   return (
     <>
       <section className="login-content">

@@ -24,27 +24,24 @@ import {
   modalformconfigs,
 } from "./formconfigs";
 import { UseFormReturnType } from "@mantine/form";
-import { DatePickerInput } from "@mantine/dates";
+import { DatePickerInput, DateTimePicker } from "@mantine/dates";
 import { useState } from "react";
 
-export type elementconfigs = {
+export type elementconfigs<T extends Record<string, unknown>> = {
   element: formcomponentsprops;
   selectdata?: selectdataprops[];
   defaultformgrid?: formgridprops;
-  globaldata?: globalconfigs;
-  form: UseFormReturnType<
-    Record<string, unknown>,
-    (values: Record<string, unknown>) => Record<string, unknown>
-  >;
+  globaldata?: globalconfigs<T>;
+  form: UseFormReturnType<T, (values: T) => T>;
 };
 
-const ModalFormElement = ({
+const ModalFormElement = <T extends Record<string, unknown>>({
   element: ele,
   form,
   globaldata = {},
   selectdata = [],
   defaultformgrid = {},
-}: elementconfigs) => {
+}: elementconfigs<T>) => {
   const [popoverOpened, setPopoverOpened] = useState(false);
   const moreconfigs = modalformconfigs({ element: ele });
   const icon = moreconfigs?.icon;
@@ -232,6 +229,7 @@ const ModalFormElement = ({
           placeholder={ele.placeholder}
           {...form.getInputProps(ele.name)}
           {...ele.otherprops}
+          popoverProps={{ zIndex: 1000 }}
           valueFormat={globaldata.dateformat}
           clearable
           leftSection={icon}
@@ -239,8 +237,9 @@ const ModalFormElement = ({
       )}
 
       {ele.inputtype == "datetimepicker" && (
-        <DatePickerInput
+        <DateTimePicker
           label={ele.label}
+          popoverProps={{ zIndex: 1000 }}
           placeholder={ele.placeholder}
           {...form.getInputProps(ele.name)}
           {...ele.otherprops}

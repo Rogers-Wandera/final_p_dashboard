@@ -1,9 +1,12 @@
 import {
   MRT_ActionMenuItem,
   MRT_ColumnDef,
+  MRT_ColumnFiltersState,
   MRT_EditActionButtons,
+  MRT_PaginationState,
   MRT_Row,
   MRT_RowSelectionState,
+  MRT_SortingState,
   MRT_TableInstance,
   MRT_VisibilityState,
   MaterialReactTable,
@@ -24,17 +27,16 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import { Edit, Delete } from "@mui/icons-material";
-import {
-  handleDelete,
-  usePostDataMutation,
-} from "../../store/services/apislice";
+import { usePostDataMutation } from "../../store/services/apislice";
 import { useAppDispatch } from "../../hooks/hook";
 import { useSnackbar } from "notistack";
 import { useAppState } from "../../contexts/sharedcontexts";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import { handleError } from "../../helpers/utils";
 import ArrowBack from "@mui/icons-material/ArrowBack";
-import { useNavigate } from "react-router-dom";
+import { NavigateFunction, useNavigate } from "react-router-dom";
+import { useTableTheme } from "../../helpers/tabletheme";
+import { HandleDelete } from "../../store/services/deletehandler";
 
 export interface ServerSideResponse<T> {
   docs: Array<T>;
@@ -113,6 +115,7 @@ export interface ServerSideProps<T extends {}> {
   isFetching?: boolean;
   error: any;
   deleteUrl?: string;
+  deleteOverride?: (row: MRT_Row<T>) => string;
   idField?: string | number;
   enableRowSelection?: boolean | ((row: MRT_Row<T>) => boolean);
   rowSelection?: MRT_RowSelectionState;
@@ -141,12 +144,35 @@ export interface ServerSideProps<T extends {}> {
   >;
   showback?: boolean;
   createCallback?: (values: any, table: any) => typeof values;
+  editCallback?: (values: any, table: any) => void;
+  editCreateCallBack?: (values: any, table: any) => typeof values;
   customCallback?: (table: MRT_TableInstance<T>) => void;
   additiontopactions?: additionaltopbaractions<T>[];
   enableSelectAll?: boolean;
   enableMultiRowSelection?: boolean;
   showadditionaltopactions?: boolean | ((row: MRT_Row<T>) => boolean);
   tabledrawcallback?: (table: MRT_TableInstance<T>) => void;
+  deleteProps?: {
+    onCancelCallback?: () => void;
+    onConfirmCallback?: () => void;
+    dialogProps?: {
+      zIndex?: number;
+    };
+  };
+
+  overridecolumnFilters?: MRT_ColumnFiltersState;
+  setOverrideColumnFilters?: React.Dispatch<
+    React.SetStateAction<MRT_ColumnFiltersState>
+  >;
+  overrideglobalFilter?: string;
+  setOverrideGlobalFilter?: React.Dispatch<React.SetStateAction<string>>;
+  overridesorting?: MRT_SortingState;
+  setOverrideSorting?: React.Dispatch<React.SetStateAction<MRT_SortingState>>;
+  overridepagination?: MRT_PaginationState;
+  setOverridePagination?: React.Dispatch<
+    React.SetStateAction<MRT_PaginationState>
+  >;
+  showCreateBtn?: boolean;
 }
 
 export type tableCols<T extends {}> = Omit<MRT_ColumnDef<T>, "header"> & {
@@ -188,6 +214,7 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   isFetching = false,
   idField = "id" as string,
   deleteUrl = "",
+  showCreateBtn = true,
   setManual = () => {},
   editcomponents = null,
   addeditprops = {},
@@ -208,7 +235,19 @@ export const ServerSideTable = <T extends { [key: string]: any }>({
   additiontopactions = [],
   enableSelectAll = true,
   enableMultiRowSelection = false,
+  editCreateCallBack,
   showadditionaltopactions = true,
+  editCallback = () => {},
+  deleteProps = {},
+  setOverrideColumnFilters = undefined,
+  setOverrideGlobalFilter = undefined,
+  setOverridePagination = undefined,
+  setOverrideSorting = undefined,
+  overridecolumnFilters = undefined,
+  overrideglobalFilter = undefined,
+  overridepagination = undefined,
+  overridesorting = undefined,
+  deleteOverride = undefined,
 }: // tabledrawcallback = () => {},
 ServerSideProps<T>) => {
   const [postData] = usePostDataMutation<T>({});
@@ -217,20 +256,25 @@ ServerSideProps<T>) => {
   const appstate = useAppState();
   const navigate = useNavigate();
 
+  const theme = useTableTheme();
   const HandleDeleteData = async (row: any) => {
-    handleDelete({
+    HandleDelete({
       dispatch,
       enqueueSnackbar,
       appstate,
-      url: `/${deleteUrl}/${row.original[idField]}`,
+      url: deleteOverride
+        ? deleteOverride(row)
+        : `/${deleteUrl}/${row.original[idField]}`,
       setManual,
+      ...deleteProps,
     });
   };
   const actionrendertypes = displayActionprop<T>(
     actionprop,
     HandleDeleteData,
     title,
-    moreMenuItems
+    moreMenuItems,
+    navigate
   );
   const {
     setColumnFilters,
@@ -319,6 +363,7 @@ ServerSideProps<T>) => {
     try {
       const newValidationErrors = validateData(values, table);
       if (Object.values(newValidationErrors).some((error) => error)) {
+        console.log(newValidationErrors);
         setValidationErrors(newValidationErrors);
         return;
       }
@@ -338,6 +383,9 @@ ServerSideProps<T>) => {
           dataToPost = postdata;
         }
         values = dataToPost;
+        if (editCreateCallBack) {
+          values = editCreateCallBack(dataToPost, table);
+        }
       }
       const data = await postData({
         url: url,
@@ -349,6 +397,7 @@ ServerSideProps<T>) => {
       }
       table.setEditingRow(null);
       refetch();
+      editCallback(values, table);
       enqueueSnackbar(data.data.msg, {
         variant: "success",
         anchorOrigin: { horizontal: "right", vertical: "top" },
@@ -366,10 +415,10 @@ ServerSideProps<T>) => {
     data: data,
     columns: columns,
     initialState: { showColumnFilters: true },
-    onColumnFiltersChange: setColumnFilters,
-    onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: setPagination,
-    onSortingChange: setSorting,
+    onColumnFiltersChange: setOverrideColumnFilters || setColumnFilters,
+    onGlobalFilterChange: setOverrideGlobalFilter || setGlobalFilter,
+    onPaginationChange: setOverridePagination || setPagination,
+    onSortingChange: setOverrideSorting || setSorting,
     enableMultiRowSelection: enableMultiRowSelection,
     ...moreConfigs,
     // enableEditing: enableEditing,
@@ -386,6 +435,14 @@ ServerSideProps<T>) => {
         fontWeight: row.getIsSelected() ? "bold" : "normal",
       },
     }),
+    muiTableBodyProps: {
+      sx: {
+        "& tr:nth-of-type(odd) > td": {
+          backgroundColor:
+            theme.palette.mode === "light" ? "#f5f5f5" : "#222738",
+        },
+      },
+    },
     renderTopToolbarCustomActions: ({ table }) => (
       <>
         <div>
@@ -411,20 +468,23 @@ ServerSideProps<T>) => {
               <RefreshIcon />
             </IconButton>
           </Tooltip>
-          <Tooltip arrow title={"Add New " + title}>
-            <IconButton
-              onClick={() => {
-                table.setCreatingRow(true);
-                if (moreConfigs?.createDisplayMode === "custom") {
-                  if (customCallback) {
-                    customCallback(table);
+          {showCreateBtn && (
+            <Tooltip arrow title={"Add New " + title}>
+              <IconButton
+                onClick={() => {
+                  table.setCreatingRow(true);
+                  if (moreConfigs?.createDisplayMode === "custom") {
+                    if (customCallback) {
+                      customCallback(table);
+                    }
                   }
-                }
-              }}
-            >
-              <AddBoxIcon />
-            </IconButton>
-          </Tooltip>
+                }}
+              >
+                <AddBoxIcon />
+              </IconButton>
+            </Tooltip>
+          )}
+
           {showadditionaltopactions &&
             additiontopactions.length > 0 &&
             additiontopactions.map((action, index) => {
@@ -520,15 +580,27 @@ ServerSideProps<T>) => {
         </DialogActions>
       </>
     ),
+    muiTableHeadCellProps: {
+      //easier way to create media queries, no useMediaQuery hook needed.
+      sx: {
+        fontSize: {
+          xs: "10px",
+          sm: "11px",
+          md: "12px",
+          lg: "13px",
+          xl: "14px",
+        },
+      },
+    },
     state: {
-      columnFilters,
-      globalFilter,
+      columnFilters: overridecolumnFilters || columnFilters,
+      globalFilter: overrideglobalFilter || globalFilter,
       rowSelection,
       isLoading,
-      pagination,
+      pagination: overridepagination || pagination,
       showAlertBanner: isError,
       showProgressBars: isFetching,
-      sorting,
+      sorting: overridesorting || sorting,
       columnVisibility,
     },
   });
@@ -573,7 +645,8 @@ export type menuitemsProps<T extends {}> = {
   onClick: (
     row: MRT_Row<T>,
     table: MRT_TableInstance<T>,
-    closeMenu?: () => void
+    closeMenu?: () => void,
+    navigate?: NavigateFunction
   ) => void;
   render?: boolean;
 };
@@ -582,7 +655,8 @@ const displayActionprop = <T extends {}>(
   { actiontype, deleterender, editrender }: actionconfigs,
   HandleDeleteData: (row: any) => void,
   title: string,
-  moreMenuItems: menuitemsProps<T>[] = []
+  moreMenuItems: menuitemsProps<T>[] = [],
+  navigate: NavigateFunction
 ) => {
   if (actiontype === "menu") {
     return {
@@ -601,7 +675,7 @@ const displayActionprop = <T extends {}>(
                 label={item.label}
                 table={table}
                 onClick={() => {
-                  item.onClick(row, table, closeMenu);
+                  item.onClick(row, table, closeMenu, navigate);
                 }}
               />
             );

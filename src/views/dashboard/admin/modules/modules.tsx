@@ -17,7 +17,7 @@ import { encryptUrl } from "../../../../helpers/utils";
 import withAuthentication from "../../../../hoc/withUserAuth";
 import withRouter, { RouterContextType } from "../../../../hoc/withRouter";
 import { useAppDispatch } from "../../../../hooks/hook";
-import { setHeaderText } from "../../../../store/services/defaults";
+import { setHeaderText, setManual } from "../../../../store/services/defaults";
 import withRouteRole from "../../../../hoc/withRouteRole";
 import withRolesVerify from "../../../../hoc/withRolesVerify";
 
@@ -64,7 +64,7 @@ export function validateData(
 }
 
 const Modules = (props: any) => {
-  const { manual, setManual } = useTableContext();
+  const { manual, setManual: setTableManual } = useTableContext();
   const [validationErrors, setValidationErrors] = useState<ColumnVisibility>(
     {}
   );
@@ -151,7 +151,7 @@ const Modules = (props: any) => {
 
   useEffect(() => {
     if (data?.data?.docs) {
-      setManual(false);
+      setTableManual(false);
     }
   }, [data, manual]);
 
@@ -176,7 +176,7 @@ const Modules = (props: any) => {
         error={error}
         enableEditing={true}
         deleteUrl="modules"
-        setManual={setManual}
+        setManual={setTableManual}
         moreConfigs={otherConfigs}
         addeditprops={addeditconfig}
         moreMenuItems={moreMenuItems}
@@ -194,6 +194,9 @@ const Modules = (props: any) => {
           let newvalues = values;
           newvalues["position"] = 0;
           return newvalues;
+        }}
+        editCallback={() => {
+          dispatch(setManual(true));
         }}
       />
     </div>

@@ -38,6 +38,11 @@ export type deleteProps = {
   appstate: SharedStateContextType | null;
   enqueueSnackbar: EnqueueSnackbar;
   setManual?: React.Dispatch<React.SetStateAction<boolean>>;
+  onCancelCallback?: () => void;
+  onConfirmCallback?: () => void;
+  dialogProps?: {
+    zIndex?: number;
+  };
 };
 
 export interface ErrorResponse {
@@ -73,7 +78,7 @@ export const apiSlice = createApi({
         method: payload.method || "POST",
         body: payload.data,
         headers: {
-          "Content-Type": payload.type || "application/json",
+          // "Content-Type": payload.type || "application/json",
         },
       }),
       transformErrorResponse: (error: FetchBaseQueryError) => {
@@ -87,7 +92,7 @@ export const apiSlice = createApi({
       query: (payload) => ({
         url: payload.url,
         method: "DELETE",
-        data: payload.data,
+        body: payload.data,
       }),
       transformErrorResponse: (error: FetchBaseQueryError) => {
         if ("data" in error && Array.isArray(error.data)) {

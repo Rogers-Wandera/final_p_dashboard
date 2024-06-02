@@ -1,9 +1,4 @@
 import {
-  formcomponentsprops,
-  globalconfigs,
-  selectdataprops,
-} from "../../../../../components/modals/formmodal/formmodal";
-import {
   TableColumns,
   additionaltopbaractions,
   tableCols,
@@ -11,8 +6,7 @@ import {
 import { user } from "../users";
 import defaultavatar from "../../../../../assets/images/avatars/avtar_1.png";
 import femaledefault from "../../../../../assets/images/avatars/avtar_5.png";
-import { Avatar } from "@mantine/core";
-import { withoutuppercase } from "../../../../../assets/defaults/passwordrequirements";
+import { Avatar, Switch } from "@mantine/core";
 import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { encryptUrl } from "../../../../../helpers/utils";
@@ -23,7 +17,18 @@ import { useAppState } from "../../../../../contexts/sharedcontexts";
 import { enqueueSnackbar } from "notistack";
 import { MRT_RowSelectionState } from "material-react-table";
 import { useAuthUser } from "../../../../../contexts/authcontext";
+import { setViewer } from "../../../../../store/services/defaults";
 
+export type userformtype = {
+  firstname: string;
+  lastname: string;
+  email: string;
+  password: string;
+  confirmpassword: string;
+  gender: string;
+  position: string;
+  tel: string;
+};
 export const userconfigs = (
   navigate: NavigateFunction,
   setManual: React.Dispatch<React.SetStateAction<boolean>>,
@@ -32,64 +37,6 @@ export const userconfigs = (
   const dispatch = useAppDispatch();
   const appstate = useAppState();
   const { id: userId } = useAuthUser();
-  const forminputs: formcomponentsprops[] = [
-    {
-      inputtype: "text",
-      label: "First Name",
-      name: "firstname",
-      required: true,
-      initialvalue: "",
-    },
-    {
-      inputtype: "text",
-      label: "Last Name",
-      name: "lastname",
-      required: true,
-      initialvalue: "",
-    },
-    {
-      inputtype: "text",
-      label: "Email",
-      name: "email",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "password",
-      label: "Password",
-      name: "password",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "password",
-      label: "Confirm Password",
-      name: "confirmpassword",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "select",
-      label: "Choose Gender",
-      name: "gender",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "select",
-      label: "Position",
-      name: "position",
-      initialvalue: "",
-      required: true,
-    },
-    {
-      inputtype: "text",
-      label: "Tel",
-      name: "tel",
-      initialvalue: "",
-      required: true,
-    },
-  ];
   const otherconfigs: tableCols<user>[] = [
     {
       accessorKey: "id",
@@ -124,6 +71,25 @@ export const userconfigs = (
       Edit: () => null,
     },
     {
+      accessorKey: "online",
+      header: "Online",
+      Edit: () => null,
+      Cell: ({ cell }) => {
+        const value = cell.getValue<number>();
+        return (
+          <>
+            <Switch
+              size="lg"
+              onLabel="Online"
+              color="green"
+              checked={value === 1}
+              offLabel="Offline"
+            />
+          </>
+        );
+      },
+    },
+    {
       accessorKey: "gender",
       header: "Gender",
     },
@@ -143,32 +109,8 @@ export const userconfigs = (
     { name: "gender", type: "text" },
     { name: "position", type: "text" },
     { name: "tel", type: "text" },
+    { name: "online", type: "text" },
   ];
-  const selectdata: selectdataprops = {
-    name: "gender",
-    data: [
-      { label: "Male", value: "Male" },
-      { label: "Female", value: "Female" },
-    ],
-  };
-
-  const moremodalconfigs: globalconfigs = {
-    paswordvalidator: {
-      pwlength: 8,
-      check: true,
-      requirements: withoutuppercase,
-      morechecks: (form) => {
-        const checks = {
-          name: "confirmpassword",
-          label: "Matches Password",
-          checks:
-            form.getInputProps("password").value ===
-            form.getInputProps("confirmpassword").value,
-        };
-        return [checks];
-      },
-    },
-  };
 
   const toptoolbaractions: additionaltopbaractions<user>[] = [
     {
@@ -176,6 +118,15 @@ export const userconfigs = (
       icon: <ManageAccountsIcon color="primary" />,
       onClick: (_, row) => {
         const id = encryptUrl(row.original.id.toString());
+        if (row.original.verified !== 1) {
+          enqueueSnackbar("User must be verified first", {
+            variant: "info",
+            anchorOrigin: { horizontal: "right", vertical: "top" },
+          });
+          return null;
+        }
+        setRowSelection({});
+        dispatch(setViewer("Admin"));
         navigate(`/dashboard/users/manage/${id}`);
       },
       show: "icon",
@@ -207,11 +158,8 @@ export const userconfigs = (
     },
   ];
   return {
-    forminputs,
     otherconfigs,
     tablecolumns,
-    selectdata,
-    moremodalconfigs,
     toptoolbaractions,
   };
 };

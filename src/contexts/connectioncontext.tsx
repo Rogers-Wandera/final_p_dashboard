@@ -6,21 +6,29 @@ interface ConnectionProviderProps {
   children: React.ReactNode;
 }
 
-const ConnectionContext = createContext<Socket | null>(null);
+interface ConnectionContextType {
+  conn: Socket | null;
+}
+
+const ConnectionContext = createContext<ConnectionContextType | null>({
+  conn: null,
+});
 export const ConnectionProvider: React.FC<ConnectionProviderProps> = ({
   children,
 }) => {
   const [conn, setConn] = useState<Socket | null>(null);
+  const newConnection = socket.connect();
 
   useEffect(() => {
-    const newConnection = socket.connect();
+    newConnection.on("connect", () => {});
+
     setConn(newConnection);
     return () => {
       newConnection.disconnect();
     };
   }, []);
   return (
-    <ConnectionContext.Provider value={conn}>
+    <ConnectionContext.Provider value={{ conn }}>
       {children}
     </ConnectionContext.Provider>
   );
@@ -31,7 +39,7 @@ export const useConnection = () => {
   if (context === undefined) {
     throw new Error("useConnection must be used within a ConnectionProvider");
   }
-  return context;
+  return context?.conn;
 };
 
 export default ConnectionProvider;

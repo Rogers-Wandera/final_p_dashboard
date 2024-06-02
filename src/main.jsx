@@ -6,103 +6,23 @@ import reportWebVitals from "./reportWebVitals";
 // css
 import "@mantine/core/styles.css";
 import "@mantine/dates/styles.css";
+import "@mantine/dropzone/styles.css";
+import "react-dropzone-uploader/dist/styles.css";
+import "./main.css";
 
-//router
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-//store
-import { Provider } from "react-redux";
-//reducer
-import { persistor, store } from "./store";
-import Login from "./views/auth/login";
-import RecoverPassword from "./views/auth/recoverpw";
-import { IndexRouters } from "./router/index";
-import { SimpleRouter } from "./router/simple-router";
-import { DefaultRouter } from "./router/default-router";
-import { PersistGate } from "redux-persist/integration/react";
-import AppStateProvider from "./contexts/sharedcontexts";
-import { SnackbarProvider } from "notistack";
-import AuthUserProvider from "./contexts/authcontext";
-import { LoadingScreen } from "./components/Loading";
-import Error404 from "./views/dashboard/errors/error404";
-import Error401 from "./views/dashboard/errors/error401";
+// imports
 import ConnectionProvider from "./contexts/connectioncontext";
-import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { createTheme, ThemeProvider } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
-import TableContextProvider from "./contexts/tablecontext";
-import { MantineProvider } from "@mantine/core";
-import ChangePassword from "./views/auth/changepassword";
-
-const queryClient = new QueryClient({
-  // queryCache: new QueryCache({
-  //   onError: (error, query) => {
-  //     console.log(error["response"]);
-  //   },
-  // }),
-});
-const router = createBrowserRouter(
-  [
-    {
-      element: <App />,
-      children: [
-        {
-          path: "/",
-          element: <Login />,
-        },
-        {
-          path: "/pwreset",
-          element: <RecoverPassword />,
-        },
-        {
-          path: "/changepword",
-          element: <ChangePassword />,
-        },
-        ...DefaultRouter,
-        ...IndexRouters,
-        ...SimpleRouter,
-        {
-          path: "/unauthorized",
-          element: <Error401 />,
-        },
-        {
-          path: "*",
-          element: <Error404 />,
-        },
-        {
-          path: "/notfound",
-          element: <Error404 />,
-        },
-      ],
-    },
-  ],
-  { basename: import.meta.env.PUBLIC_URL }
-);
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "./store";
+import { LoadingScreen } from "./components/Loading";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ConnectionProvider>
       <Provider store={store}>
         <PersistGate persistor={persistor} loading={<LoadingScreen />}>
-          {/* <App> */}
-          <QueryClientProvider client={queryClient}>
-            <SnackbarProvider>
-              <AppStateProvider>
-                <AuthUserProvider>
-                  <ThemeProvider theme={createTheme({})}>
-                    <MantineProvider>
-                      <LocalizationProvider dateAdapter={AdapterDateFns}>
-                        <TableContextProvider>
-                          <RouterProvider router={router}></RouterProvider>
-                        </TableContextProvider>
-                      </LocalizationProvider>
-                    </MantineProvider>
-                  </ThemeProvider>
-                </AuthUserProvider>
-              </AppStateProvider>
-            </SnackbarProvider>
-          </QueryClientProvider>
-          {/* </App> */}
+          <App />
         </PersistGate>
       </Provider>
     </ConnectionProvider>

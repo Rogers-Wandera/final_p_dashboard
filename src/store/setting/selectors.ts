@@ -16,7 +16,7 @@ interface State {
       header_banner: { value: string };
       sidebar_color: { value: string };
       sidebar_type: { value: string[] };
-      sidebar_show: { value: string };
+      sidebar_show: { value: string[] };
       navbar_show: { value: string[] };
       sidebar_menu_style: { value: string };
       footer: { value: string };
@@ -25,44 +25,44 @@ interface State {
     };
   };
 }
-export const saveLocal = (state: State): String => state.setting.saveLocal;
-export const app_name = (state: State): String =>
+export const saveLocal = (state: State): string => state.setting.saveLocal;
+export const app_name = (state: State): string =>
   state.setting.setting.app_name.value;
-export const theme_scheme = (state: State): String =>
+export const theme_scheme = (state: State): string =>
   state.setting.setting.theme_scheme.value;
-export const theme_scheme_direction = (state: State): String =>
+export const theme_scheme_direction = (state: State): string =>
   state.setting.setting.theme_scheme_direction.value;
-export const theme_style_appearance = (state: State): String[] =>
+export const theme_style_appearance = (state: State): string[] =>
   state.setting.setting.theme_style_appearance.value;
-export const theme_color = (state: State): String =>
+export const theme_color = (state: State): string =>
   state.setting.setting.theme_color;
-export const theme_transition = (state: State): String =>
+export const theme_transition = (state: State): string =>
   state.setting.setting.theme_transition.value;
-export const theme_font_size = (state: State): String =>
+export const theme_font_size = (state: State): string =>
   state.setting.setting.theme_font_size.value;
-export const page_layout = (state: State): String =>
+export const page_layout = (state: State): string =>
   state.setting.setting.page_layout.value;
-export const header_navbar = (state: State): String =>
+export const header_navbar = (state: State): string =>
   state.setting.setting.header_navbar.value;
-export const card_style = (state: State): String =>
+export const card_style = (state: State): string =>
   state.setting.setting.card_style.value;
-export const header_banner = (state: State): String =>
+export const header_banner = (state: State): string =>
   state.setting.setting.header_banner.value;
-export const sidebar_color = (state: State): String =>
+export const sidebar_color = (state: State): string =>
   state.setting.setting.sidebar_color.value;
-export const sidebar_type = (state: State): String[] =>
+export const sidebar_type = (state: State): string[] =>
   state.setting.setting.sidebar_type.value;
-export const sidebar_show = (state: State): String =>
+export const sidebar_show = (state: State): string[] =>
   state.setting.setting.sidebar_show.value;
-export const navbar_show = (state: State): String[] =>
+export const navbar_show = (state: State): string[] =>
   state.setting.setting.navbar_show.value;
-export const sidebar_menu_style = (state: State): String =>
+export const sidebar_menu_style = (state: State): string =>
   state.setting.setting.sidebar_menu_style.value;
-export const footer = (state: State): String =>
+export const footer = (state: State): string =>
   state.setting.setting.footer.value;
-export const body_font_family = (state: State): String =>
+export const body_font_family = (state: State): string =>
   state.setting.setting.body_font_family.value;
-export const heading_font_family = (state: State): String =>
+export const heading_font_family = (state: State): string =>
   state.setting.setting.heading_font_family.value;
 
 export const settingObj = (state: State): typeof state.setting => state.setting;

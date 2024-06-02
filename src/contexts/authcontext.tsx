@@ -4,6 +4,7 @@ import { store } from "../store";
 import { ModulesType, TypeToken, setLoading } from "../store/services/auth";
 import { jwtDecode } from "jwt-decode";
 import { useAppDispatch } from "../hooks/hook";
+import { decryptBackData } from "../helpers/utils";
 
 export interface UserState {
   displayName?: string;
@@ -11,9 +12,10 @@ export interface UserState {
   verified?: number;
   adminCreated?: number;
   position?: string;
+  image?: string;
 }
 
-interface AuthContextState {
+export interface AuthContextState {
   isLoggedIn: boolean;
   token: string;
   user: UserState;
@@ -79,13 +81,14 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
         isLocked: user.isLocked,
         adminCreated: user.adminCreated,
         position: user.position,
+        image: decryptBackData(user.image),
       });
     } else {
       setRoles([]);
       setId("");
     }
     dispatch(setLoading(false));
-  }, [token]);
+  }, [token, isLoggedIn]);
 
   return (
     <AuthUserContext.Provider
