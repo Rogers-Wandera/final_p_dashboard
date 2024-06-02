@@ -1,41 +1,63 @@
 import { useState } from "react";
-import { Card, Col } from "react-bootstrap";
+import { Card, Col, Nav } from "react-bootstrap";
 import { Group } from "@mantine/core";
 import {
   IconSwitchHorizontal,
-  IconLogout,
   IconImageInPicture,
   IconVideo,
 } from "@tabler/icons-react";
 import "./navbar.simple.css";
 
 const data = [
-  { link: "", label: "Image Recognition", icon: IconImageInPicture },
-  { link: "", label: "Live Recognition", icon: IconVideo },
+  {
+    link: "image-recognition",
+    label: "Image Recognition",
+    icon: IconImageInPicture,
+  },
+  { link: "live-recognition", label: "Live Recognition", icon: IconVideo },
 ];
 
-const ImageClassifierLeftSide = () => {
+type leftsideprops = {
+  setEventKey: React.Dispatch<React.SetStateAction<string>>;
+  eventKey: string;
+  setSelectedDeviceId: React.Dispatch<React.SetStateAction<string | null>>;
+  setShowCapture: React.Dispatch<React.SetStateAction<boolean>>;
+};
+const ImageClassifierLeftSide = ({
+  setEventKey,
+  eventKey,
+  setSelectedDeviceId,
+  setShowCapture,
+}: leftsideprops) => {
   const [active, setActive] = useState("Image Recognition");
 
   const links = data.map((item) => (
-    <a
+    <Nav.Item
       className="link-xc"
       data-active={item.label === active || undefined}
-      href={item.link}
       key={item.label}
-      onClick={(event) => {
-        event.preventDefault();
+      onClick={() => {
         setActive(item.label);
+        setEventKey(item.link);
+        setSelectedDeviceId(null);
+        setShowCapture(false);
       }}
     >
-      <item.icon className="linkIcon-xc" stroke={1.5} />
-      <span>{item.label}</span>
-    </a>
+      <Nav.Link eventKey={item.link}>
+        <item.icon className="linkIcon-xc" stroke={1.5} />
+        <span>{item.label}</span>
+      </Nav.Link>
+    </Nav.Item>
   ));
   return (
     <Col lg="4" className="col-g-4">
       <Card>
-        <nav className="navbar-xc">
+        <Nav
+          className="navbar-xc"
+          id="recognition-nav-tabs"
+          role="tablist"
+          defaultActiveKey={eventKey}
+        >
           <div className="navbarMain-xc">
             <Group className="header-xc">Select Classification Type</Group>
             <hr />
@@ -53,7 +75,7 @@ const ImageClassifierLeftSide = () => {
               <span>Top Recognitions</span>
             </a>
           </div>
-        </nav>
+        </Nav>
       </Card>
     </Col>
   );

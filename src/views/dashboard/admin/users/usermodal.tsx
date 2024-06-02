@@ -239,6 +239,7 @@ const UserModal = ({
               <Select
                 withAsterisk={true}
                 label="Choose Gender"
+                searchable
                 data={[
                   { label: "Male", value: "Male" },
                   { label: "Female", value: "Female" },
@@ -252,6 +253,7 @@ const UserModal = ({
               <Select
                 withAsterisk={true}
                 label="Position"
+                searchable
                 data={positions}
                 {...form.getInputProps("position")}
                 leftSection={<KeyboardIcon />}
