@@ -90,7 +90,7 @@ function ImageTrainerModal({
             label="Version"
             placeholder="Pick a version"
             name="version"
-            data={["v1", "v2"]}
+            data={["v1", "v2", "v3"]}
             clearable
             {...form.getInputProps("version")}
           />

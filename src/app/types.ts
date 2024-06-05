@@ -41,6 +41,8 @@ export type recognizedperson = {
   confidence: number;
   classifierType: string;
   classifierId: number;
+  status: string;
+  match: 0 | 1;
   isActive: number;
   Person: Person;
   PersonImages: personimages[];

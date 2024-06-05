@@ -1,70 +1,146 @@
-import { Card, Group, Text, Menu, ActionIcon, Image, rem } from "@mantine/core";
-import { IconDots, IconEye } from "@tabler/icons-react";
+import {
+  Card,
+  Group,
+  Text,
+  Image,
+  Avatar,
+  Badge,
+  Tooltip,
+} from "@mantine/core";
+import { IconThumbDown, IconEye, IconThumbUp } from "@tabler/icons-react";
 import { recognizedperson } from "../../../../app/types";
-import { Carousel } from "@mantine/carousel";
 
 type Props = {
+  person: recognizedperson;
+  show: {
+    toggler: boolean;
+    slide: number;
+  };
+  setShow: React.Dispatch<
+    React.SetStateAction<{
+      toggler: boolean;
+      slide: number;
+    }>
+  >;
+  setPredictedSources: React.Dispatch<
+    React.SetStateAction<{
+      imgs: string[];
+    }>
+  >;
+  updateMatch: (
+    classifierId: number,
+    found: 1 | 0,
+    personId: string
+  ) => Promise<void>;
   people: recognizedperson[];
 };
 
-const RecognitionsDisplay = ({ people }: Props) => {
+const RecognitionsDisplay = ({
+  person,
+  show,
+  setShow,
+  setPredictedSources,
+  updateMatch,
+  people,
+}: Props) => {
+  const match = people.find((person) => person.match === 1);
+  let isPersonMatch = false;
+  if (match) {
+    if (match.Person.id === person.Person.id) {
+      isPersonMatch = true;
+    }
+  }
   return (
-    <Carousel height={500} loop withIndicators>
-      {people.map((person) => {
-        return (
-          <Carousel.Slide key={person.id}>
-            <Card withBorder shadow="sm" radius="md">
-              <Card.Section withBorder inheritPadding py="xs">
-                <Group justify="space-between">
-                  <Text fw={500}>
-                    <span>Name: {person.personName} </span>
-                    <br />
-                    <span>Confidence: {person.confidence}%</span>
-                  </Text>
-                  <Menu withinPortal position="bottom-end" shadow="sm">
-                    <Menu.Target>
-                      <ActionIcon variant="subtle" color="gray">
-                        <IconDots style={{ width: rem(16), height: rem(16) }} />
-                      </ActionIcon>
-                    </Menu.Target>
+    <Card withBorder radius="md" p={0} className="mantine-card-override1">
+      <Group wrap="nowrap" gap={0}>
+        <Image
+          src={person.PersonImages[0].imageUrl}
+          height={200}
+          alt={person.personName}
+          onClick={() => {
+            setPredictedSources({
+              imgs: person.PersonImages.map((image) => image.imageUrl),
+            });
+            setShow({ toggler: !show.toggler, slide: 1 });
+          }}
+        />
 
-                    <Menu.Dropdown>
-                      <Menu.Item
-                        leftSection={
-                          <IconEye
-                            style={{ width: rem(14), height: rem(14) }}
-                          />
-                        }
-                      >
-                        Details
-                      </Menu.Item>
-                    </Menu.Dropdown>
-                  </Menu>
-                </Group>
-              </Card.Section>
-
-              <Text mt="sm" c="dimmed" size="sm">
-                <Text span inherit c="var(--mantine-color-anchor)">
-                  <span>Ranking: {person.ranking}</span>
-                </Text>
-                <Text c="var(--mantine-color-anchor)">
-                  <span>Model: {person.modelType}</span>
-                </Text>
-              </Text>
-
-              <Card.Section mt="sm">
-                <Image
-                  //   fit="contain"
-                  radius="md"
-                  src={person.PersonImages[0].imageUrl}
-                  height={450}
+        <div className="mantine-body-override1">
+          <Group justify="flex-end">
+            <Text tt="uppercase" c="dimmed" fw={700} size="xs">
+              Name: {person.personName}
+            </Text>
+            <Tooltip
+              zIndex={1000}
+              label={`View ${person.personName}'s details`}
+            >
+              <IconEye size={25} color="green" style={{ cursor: "pointer" }} />
+            </Tooltip>
+          </Group>
+          <Text className="mantine-title-override1" mt="xs" mb="md">
+            Confidence: {person.confidence}%
+          </Text>
+          <Text className="mantine-title-override1" mt="xs" mb="md">
+            Ranking: {person.ranking}
+          </Text>
+          <Group wrap="nowrap" gap="xs">
+            <Group gap="xs" wrap="nowrap">
+              <Avatar
+                size={20}
+                src={
+                  person.PersonImages.length > 1
+                    ? person.PersonImages[1].imageUrl
+                    : person.PersonImages[0].imageUrl
+                }
+              />
+            </Group>
+            <Text tt="uppercase" c="dimmed" fw={700} size="xs">
+              Model: {person.modelType}
+            </Text>
+          </Group>
+          <Group justify="flex-end" gap="xl" mt={10}>
+            {!match && (
+              <>
+                {person.confidence >= 70 && (
+                  <Badge color="blue">Exact Match</Badge>
+                )}
+                {person.confidence <= 49 ? (
+                  <Badge color="red">Posibility</Badge>
+                ) : person.confidence <= 69 ? (
+                  <Badge color="pink">Similar</Badge>
+                ) : null}
+              </>
+            )}
+            {isPersonMatch && <Badge color="blue">Exact Match</Badge>}
+            {!match && (
+              <Tooltip label="Mark as Match">
+                <IconThumbUp
+                  size={25}
+                  onClick={() =>
+                    updateMatch(person.classifierId, 1, person.personId)
+                  }
+                  color="green"
+                  style={{ cursor: "pointer" }}
                 />
-              </Card.Section>
-            </Card>
-          </Carousel.Slide>
-        );
-      })}
-    </Carousel>
+              </Tooltip>
+            )}
+
+            {isPersonMatch && (
+              <Tooltip label="Mark as no match">
+                <IconThumbDown
+                  size={25}
+                  onClick={() =>
+                    updateMatch(person.classifierId, 0, person.personId)
+                  }
+                  color="red"
+                  style={{ cursor: "pointer" }}
+                />
+              </Tooltip>
+            )}
+          </Group>
+        </div>
+      </Group>
+    </Card>
   );
 };
 

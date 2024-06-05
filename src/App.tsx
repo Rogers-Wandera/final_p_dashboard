@@ -71,7 +71,11 @@ function App() {
         <AppStateProvider>
           <AuthUserProvider>
             <ThemeProvider theme={tabletheme}>
-              <MantineProvider>
+              <MantineProvider
+                forceColorScheme={
+                  tabletheme.palette.mode === "dark" ? "dark" : "light"
+                }
+              >
                 <ModalsProvider>
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <TableContextProvider>

@@ -8,12 +8,10 @@ type takeimageprops = {
 const TakeImage = ({ imgSrc, webcamRef }: takeimageprops) => {
   return (
     <div style={{ margin: 0 }}>
-      {imgSrc ? (
-        <img src={imgSrc} alt="webcam" />
-      ) : (
+      {!imgSrc && (
         <Webcam
-          height={400}
-          width={500}
+          height={300}
+          width={400}
           ref={webcamRef}
           screenshotFormat="image/jpeg"
           screenshotQuality={0.8}

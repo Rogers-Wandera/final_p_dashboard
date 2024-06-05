@@ -24,3 +24,17 @@
   vertical-align: baseline;
   margin: 2px;
 }
+
+.mantine-card-override1 {
+  background-color: var(--mantine-color-body);
+}
+
+.mantine-title-override1 {
+  font-weight: bold;
+  font-family: Greycliff CF, var(--mantine-font-family);
+  line-height: 1.2;
+}
+
+.mantine-body-override1 {
+  padding: var(--mantine-spacing-md);
+}

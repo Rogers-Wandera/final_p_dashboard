@@ -29,7 +29,7 @@ const ImageClassifierLeftSide = ({
   setSelectedDeviceId,
   setShowCapture,
 }: leftsideprops) => {
-  const [active, setActive] = useState("Image Recognition");
+  const [active, setActive] = useState("image-recognition");
 
   const links = data.map((item) => (
     <Nav.Item

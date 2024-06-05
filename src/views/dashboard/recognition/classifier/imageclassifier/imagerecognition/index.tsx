@@ -11,7 +11,7 @@ import { useDisclosure } from "@mantine/hooks";
 type dataprops = {
   image?: Record<string, unknown>;
   url?: string;
-  type: "url_image" | "local_image";
+  type: "url_image" | "local_image" | "blob";
   userId: string;
   predictionType: "Audio" | "Image";
 };
@@ -53,19 +53,19 @@ const ImageRecognition = ({
     }
   }, [showcapture]);
   return (
-    <Box pos="relative" p={2}>
-      <LoadingOverlay
-        visible={visible}
-        loaderProps={{
-          children: (
-            <div>
-              <Loader color="blue" type="bars" />
-              <p>processing.... please wait</p>
-            </div>
-          ),
-        }}
-      />
-      <Tab.Pane eventKey="image-recognition" id="image-recognition">
+    <Tab.Pane eventKey="image-recognition" id="image-recognition">
+      <Box pos="relative" p={2}>
+        <LoadingOverlay
+          visible={visible}
+          loaderProps={{
+            children: (
+              <div>
+                <Loader color="blue" type="bars" />
+                <p>processing.... please wait</p>
+              </div>
+            ),
+          }}
+        />
         <ImageLayout
           setFiles={setFiles}
           isValid={isValid}
@@ -81,6 +81,7 @@ const ImageRecognition = ({
           people={people}
           setPeople={setPeople}
           setUrl={setUrl}
+          url={url}
           files={files}
           open={open}
           close={close}
@@ -94,8 +95,8 @@ const ImageRecognition = ({
             </Grid.Col>
           }
         </Grid>
-      </Tab.Pane>
-    </Box>
+      </Box>
+    </Tab.Pane>
   );
 };
 
