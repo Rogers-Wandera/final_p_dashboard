@@ -353,7 +353,20 @@ const ImageLayout = ({
                 setImgSrc("");
                 setPeople([]);
               }}
-              maxSize={5 * 1024 ** 2}
+              maxSize={6 * 1024 ** 2}
+              onReject={(fileRejections) => {
+                fileRejections.forEach((fileRejection) => {
+                  let message = fileRejection.errors[0].message;
+                  if (fileRejection.errors[0].code === "file-too-large") {
+                    message =
+                      "File is too large, files should be less than 5MB";
+                  }
+                  enqueueSnackbar(message, {
+                    variant: "error",
+                    anchorOrigin: { horizontal: "right", vertical: "top" },
+                  });
+                });
+              }}
               multiple={false}
             >
               <Text ta="center">Drop images here</Text>

@@ -13,7 +13,7 @@ import { useAppState } from "../../../../../contexts/sharedcontexts";
 type dataprops = {
   image?: Record<string, unknown>;
   url?: string;
-  type: "url_image" | "local_image";
+  type: "url_image" | "local_image" | "blob";
   userId: string;
   predictionType: "Audio" | "Image";
 };

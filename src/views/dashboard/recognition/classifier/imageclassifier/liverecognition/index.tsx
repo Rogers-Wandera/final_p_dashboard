@@ -1,8 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Tab } from "react-bootstrap";
-import Webcam from "react-webcam";
 import LiveLayout from "./layout";
-import StreamLayOut from "./streamlayout";
 
 type liveprops = {
   setSelectedDeviceId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -13,7 +11,6 @@ const LiveRecognition = ({
   setSelectedDeviceId,
 }: liveprops) => {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
-  const webcamRef = useRef<Webcam>(null);
   const [checked, setChecked] = useState(true);
   const [url, setUrl] = useState("");
   const [isValid, setIsValid] = useState<null | boolean>(null);
@@ -52,13 +49,7 @@ const LiveRecognition = ({
         setIsValid={setIsValid}
         isValid={isValid}
         setUrl={setUrl}
-      />
-      <StreamLayOut
-        webcamRef={webcamRef}
         url={url}
-        isValid={isValid}
-        devices={devices}
-        selectedDeviceId={selectedDeviceId}
       />
     </Tab.Pane>
   );
