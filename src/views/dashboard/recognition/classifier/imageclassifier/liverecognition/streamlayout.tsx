@@ -61,7 +61,7 @@ const StreamLayOut = ({
                       .map((device) => (
                         <div key={device.deviceId}>
                           <h2>{device.label || `Camera ${device.deviceId}`}</h2>
-                          <canvas ref={canvasRef} width={400} height={400} />
+                          <canvas ref={canvasRef} width={500} height={400} />
                         </div>
                       ))}
                   </Grid.Col>
