@@ -1,0 +1,33 @@
+.error_root {
+  padding-top: rem(80px);
+  padding-bottom: rem(80px);
+}
+
+.error_title {
+  font-weight: 900;
+  font-size: rem(34px);
+  margin-bottom: var(--mantine-spacing-md);
+  font-family: Greycliff CF, var(--mantine-font-family);
+
+  @media (max-width: 768px) {
+    font-size: rem(32px);
+  }
+}
+
+.error_control {
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.error_mobileImage {
+  @media (min-width: 48em) {
+    display: none;
+  }
+}
+
+.error_desktopImage {
+  @media (max-width: 47.99em) {
+    display: none;
+  }
+}

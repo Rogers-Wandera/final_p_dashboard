@@ -50,15 +50,14 @@ export interface ErrorResponse {
   message: string;
 }
 
-export interface ApiResponse {
-  msg: string;
-  data?: any;
-}
-
 export interface ApiEndPointProp {
   url: string;
 }
 
+export interface ApiResponse<T> {
+  msg: string;
+  data?: T;
+}
 export const apiSlice = createApi({
   reducerPath: "apislice",
   baseQuery: fetchBaseQuery({
@@ -72,7 +71,7 @@ export const apiSlice = createApi({
     },
   }),
   endpoints: (builder) => ({
-    postData: builder.mutation<ApiResponse, PostPatchPayLoad<any>>({
+    postData: builder.mutation<ApiResponse<any>, PostPatchPayLoad<any>>({
       query: (payload) => ({
         url: payload.url,
         method: payload.method || "POST",
@@ -88,7 +87,7 @@ export const apiSlice = createApi({
         return error.data;
       },
     }),
-    deleteData: builder.mutation<ApiResponse, DeletePayLoad>({
+    deleteData: builder.mutation<ApiResponse<any>, DeletePayLoad>({
       query: (payload) => ({
         url: payload.url,
         method: "DELETE",
@@ -101,10 +100,22 @@ export const apiSlice = createApi({
         return error.data;
       },
     }),
+    getData: builder.query<ApiResponse<any>, ApiEndPointProp>({
+      query: (payload) => ({
+        url: payload.url,
+      }),
+      transformErrorResponse: (error: FetchBaseQueryError) => {
+        if ("data" in error && Array.isArray(error.data)) {
+          return error.data as ErrorResponse[];
+        }
+        return error.data;
+      },
+    }),
   }),
 });
 
-export const { useDeleteDataMutation, usePostDataMutation } = apiSlice;
+export const { useDeleteDataMutation, usePostDataMutation, useGetDataQuery } =
+  apiSlice;
 export const handleDelete = async ({
   url,
   dispatch,
