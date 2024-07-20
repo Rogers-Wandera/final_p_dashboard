@@ -60,6 +60,7 @@ type predictionanalysis = {
   daily: { count: number; match: number };
   todaydata: todaypreddata[];
   predictioncount: { [key: string]: number };
+  usercounts: { [key: string]: number };
 };
 
 type todaypreddata = {
@@ -102,6 +103,7 @@ const Dashboard = memo((_) => {
     monthly: [],
     todaydata: [],
     predictioncount: {},
+    usercounts: {},
   });
   const user: UserState = authUser.user;
   const dispatch = useAppDispatch();
@@ -881,17 +883,18 @@ const Dashboard = memo((_) => {
                 </div>
                 <div className="card" data-aos="fade-up" data-aos-delay="500">
                   <div className="text-center card-body d-flex justify-content-around">
-                    <div>
-                      <h2 className="mb-2">
-                        750<small>K</small>
-                      </h2>
-                      <p className="mb-0 text-gray">Website Visitors</p>
-                    </div>
-                    <hr className="hr-vertial" />
-                    <div>
-                      <h2 className="mb-2">7,500</h2>
-                      <p className="mb-0 text-gray">New Customers</p>
-                    </div>
+                    {Object.keys(predictions.usercounts).length > 0 &&
+                      Object.keys(predictions.usercounts).map((key) => {
+                        return (
+                          <div key={key}>
+                            <h2 className="mb-2">
+                              {predictions.usercounts[key]}
+                            </h2>
+                            <p className="mb-0 text-gray">{key}</p>
+                          </div>
+                        );
+                      })}
+                    {/* <hr className="hr-vertial" /> */}
                   </div>
                 </div>
               </Col>

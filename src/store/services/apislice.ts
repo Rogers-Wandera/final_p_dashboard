@@ -54,7 +54,7 @@ export interface ApiEndPointProp {
   url: string;
 }
 
-export interface ApiResponse<T> {
+export interface ApiResponse<T = any> {
   msg: string;
   data?: T;
 }

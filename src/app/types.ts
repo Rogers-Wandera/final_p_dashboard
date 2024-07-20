@@ -16,6 +16,14 @@ export type personimages = {
   isActive: number;
 };
 
+export type personaudio = {
+  id: number;
+  audioUrl: string;
+  personId: string;
+  publicId: string;
+  isActive: number;
+};
+
 export type Person = {
   id: string;
   firstName: string;
@@ -47,4 +55,5 @@ export type recognizedperson = {
   Person: Person;
   PersonImages: personimages[];
   PersonMeta: personmeta[];
+  PersonAudios: personaudio[];
 };

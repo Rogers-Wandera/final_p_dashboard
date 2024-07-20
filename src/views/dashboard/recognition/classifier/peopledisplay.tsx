@@ -9,6 +9,7 @@ import {
 } from "@mantine/core";
 import { IconThumbDown, IconEye, IconThumbUp } from "@tabler/icons-react";
 import { recognizedperson } from "../../../../app/types";
+import AudioView from "../../admin/people/manage/audio";
 
 type Props = {
   person: recognizedperson;
@@ -16,18 +17,18 @@ type Props = {
     toggler: boolean;
     slide: number;
   };
-  setShow: React.Dispatch<
+  setShow?: React.Dispatch<
     React.SetStateAction<{
       toggler: boolean;
       slide: number;
     }>
   >;
-  setPredictedSources: React.Dispatch<
+  setPredictedSources?: React.Dispatch<
     React.SetStateAction<{
       imgs: string[];
     }>
   >;
-  updateMatch: (
+  updateMatch?: (
     classifierId: number,
     found: 1 | 0,
     personId: string
@@ -38,9 +39,9 @@ type Props = {
 const RecognitionsDisplay = ({
   person,
   show,
-  setShow,
-  setPredictedSources,
   updateMatch,
+  setShow = () => {},
+  setPredictedSources = () => {},
   people,
 }: Props) => {
   const match = people.find((person) => person.match === 1);
@@ -117,6 +118,7 @@ const RecognitionsDisplay = ({
                 <IconThumbUp
                   size={25}
                   onClick={() =>
+                    updateMatch &&
                     updateMatch(person.classifierId, 1, person.personId)
                   }
                   color="green"
@@ -130,6 +132,7 @@ const RecognitionsDisplay = ({
                 <IconThumbDown
                   size={25}
                   onClick={() =>
+                    updateMatch &&
                     updateMatch(person.classifierId, 0, person.personId)
                   }
                   color="red"
