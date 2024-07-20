@@ -1,35 +1,29 @@
 import { useState } from "react";
 import { Card, Col, Nav } from "react-bootstrap";
 import { Group } from "@mantine/core";
-import {
-  IconSwitchHorizontal,
-  IconImageInPicture,
-  IconVideo,
-} from "@tabler/icons-react";
-import "./navbar.simple.css";
+import SpatialTrackingIcon from "@mui/icons-material/SpatialTracking";
+import { IconSwitchHorizontal, IconDeviceAudioTape } from "@tabler/icons-react";
+import "../imageclassifier/navbar.simple.css";
 
 const data = [
   {
-    link: "image-recognition",
-    label: "Image Recognition",
-    icon: IconImageInPicture,
+    link: "audio-recognition",
+    label: "Audio Recognition",
+    Icon: <IconDeviceAudioTape className="linkIcon-xc" />,
   },
-  { link: "live-recognition", label: "Live Recognition", icon: IconVideo },
+  {
+    link: "liveaudio-recognition",
+    label: "Live Recognition",
+    Icon: <SpatialTrackingIcon className="linkIcon-xc" />,
+  },
 ];
 
 type leftsideprops = {
   setEventKey: React.Dispatch<React.SetStateAction<string>>;
   eventKey: string;
-  setSelectedDeviceId: React.Dispatch<React.SetStateAction<string | null>>;
-  setShowCapture: React.Dispatch<React.SetStateAction<boolean>>;
 };
-const ImageClassifierLeftSide = ({
-  setEventKey,
-  eventKey,
-  setSelectedDeviceId,
-  setShowCapture,
-}: leftsideprops) => {
-  const [active, setActive] = useState("image-recognition");
+const AudioClassifierLeftSide = ({ setEventKey, eventKey }: leftsideprops) => {
+  const [active, setActive] = useState("Image Recognition");
 
   const links = data.map((item) => (
     <Nav.Item
@@ -39,12 +33,10 @@ const ImageClassifierLeftSide = ({
       onClick={() => {
         setActive(item.label);
         setEventKey(item.link);
-        setSelectedDeviceId(null);
-        setShowCapture(false);
       }}
     >
       <Nav.Link eventKey={item.link}>
-        <item.icon className="linkIcon-xc" stroke={1.5} />
+        {item.Icon}
         <span>{item.label}</span>
       </Nav.Link>
     </Nav.Item>
@@ -81,4 +73,4 @@ const ImageClassifierLeftSide = ({
   );
 };
 
-export default ImageClassifierLeftSide;
+export default AudioClassifierLeftSide;

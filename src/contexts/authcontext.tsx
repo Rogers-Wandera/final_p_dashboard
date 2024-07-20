@@ -53,6 +53,9 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
   const [id, setId] = useState<string>("");
   const [user, setUser] = useState<UserState>({} as UserState);
   const dispatch = useAppDispatch();
+  const session = useSelector(
+    (state: RootState) => state.appState.defaultstate.session
+  );
   const isLoggedIn = useSelector(
     (state: RootState) => state.appState.authuser.isLoggedIn
   );
@@ -88,7 +91,7 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
       setId("");
     }
     dispatch(setLoading(false));
-  }, [token, isLoggedIn]);
+  }, [token, isLoggedIn, dispatch, session]);
 
   return (
     <AuthUserContext.Provider

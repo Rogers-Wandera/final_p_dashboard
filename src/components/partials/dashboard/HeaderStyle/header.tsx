@@ -95,10 +95,12 @@ const Header = memo((_) => {
   });
 
   useEffect(() => {
-    if (Object.keys(modules)) {
-      const linkmodules = Object.values(modules);
-      const flatarray = linkmodules.reduce((a, b) => a.concat(b), []);
-      setModuleLinks(flatarray);
+    if (modules) {
+      if (Object.keys(modules)) {
+        const linkmodules = Object.values(modules);
+        const flatarray = linkmodules.reduce((a, b) => a.concat(b), []);
+        setModuleLinks(flatarray);
+      }
     }
   }, [modules]);
   return (

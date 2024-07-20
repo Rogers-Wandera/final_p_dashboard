@@ -3,7 +3,6 @@ import EntryApp from "./Entryapp";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Login from "./views/auth/login";
 import RecoverPassword from "./views/auth/recoverpw";
-// import { IndexRouters } from "./router/index";
 import { DefaultRouter } from "./router/default-router";
 import AppStateProvider from "./contexts/sharedcontexts";
 import { SnackbarProvider } from "notistack";
@@ -71,7 +70,11 @@ function App() {
         <AppStateProvider>
           <AuthUserProvider>
             <ThemeProvider theme={tabletheme}>
-              <MantineProvider>
+              <MantineProvider
+                forceColorScheme={
+                  tabletheme.palette.mode === "dark" ? "dark" : "light"
+                }
+              >
                 <ModalsProvider>
                   <LocalizationProvider dateAdapter={AdapterDateFns}>
                     <TableContextProvider>
