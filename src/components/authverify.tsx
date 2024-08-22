@@ -46,7 +46,7 @@ const AuthVerify = (props: any) => {
   const interval = useInterval(OnLogOutUser, 600000);
   useEffect(() => {
     const jwt = parseJwt(authUser.token);
-    if (authUser.token.length > 0) {
+    if (authUser.token && authUser.token !== "") {
       interval.start();
       if (isLoggedOut) {
         interval.toggle;

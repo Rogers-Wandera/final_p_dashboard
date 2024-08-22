@@ -30,7 +30,7 @@ const HandleAuthSockets = ({ socket, authuser, dispatch }: authsocketprops) => {
   };
 
   const handleOnlineStatus = (data: { userId: string; online: boolean }) => {
-    if (isLoggedIn && token !== "") {
+    if (token && isLoggedIn && token !== "") {
       if (data.userId === id) {
         dispatch(setOnline(data.online));
       }
@@ -43,7 +43,7 @@ const HandleAuthSockets = ({ socket, authuser, dispatch }: authsocketprops) => {
   socket.on("loguserout", handleLogUserOut);
   socket.on("onlinestatus", handleOnlineStatus);
   socket.on("login", OnloginHandle);
-  if (token.length > 0 && isLoggedIn) {
+  if (token && token !== "" && isLoggedIn) {
     socket.emit("userlogin", { userId: id });
     socket.emit("usertoken", { token: token });
     socket.on("getusertoken", () => {

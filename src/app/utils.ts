@@ -2,7 +2,7 @@ import { jwtDecode } from "jwt-decode";
 import { TypeToken } from "../store/services/auth";
 
 export function isTokenExpired(token: string, threshhold = 20) {
-  if (token.length <= 0) {
+  if (!token && token === "") {
     return true;
   }
   try {
@@ -11,7 +11,6 @@ export function isTokenExpired(token: string, threshhold = 20) {
     const timeLeft = decodedToken.exp - currentTime;
     return timeLeft < threshhold * 60;
   } catch (error) {
-    console.log("error decoding token ", error);
     return true;
   }
 }

@@ -59,7 +59,7 @@ function EntryApp() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (token !== "") {
+    if (token !== "" && token !== null) {
       dispatch(fetchUserLinks());
     }
   }, []);

@@ -484,7 +484,7 @@ const Dashboard = memo((_) => {
           </Col>
           <Col md="12" lg="8">
             <Row>
-              <Col md="12">
+              {/* <Col md="12">
                 <div className="card" data-aos="fade-up" data-aos-delay="800">
                   <div className="flex-wrap card-header d-flex justify-content-between">
                     <div className="header-title">
@@ -558,7 +558,7 @@ const Dashboard = memo((_) => {
                     />
                   </div>
                 </div>
-              </Col>
+              </Col> */}
               <Col md="12" xl="6">
                 <div className="card" data-aos="fade-up" data-aos-delay="900">
                   <div className="flex-wrap card-header d-flex justify-content-between">
@@ -898,7 +898,7 @@ const Dashboard = memo((_) => {
                   </div>
                 </div>
               </Col>
-              <Col md="12">
+              {/* <Col md="12">
                 <div className="card" data-aos="fade-up" data-aos-delay="600">
                   <div className="flex-wrap card-header d-flex justify-content-between">
                     <div className="header-title">
@@ -957,7 +957,7 @@ const Dashboard = memo((_) => {
                     </div>
                   </div>
                 </div>
-              </Col>
+              </Col> */}
             </Row>
           </Col>
         </Row>

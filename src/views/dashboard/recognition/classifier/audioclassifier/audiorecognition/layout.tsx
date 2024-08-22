@@ -67,7 +67,6 @@ const LayOut = ({
       if ("error" in response) {
         throw response.error;
       }
-      console.log(response.data);
       const resdata = response.data.data as recognizedperson[];
       setPeople(resdata);
       close();

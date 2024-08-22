@@ -73,7 +73,7 @@ const AuthUserProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     dispatch(setLoading(true));
-    if (token !== "") {
+    if (token && token !== "") {
       const decoded: TypeToken = jwtDecode(token);
       const { user } = decoded;
       setRoles(decoded.user.roles);
