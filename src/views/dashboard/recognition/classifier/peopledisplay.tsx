@@ -9,6 +9,8 @@ import {
 } from "@mantine/core";
 import { IconThumbDown, IconEye, IconThumbUp } from "@tabler/icons-react";
 import { recognizedperson } from "../../../../app/types";
+import { encryptUrl } from "../../../../helpers/utils";
+import { useNavigate } from "react-router-dom";
 import AudioView from "../../admin/people/manage/audio";
 
 type Props = {
@@ -44,6 +46,7 @@ const RecognitionsDisplay = ({
   setPredictedSources = () => {},
   people,
 }: Props) => {
+  const navigate = useNavigate();
   const match = people.find((person) => person.match === 1);
   let isPersonMatch = false;
   if (match) {
@@ -51,6 +54,10 @@ const RecognitionsDisplay = ({
       isPersonMatch = true;
     }
   }
+  const personid = encryptUrl(person.Person.id);
+  const HandleNavigate = () => {
+    navigate(`/dashboard/admin/persons/manage/${personid}`);
+  };
   return (
     <Card withBorder radius="md" p={0} className="mantine-card-override1">
       <Group wrap="nowrap" gap={0}>
@@ -72,6 +79,7 @@ const RecognitionsDisplay = ({
               Name: {person.personName}
             </Text>
             <Tooltip
+              onClick={HandleNavigate}
               zIndex={1000}
               label={`View ${person.personName}'s details`}
             >
@@ -143,6 +151,9 @@ const RecognitionsDisplay = ({
           </Group>
         </div>
       </Group>
+      {person.classifierType === "Audio" && (
+        <AudioView type="url" id="" url={person.PersonAudios[1].audioUrl} />
+      )}
     </Card>
   );
 };

@@ -1,12 +1,10 @@
 import { useState } from "react";
 import { Card, Col, Nav } from "react-bootstrap";
 import { Group } from "@mantine/core";
-import {
-  IconSwitchHorizontal,
-  IconImageInPicture,
-  IconVideo,
-} from "@tabler/icons-react";
+import { IconImageInPicture, IconVideo } from "@tabler/icons-react";
 import "./navbar.simple.css";
+import { Person } from "../../../../../app/types";
+import LiveRecognitionData from "./liverecognition/livedata";
 
 const data = [
   {
@@ -22,12 +20,16 @@ type leftsideprops = {
   eventKey: string;
   setSelectedDeviceId: React.Dispatch<React.SetStateAction<string | null>>;
   setShowCapture: React.Dispatch<React.SetStateAction<boolean>>;
+  livedata: Partial<Person>;
+  show: boolean;
 };
 const ImageClassifierLeftSide = ({
   setEventKey,
   eventKey,
   setSelectedDeviceId,
   setShowCapture,
+  livedata,
+  show,
 }: leftsideprops) => {
   const [active, setActive] = useState("image-recognition");
 
@@ -63,18 +65,8 @@ const ImageClassifierLeftSide = ({
             <hr />
             {links}
           </div>
-
+          <LiveRecognitionData show={show} data={livedata} />
           <hr />
-          <div className="footer-xc">
-            <a
-              href="#"
-              className="link-xc"
-              onClick={(event) => event.preventDefault()}
-            >
-              <IconSwitchHorizontal className="linkIcon" stroke={1.5} />
-              <span>Top Recognitions</span>
-            </a>
-          </div>
         </Nav>
       </Card>
     </Col>

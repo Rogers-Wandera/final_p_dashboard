@@ -32,7 +32,7 @@ const Footer = (props: footerprops) => {
               ></path>
             </svg>
           </span>{" "}
-          by <Link to="mailto:rogerrisha@gmail.com">RC TECH</Link>.
+          by <Link to="mailto:rogerrisha@gmail.com">RTECH</Link>.
         </div>
       </div>
     </footer>

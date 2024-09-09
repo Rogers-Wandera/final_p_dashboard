@@ -44,6 +44,7 @@ import Person from "../views/dashboard/admin/people/person";
 import ManagePerson from "../views/dashboard/admin/people/manageperson";
 import MainClassifier from "../views/dashboard/recognition/classifier/main";
 import AuthenticatedTrainer from "../views/dashboard/recognition/trainer/trainer";
+import PeopleView from "../views/dashboard/recognition/classifier/peopleview";
 
 export const DefaultRouter = [
   {
@@ -93,6 +94,10 @@ export const DefaultRouter = [
       {
         path: "dashboard/admin/persons/manage/:personId",
         element: <ManagePerson />,
+      },
+      {
+        path: "dashboard/recognition/person/:personId",
+        element: <PeopleView />,
       },
       {
         path: "dashboard/app/user-profile",

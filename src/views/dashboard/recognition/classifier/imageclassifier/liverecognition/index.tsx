@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 import { Tab } from "react-bootstrap";
 import LiveLayout from "./layout";
+import { Person } from "../../../../../../app/types";
 
 type liveprops = {
   setSelectedDeviceId: React.Dispatch<React.SetStateAction<string | null>>;
   selectedDeviceId: string | null;
+  setlivedata: React.Dispatch<React.SetStateAction<Partial<Person>>>;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  show: boolean;
 };
 const LiveRecognition = ({
   selectedDeviceId,
   setSelectedDeviceId,
+  setlivedata,
+  setShow,
+  show,
 }: liveprops) => {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [checked, setChecked] = useState(true);
@@ -50,6 +57,9 @@ const LiveRecognition = ({
         isValid={isValid}
         setUrl={setUrl}
         url={url}
+        setlivedata={setlivedata}
+        setShow={setShow}
+        show={show}
       />
     </Tab.Pane>
   );

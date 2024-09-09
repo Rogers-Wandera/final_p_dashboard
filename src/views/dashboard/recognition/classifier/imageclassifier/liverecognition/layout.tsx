@@ -9,6 +9,7 @@ import { enqueueSnackbar } from "notistack";
 import { useAppState } from "../../../../../../contexts/sharedcontexts";
 import { usePostDataMutation } from "../../../../../../store/services/apislice";
 import { useSelector } from "react-redux";
+import { Person } from "../../../../../../app/types";
 
 type layout = {
   setSelectedDeviceId: React.Dispatch<React.SetStateAction<string | null>>;
@@ -20,6 +21,9 @@ type layout = {
   isValid: boolean | null;
   setUrl: React.Dispatch<React.SetStateAction<string>>;
   url: string;
+  setlivedata: React.Dispatch<React.SetStateAction<Partial<Person>>>;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
+  show: boolean;
 };
 
 const validateUrl = (value: string) => {
@@ -41,6 +45,8 @@ const LiveLayout = ({
   checked,
   selectedDeviceId,
   url,
+  setlivedata,
+  setShow,
 }: layout) => {
   const [capturing, setCapturing] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -76,6 +82,7 @@ const LiveLayout = ({
           stream: true,
           token,
         });
+        setShow(true);
       }
     } catch (error) {
       handleError(error, appstate, enqueueSnackbar);
@@ -120,7 +127,11 @@ const LiveLayout = ({
     setCapturing(true);
   };
 
-  const handleVideoStreamData = (data: { userId: string; frame: string }) => {
+  const handleVideoStreamData = (data: {
+    userId: string;
+    frame: string;
+    userdata: Partial<Person>;
+  }) => {
     if (id === data.userId) {
       const image = new Image();
       image.src = `data:image/jpeg;base64,${data.frame}`;
@@ -129,6 +140,7 @@ const LiveLayout = ({
         image.onload = () => {
           context?.drawImage(image, 0, 0);
         };
+        setlivedata(data.userdata);
       }
     }
   };
@@ -173,6 +185,8 @@ const LiveLayout = ({
               canvasRef.current = null;
               if (capturing) {
                 HandleStopVideoCapture();
+                setlivedata({});
+                setShow(false);
               }
             }}
             // onClear={() => HandleStopVideoCapture()}
@@ -211,6 +225,8 @@ const LiveLayout = ({
         selectedDeviceId={selectedDeviceId}
         HandleStartVideoCapture={HandleStartVideoCapture}
         HandleStopVideoCapture={HandleStopVideoCapture}
+        setShow={setShow}
+        setlivedata={setlivedata}
       />
     </Grid>
   );

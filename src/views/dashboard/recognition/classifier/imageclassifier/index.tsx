@@ -3,7 +3,7 @@ import ImageClassifierLeftSide from "./leftside";
 import { useState } from "react";
 import ImageRecognition from "./imagerecognition";
 import LiveRecognition from "./liverecognition";
-import { recognizedperson } from "../../../../../app/types";
+import { Person, recognizedperson } from "../../../../../app/types";
 import { FileWithPath } from "@mantine/dropzone";
 import { usePostDataMutation } from "../../../../../store/services/apislice";
 import { handleError } from "../../../../../helpers/utils";
@@ -25,6 +25,8 @@ const ImagesClassifier = () => {
   const [files, setFiles] = useState<FileWithPath[]>([]);
   const [postImage] = usePostDataMutation({});
   const appState = useAppState();
+  const [livedata, setlivedata] = useState<Partial<Person>>({});
+  const [show, setShow] = useState(false);
 
   const HandlePredictions = async (postdata: dataprops) => {
     try {
@@ -49,6 +51,8 @@ const ImagesClassifier = () => {
             eventKey={eventKey}
             setSelectedDeviceId={setSelectedDeviceId}
             setShowCapture={setShowCapture}
+            livedata={livedata}
+            show={show}
           />
           <Col lg="8">
             <Tab.Content>
@@ -64,6 +68,9 @@ const ImagesClassifier = () => {
               <LiveRecognition
                 selectedDeviceId={selectedDeviceId}
                 setSelectedDeviceId={setSelectedDeviceId}
+                setlivedata={setlivedata}
+                setShow={setShow}
+                show={show}
               />
             </Tab.Content>
           </Col>

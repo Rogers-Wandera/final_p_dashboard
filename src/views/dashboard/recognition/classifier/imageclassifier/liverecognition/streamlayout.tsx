@@ -1,6 +1,7 @@
 import ReactPlayer from "react-player";
 import { Box, Button, Grid } from "@mantine/core";
 import { Typography } from "@mui/material";
+import { Person } from "../../../../../../app/types";
 
 type layout = {
   devices: MediaDeviceInfo[];
@@ -11,6 +12,8 @@ type layout = {
   canvasRef: React.MutableRefObject<HTMLCanvasElement | null>;
   HandleStartVideoCapture: () => void;
   HandleStopVideoCapture: () => void;
+  setlivedata: React.Dispatch<React.SetStateAction<Partial<Person>>>;
+  setShow: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const StreamLayOut = ({
@@ -22,6 +25,8 @@ const StreamLayOut = ({
   capturing,
   HandleStartVideoCapture,
   HandleStopVideoCapture,
+  setShow,
+  setlivedata,
 }: layout) => {
   return (
     <Box>
@@ -35,7 +40,14 @@ const StreamLayOut = ({
         {selectedDeviceId && (
           <div style={{ margin: "1rem 1rem" }}>
             {capturing ? (
-              <Button onClick={HandleStopVideoCapture} variant="gradient">
+              <Button
+                onClick={() => {
+                  HandleStopVideoCapture();
+                  setlivedata({});
+                  setShow(false);
+                }}
+                variant="gradient"
+              >
                 End Live Stream
               </Button>
             ) : (
